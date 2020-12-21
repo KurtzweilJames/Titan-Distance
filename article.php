@@ -1,6 +1,6 @@
 <?php include("db.php"); ?>
 <?php 
-
+$template = "news";
 $id = htmlspecialchars($_GET["id"]);
 $slug = htmlspecialchars($_GET["slug"]);
 
@@ -61,12 +61,19 @@ if(!empty($meet)) {
     <nav aria-label="meta">
         <ol class="meta">
             <li class="meta-item"><i class="fas fa-calendar-alt"></i> <?php echo $date;?></li>
-            <li class="meta-item"><i class="fas fa-user"></i> <?php echo $author;?></li>
+            <?php
+            if (!empty($author)) {
+                echo "<li class='meta-item'><i class='fas fa-user'></i>".$author."</li>";
+            }
+            ?>
             <li class="meta-item"><i class="fas fa-folder"></i> <?php echo $cat;?></li>
             <li class="meta-item"><i class="fas fa-newspaper"></i> <a href="/release?id=<?php echo $id; ?>">Print
                     Release</a></li>
-            <li class="meta-item"><i class="fas fa-running"></i>
-                <?php echo "<a href='/meet/".$meet."'>".$meetname."</a>";?></li>
+            <?php
+            if (!empty($meet)) {
+                echo "<li class='meta-item'><i class='fas fa-running'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
+            }
+            ?>
         </ol>
     </nav>
 

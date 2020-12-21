@@ -1,6 +1,7 @@
 <?php include("db.php"); ?>
 <?php
 $id = htmlspecialchars($_GET["id"]);
+$template = "meet";
 
 if (strpos($id, '/') !== false) {
     list($slug, $year) = explode("/", $id, 2);
@@ -42,6 +43,7 @@ $notes = $row['Notes'];
 $season = $row['Season'];
 $live = $row['Live'];
 $results = $row['Results'];
+$official = $row['Official'];
 
 //Two Day
 if (!empty($row['Day2Time'])) {
@@ -49,7 +51,6 @@ if (!empty($row['Day2Time'])) {
 }
 
 //Sport
-if ($date > $todaydate) {
 $xc = mysqli_query($con,"SELECT * FROM overallxc WHERE meet='". $id ."'");
 $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE meet='". $id ."'");
 if (mysqli_num_rows($xc) > 0) {
@@ -60,14 +61,14 @@ if (mysqli_num_rows($xc) > 0) {
     $prepost = "post";
 } else {
     $prepost = "pre";
+    if (strpos($season, 'Cross Country') !== false){
+        $sport = "xc";
+    } else {
+        $sport = "tf";
+    }
 }
-} else {
-if (strpos($season, 'Cross Country') !== false){
-    $sport = "xc";
-} else {
-    $sport = "tf";
-}
-}
+
+
 
 //Photos
 if (!empty($row['Photos'])) {
@@ -82,6 +83,8 @@ if (!empty($row['Badge'])) {
         $badge = " <span class='badge badge-csl'>CSL</span>";
     } else if ($row['Badge'] == 2) {
         $badge = " <span class='badge badge-ihsa'>IHSA</span>";
+    } else if ($row['Badge'] == 3) {
+        $badge = " <span class='badge badge-info'>TT</span>";
     }
 }
 
@@ -151,7 +154,7 @@ include("header.php");
                         }
                         if (!empty($live) && $prepost == "pre"){
                             echo "<a class='nav-link' id='live' href='".$live."' role='tab' target='_blank'>LIVE Results <i class='fas fa-external-link-alt'></i></a>";
-                            //NEED TO ADD DROPDOWN
+                            $dropdown[] = "<option value='link-".$live."' name='live'>LIVE Results <i class='fas fa-external-link-alt'></option>";
                         }
 
                         if (!empty($photos) && $prepost == "post"){
@@ -161,17 +164,17 @@ include("header.php");
 
                         if (!empty($results)){
                             echo "<a class='nav-link' id='download' href='".$results."' role='tab' target='_blank'>Downloadable Results <i class='fas fa-external-link-alt'></i></a>";
-                            //NEED TO ADD DROPDOWN
+                            $dropdown[] = "<option value='link-".$results."' name='results'>Downloadable Results <i class='fas fa-external-link-alt'></option>";
                         }
 
                         if (!empty($athnet)){
                             echo "<a class='nav-link' id='ath-net' href='".$athnet."' role='tab' target='_blank'>Athletic.net <i class='fas fa-external-link-alt'></i></a>";
-                            //NEED TO ADD DROPDOWN
+                            $dropdown[] = "<option value='link-".$athnet."' name='athnet'>Athletic.net <i class='fas fa-external-link-alt'></option>";
                         }
 
                         if (!empty($results)){
                             echo "<a class='nav-link' id='report' href='https://forms.gle/NQjahvTVmbNnsASo8' role='tab' target='_blank'>Request Correction <i class='fas fa-external-link-alt'></i></a>";
-                            //NEED TO ADD DROPDOWN
+                            $dropdown[] = "<option value='link-https://forms.gle/NQjahvTVmbNnsASo8' name='report'>Request Correction <i class='fas fa-external-link-alt'></option>";
                         }
                         ?>
 
@@ -238,7 +241,7 @@ echo "<table class='table table-sm'>";
 echo "<h3>".$teams[$l]."</h3>";
 while($row = mysqli_fetch_array($result)) {
     if ($row['school'] == "Glenbrook South" OR $row['school'] == "Glenview (Glenbrook South)") {
-        echo "<tr class='table-info'>";
+        echo "<tr class='row-highlight'>";
     } else {
     echo "<tr>";
     }
@@ -266,7 +269,7 @@ if (mysqli_num_rows($result) <= 0) {
                         $result = mysqli_query($con,"SELECT * FROM locations WHERE name='". $location. "'");
                         if(mysqli_num_rows($result) > 0) {
                         while($row = mysqli_fetch_array($result)) {
-                            if (!empty($row['xccourse'])) {
+                            if (!empty($row['xccourse']) && $sport == "xc") {
                             echo "<img class='img-fluid' src='/assets/images/course-maps/".$row['xccourse']."'>";
                             echo "<hr>";
                             }
@@ -306,6 +309,15 @@ if (mysqli_num_rows($result) <= 0) {
                         }
 */
                         echo"</script>";
+                            }
+                            if (!empty($row['gmap'])) {
+                                echo "<div class='text-center'>";
+                                echo "<a class='btn btn-primary' href='https://www.google.com/maps/search/?api=1&query=".$row['name']."&query_place_id=".$row['gmap']."' role='button' target='_blank'>Open in Google Maps</a>";
+                                echo "</div>";
+                            } else {
+                                echo "<div class='text-center'>";
+                                echo "<a class='btn btn-primary' href='https://maps.google.com/?q=" . $location . "' role='button' target='_blank'>Open in Google Maps</a>";
+                                echo "</div>";
                             }
                         }
                     } else {
@@ -347,22 +359,49 @@ if (mysqli_num_rows($result) <= 0) {
                             $splits = 0;
                         }
                         }
+                    echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
                     if ($sport == "xc") {    
                     echo "<h1>".$teams[$l]." Results (".$distance.")</h1>";
                     } else {
                     echo "<h1>".$teams[$l]." Results</h1>";   
                     }
+
+                    if($splits == 1) {
+                        echo "<div class='d-none d-md-block'>";
+                        echo "<div class='custom-control custom-switch'>";
+                        echo "<input type='checkbox' class='custom-control-input' onChange='showSplits(this.checked)' id='splitsSwitch' checked>";
+                        echo "<label class='custom-control-label' for='splitsSwitch'>Toggle Splits</label>";
+                        echo "</div>";
+                        echo "<div class='custom-control custom-switch'>";
+                        echo "<input type='checkbox' class='custom-control-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
+                        echo "<label class='custom-control-label' for='highlightSwitch'>Toggle Highlight</label>";
+                        echo "</div>";
+                        echo "</div>";
+                    }
+
+                    echo "</div>";
+
+                    if ($official == 1) {
+                        echo "<span class='badge badge-success'>Official Results (F.A.T.)</span>";
+                    } else if ($official == 2) {
+                        echo "<span class='badge badge-warning'>Official Results (Hand Timed)</span>";
+                    } else if ($official == 0) {
+                        echo "<span class='badge badge-danger'>Unofficial Results</span>";
+                    }
+
                     if ($sport == "xc") {
                         echo "<div class='table-responsive'>";
                         echo "<table class='table table-condensed table-sm dataTable' id='".$abbreviations[$l]."Results'>";
                         echo "<thead>
-                        <tr>
-                        <th>Place</th>
-                        <th>Name</th>
+                        <tr>";
+                        if (!empty($row['place'])){
+                        echo "<th>Place</th>";
+                        }
+                        echo "<th>Name</th>
                         <th>Grade</th> <th>Time</th>
                         <th>Team</th>";
                     if ($splits == 1) {
-                        echo "<th>1 Mile</th>";
+                        echo "<th>Team</th><th>1 Mile</th>";
                         if ($distance == "2mi") {
                         echo"<th>Finish</th>";
                         } else {
@@ -374,10 +413,10 @@ if (mysqli_num_rows($result) <= 0) {
                         </thead>";
                         echo "<tbody>";
 
-                        $result = mysqli_query($con,"SELECT * FROM overallxc WHERE meet='". $id ."' AND level = '".$l."' ORDER BY place IS NULL, place ASC");
+                        $result = mysqli_query($con,"SELECT * FROM overallxc WHERE meet='". $id ."' AND level = '".$l."' ORDER BY place IS NULL, place ASC, time ASC");
                         while($row = mysqli_fetch_array($result)) {
 
-$percent = $row['percent']."%";
+                            $percent = $row['percent']."%";
 
                             if ($row['grade'] == 12) {
                                 $grade = "Sr.";
@@ -392,11 +431,15 @@ $percent = $row['percent']."%";
                             }
                             
                             if ($row['school'] == "Glenbrook South" OR $row['school'] == "Glenview (Glenbrook South)" OR $row['school'] == "Glenbrook South*"){
-                                echo "<tr class='table-info clickable-row' class='clickable-row' data-href='/athlete/".$row['profile']."'>";
-                                echo "<th data-toggle='tooltip' data-placement='top' title='".$percent."'>" . $row['place'] . "</th>";
+                                echo "<tr class='row-highlight clickable-row' data-href='/athlete/".$row['profile']."'>";
+                                if (!empty($row['place'])) {
+                                    echo "<th data-toggle='tooltip' data-placement='top' title='".$percent."'>" . $row['place'] . "</th>";
+                                }
                             } else {
                                 echo "<tr>";
+                                if (!empty($row['place'])) {
                                 echo "<th>".$row['place'] . "</th>";
+                                }
                             }
 
                             if (!empty($row['profile'])){
@@ -562,7 +605,32 @@ var tab;
 function selectTab(str) {
     var dropdown = document.getElementById('selectTab');
     tab = "#" + dropdown.options[dropdown.selectedIndex].value;
-    $(tab + "-tab").trigger('click');
+    if (tab.includes("link-") == false) {
+        $(tab + "-tab").trigger('click');
+    } else {
+        var link = tab.substring(6);
+        console.log(link);
+        window.open(link, '_blank');
+    }
+}
+
+function showSplits(c) {
+    if (c == true) {} else if (c == false) {}
+}
+
+function showHighlight(c) {
+    if (c == true) {
+        var rows = document.querySelectorAll(".row-nohighlight");
+        for (var d = 0; d < rows.length; d++) {
+            rows[d].classList.replace("row-nohighlight", "row-highlight");
+        }
+    } else if (c == false) {
+        var rows = document.querySelectorAll(".row-highlight");
+        for (var d = 0; d < rows.length; d++) {
+            rows[d].classList.replace("row-highlight", "row-nohighlight");
+        }
+    }
+
 }
 </script>
 <?php include("footer.php"); ?>
