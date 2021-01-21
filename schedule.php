@@ -10,7 +10,7 @@ $result = mysqli_query($con,"SELECT * FROM series");
 <section id="content">
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-2">
-            <i>*Schedule is weather-pending (and pandemic-pending for 2020) and subject to change.</i>
+            <i>*Schedule is subject to change.</i>
             <button type="button" class="btn btn-primary btn-sm text-center" data-toggle="modal"
                 data-target="#addModal">
                 <i class="fas fa-calendar-plus"></i> Add to Calendar
@@ -49,10 +49,23 @@ while($row = mysqli_fetch_array($result)) {
     $meethome = "/meet/" . $row['id'];
     $home = "<a href='". $meethome . "' class='btn btn-primary' role='button' aria-pressed='true'><i class='fas fa-home'></i></a>";
     
+            //Badge
+            if (!empty($row['Badge'])) {
+                if ($row['Badge'] == 1) {
+                    $badge = " <span class='badge badge-csl'>CSL</span>";
+                } else if ($row['Badge'] == 2) {
+                    $badge = " <span class='badge badge-ihsa'>IHSA</span>";
+                } else if ($row['Badge'] == 3) {
+                    $badge = " <span class='badge badge-info'>TT</span>";
+                }
+            } else {
+                $badge = "";
+            }
+
         echo "<tr class='clickable-row' data-href='".$url."'>";
         echo "<td>" . $dow . "</td>";
         echo "<td>" . $d . "</td>";
-        echo "<td><a href='".$url."'>" . $row['Name'] . "</a></td>";
+        echo "<td><a href='".$url."'>" . $row['Name'] . $badge . "</a></td>";
         echo "<td>" . $row['Opponents'] . "</td>";
         echo "<td>" . $row['Levels'] . "</td>";
         echo "<td>" . $dir . "</td>";
@@ -62,12 +75,17 @@ while($row = mysqli_fetch_array($result)) {
             echo "<tr class='clickable-row' data-href='".$meethome."'>";
             echo "<td>" . date("D",strtotime($row['Day2Time'])) . "</td>";
             echo "<td>" . date("n/j",strtotime($row['Day2Time'])) . "</td>";
-            echo "<td><a href='/meet/" .$row['id'] . "'>" . $row['Name'] . "</a></td>";
+            echo "<td><a href='/meet/" .$row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
             echo "<td>" . $row['Opponents'] . "</td>";
             echo "<td>" . $row['Day2Levels'] . "</td>";
             echo "<td>" . $dir . "</td>";
             echo "</tr>";   
         }
+    }
+    if (mysqli_num_rows($result) == 0){
+        echo "<tr>";
+        echo "<td class='text-center' colspan='6'>No Meets Currently Scheduled.</td>";
+        echo "</tr>";
     }
 ?>
                 </tbody>
@@ -79,6 +97,7 @@ while($row = mysqli_fetch_array($result)) {
 
 <div class="container mt-4">
     <div id='calendar'></div>
+    <a class="btn btn-primary" href="https://gbsathletics.glenbrook225.org/" role="button">GBS Athletics Homepage</a>
 </div>
 
 
@@ -145,6 +164,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             <div class="modal-body">
+                <!--
+                <div class="row row-cols-2 row-cols-md-3">
+                    <div class="col">
+                        <div class="card clickable hover-card"
+                            data-href="https://calendar.google.com/calendar/u/0/r?cid=https://titandistance.com/calendar/schedule">
+                            <img
+                                src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg">
+                        </div>
+                    </div>
+                </div>
+                -->
                 <strong>To add to Google Calendar:</strong><br>
                 1) Navigate to <a
                     href="https://calendar.google.com/calendar/r/settings/addbyurl">https://calendar.google.com/calendar/r/settings/addbyurl</a><br>

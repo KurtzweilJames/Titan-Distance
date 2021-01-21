@@ -4,18 +4,19 @@
 $id = htmlspecialchars($_GET["id"]);
 ?>
 
-<div class="container mt-3">
+<div class="container mt-3 h-100">
     <!--
     <form>
         <input type="text" class="form-control mb-3" size="30" onkeyup="showResult(this.value)">
         <div id="livesearch"></div>
     </form>-->
-    <div class="d-flex justify-content-between">
-        <p>Click on the name of an athlete in the table to view their profile.<br>Rosters contain results post-2016,
-            and only results in our database.</p>
+    <div class="d-flex justify-content-between flex-wrap text-sm-center text-lg-left">
+        <p>Click on the name of an athlete in the table to view their profile.<br>The only times listed are ones in our
+            database, so a "PR" listed below may not be accurate until our database is up-to-date.</p>
         <div class="form-group">
             <select class="form-control" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
+                <option value="tf21" name="tf21">2021 Track</option>
                 <option value="xc20" name="xc20">2020 Cross Country</option>
                 <option value="tf20" name="tf20">2020 Track</option>
                 <option value="xc19" name="xc19">2019 Cross Country</option>
@@ -30,22 +31,26 @@ $id = htmlspecialchars($_GET["id"]);
             </select>
         </div>
     </div>
-    <div id="table" onload="showSeason()"></div>
+    <div class="d-none justify-content-center" id="loading-spinner">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div id="table" onchange="updateTable()"><strong>Please select a season from the dropdown above.</strong></div>
     <script type="text/javascript">
-    document.getElementById("table").innerHTML = "<strong>Please select a season from the dropdown above.</strong>";
-    var view = window.location.search.substr(1);
-    view = view.replace('view=', '');
-    console.log("View: " + view);
-    if (view !== "") {
-        showSeason(view);
-        document.getElementById('SeasonSelect').value = view;
-    }
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const view = urlParams.get('view');
+        if (view != null) {
+            document.getElementById("SeasonSelect").value = view;
+            showSeason(view);
+            updateTable();
+        }
+    });
 
     function showSeason(str) {
         var sport = str.substr(0, 2);
         var year = str.substr(2, 4);
-        console.log("Sport Selected: " + sport);
-        console.log("Year Selected: " + year);
         var xhttp;
         if (str == "" || str == null) {
             document.getElementById("table").innerHTML =
@@ -71,25 +76,10 @@ $id = htmlspecialchars($_GET["id"]);
             xhttp.open("GET", "/rosterview/picture.php", true);
         }
         xhttp.send();
-    }
-    </script>
 
-    <script>
-    function showResult(str) {
-        if (str.length == 0) {
-            document.getElementById("livesearch").innerHTML = "";
-            document.getElementById("livesearch").style.border = "0px";
-            return;
+        if (window.history.replaceState) {
+            window.history.replaceState({}, null, "/roster?view=" + str)
         }
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("livesearch").innerHTML = this.responseText;
-                document.getElementById("livesearch").style.border = "1px solid #A5ACB2";
-            }
-        }
-        xmlhttp.open("GET", "/api/searchathletes.php?q=" + str, true);
-        xmlhttp.send();
     }
     </script>
 </div>
