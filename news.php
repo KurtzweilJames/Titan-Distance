@@ -4,6 +4,16 @@ $page = htmlspecialchars($_GET["page"]);
 if (empty($page)) {
     $page = 1;
 } 
+
+$show = htmlspecialchars($_GET["show"]);
+if (empty($_GET["show"])) {
+    $show = "public = 1";
+} else if ($_GET["show"] == "all") {
+    $show = "public = 1 OR public = 0";
+} else {
+    $show = "public = 1 AND catergory = ".$show;
+}
+
 ?>
 <?php include("header.php");?>
 
@@ -13,14 +23,14 @@ if (empty($page)) {
                 $no_of_records_per_page = 12;
                 $offset = ($page-1) * $no_of_records_per_page; 
 
-                $total_pages_sql = "SELECT COUNT(*) FROM news WHERE public = 1";
+                $total_pages_sql = "SELECT COUNT(*) FROM news WHERE ".$show;
                 $result = mysqli_query($con,$total_pages_sql);
                 $total_rows = mysqli_fetch_array($result)[0];
                 $total_pages = ceil($total_rows / $no_of_records_per_page);
 if ($page == 0) {
-    $result = mysqli_query($con,"SELECT * FROM news WHERE public = 1 ORDER BY date DESC");
+    $result = mysqli_query($con,"SELECT * FROM news WHERE ".$show." ORDER BY date DESC");
 } else {
-    $result = mysqli_query($con,"SELECT * FROM news WHERE public = 1 ORDER BY date DESC LIMIT ".$offset.", ".$no_of_records_per_page);              
+    $result = mysqli_query($con,"SELECT * FROM news WHERE ".$show." ORDER BY date DESC LIMIT ".$offset.", ".$no_of_records_per_page);              
 }
     while($row = mysqli_fetch_array($result)) {
        $content = strip_tags($row['content']);

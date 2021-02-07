@@ -97,61 +97,12 @@ while($row = mysqli_fetch_array($result)) {
 
 <div class="container mt-4">
     <div id='calendar'></div>
-    <a class="btn btn-primary" href="https://gbsathletics.glenbrook225.org/" role="button">GBS Athletics Homepage</a>
+    <div class="my-3 d-flex justify-content-center">
+        <a class="btn btn-primary" href="https://gbsathletics.glenbrook225.org/page/3050" role="button"
+            target="_blank">GBS Athletics
+            Schedule</a>
+    </div>
 </div>
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        plugins: ['dayGrid', 'list', 'bootstrap'],
-        header: {
-            left: 'prev,next',
-            center: 'title',
-            right: 'dayGridMonth,listMonth'
-        },
-
-        themeSystem: 'bootstrap',
-
-        eventSources: [
-
-            {
-                url: '/api/xcpractices.php', // XC Practices
-                color: '#ffd700',
-                textColor: 'black'
-            },
-            {
-                url: '/api/tfpractices.php', // TF Practices
-                color: '#ffd700',
-                textColor: 'black'
-            },
-            {
-                url: '/api/events.php', // Events
-                color: '#007bff',
-                textColor: 'white'
-            },
-            {
-                url: '/api/schedule.php', // Meet Schedule
-                color: '#073763',
-                textColor: 'white'
-            }
-
-        ],
-
-        eventClick: function(info) {
-            if (event.url) {
-                return false;
-            }
-        }
-
-
-    });
-
-    calendar.render();
-});
-</script>
 
 <!-- Modal -->
 <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel" aria-hidden="true">
@@ -164,17 +115,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 </button>
             </div>
             <div class="modal-body">
-                <!--
-                <div class="row row-cols-2 row-cols-md-3">
-                    <div class="col">
-                        <div class="card clickable hover-card"
-                            data-href="https://calendar.google.com/calendar/u/0/r?cid=https://titandistance.com/calendar/schedule">
-                            <img
-                                src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg">
-                        </div>
-                    </div>
+                <strong>Select Calendar Options:</strong>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()"
+                        checked>
+                    <label class="form-check-label" for="scheduleToggle">
+                        Meet Schedule
+                    </label>
                 </div>
-                -->
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="practicesToggle" onChange="generateURL()"
+                        checked>
+                    <label class="form-check-label" for="practicesToggle">
+                        Practices and Workouts
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="eventsToggle" onChange="generateURL()" checked>
+                    <label class="form-check-label" for="eventsToggle">
+                        Other Events
+                    </label>
+                </div>
+                <div class="my-3 d-flex justify-content-center">
+                    <a class="btn btn-primary"
+                        href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton"
+                        role="button" target="_blank"><i class="fas fa-calendar-plus" aria-hidden="true"></i> Add to
+                        Calendar</a>
+                </div>
+                <hr>
+                <p>If the link above does not open in your calendar app, use the instructions below.</p>
                 <strong>To add to Google Calendar:</strong><br>
                 1) Navigate to <a
                     href="https://calendar.google.com/calendar/r/settings/addbyurl">https://calendar.google.com/calendar/r/settings/addbyurl</a><br>
@@ -187,15 +156,43 @@ document.addEventListener('DOMContentLoaded', function() {
                 <br>
                 <strong>To add to Outlook, Apple Calendar:</strong><br>
                 Paste the link below where you can add an external calendar.<br>
-                <br>Meet Schedule: <code id="icals"
-                    class="user-select-all">https://titandistance.com/calendar/schedule</code>
-                <br>Practice Schedule: <code id="icalp"
-                    class="user-select-all">https://titandistance.com/calendar/practices</code><br><br>
-                *Changes to the schedule may take upto 24 hours to appear.
-
+                <code id="urlOutput"
+                    class="user-select-all">https://titandistance.com/exportcal?include=schedule,practices,events</code>
+                <hr>
+                <p>*Changes to the schedule may take upto 24 hours to appear.</p>
             </div>
         </div>
     </div>
 </div>
+<script>
+function generateURL() {
+    var scheduleToggle = document.getElementById("scheduleToggle");
+    var practicesToggle = document.getElementById("practicesToggle");
+    var eventsToggle = document.getElementById("eventsToggle");
+    var urlOutput = document.getElementById("urlOutput");
+    var addCalButton = document.getElementById("addCalButton");
 
+    var options = [];
+
+    if (scheduleToggle.checked) {
+        options.push("schedule");
+    }
+    if (practicesToggle.checked) {
+        options.push("practices");
+    }
+    if (eventsToggle.checked) {
+        options.push("events");
+    }
+
+    if (scheduleToggle.checked == false && practicesToggle.checked == false && eventsToggle.checked == false) {
+        alert("You must select at least one option");
+    } else {
+        var url = "https://titandistance.com/exportcal?include=" + options.join(",");
+        var webcal = "webcal://titandistance.com/exportcal?include=" + options.join(",");
+
+        urlOutput.innerHTML = url;
+        addCalButton.href = webcal;
+    }
+}
+</script>
 <?php include("footer.php");?>

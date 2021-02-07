@@ -76,11 +76,11 @@ if ($currentsport == "xc" && $currentathlete == 1) {
     $result = mysqli_query($con,"SELECT percent FROM overallxc WHERE profile='". $profile ."' AND season='".$currentshort."'"); 
     while($row = mysqli_fetch_array($result)) {
         $percent = $row['percent'];
-    if ($percent <= 25 && $percent > 0) {
+    if ($percent <= 33 && $percent > 0) {
         $teampoints = $teampoints + 3;
-    } else if ($percent <= 50 && $percent > 25) {
+    } else if ($percent <= 66 && $percent > 33) {
         $teampoints = $teampoints + 2;
-    } else if ($percent <= 75 && $percent > 50) {
+    } else if ($percent <= 100 && $percent > 66) {
         $teampoints = $teampoints + 1;
     }
     }
@@ -98,8 +98,23 @@ if ($currentsport == "xc" && $currentathlete == 1) {
                         echo "<img src='/assets/images/athletes/blank.png' class='img-thumbnail' style='max-width: 150px;'>";
                     }
                     
+                    $y = substr($currentyear, -2);
+                    if (date('n') > 6) {
+                    $y = $y + 1;
+                    }
+
+                    if ($class == $y) {
+                        $grade = " (Sr.)";
+                    } else if ($class == $y + 1){
+                        $grade = " (Jr.)";
+                    } else if ($class == $y + 2){
+                        $grade = " (So.)";
+                    } else if ($class == $y + 3){
+                        $grade = " (Fr.)";
+                    }
+
                     echo "<h3>".$name."</h3>";
-                    echo "<h5>Class of 20".$class."</h5>";
+                    echo "<h5>Class of 20".$class.$grade."</h5>";
                     if (!empty($college)) {
                     echo "<h5>".$college."</h5>";
                     } else {
@@ -147,7 +162,6 @@ if (!empty($awards)) {
                             <th scope="col">3mi</th>
                             <th scope="col">2mi</th>
                             <th scope="col">5k</th>
-                            <th scope="col"></th>
                             <th scope="col">3200m</th>
                             <th scope="col">1600m</th>
                             <th scope="col">800m</th>
@@ -162,7 +176,6 @@ if (!empty($awards)) {
                             </td>
                             <td><?php echo "<a href='/meet/".$meet5k."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet5k]."'>".$pr5k."</a>"; ?>
                             </td>
-                            <td></td>
                             <td><?php echo "<a href='/meet/".$meet3200m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet3200m]."'>".$pr3200m."</a>"; ?>
                             </td>
                             <td><?php echo "<a href='/meet/".$meet1600m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet1600m]."'>".$pr1600m."</a>"; ?>
@@ -190,14 +203,14 @@ if (!empty($awards)) {
                             </thead>
                             <tbody>
                                 <?php
-                        $result = mysqli_query($con,"SELECT time,meet,name,distance FROM overallxc WHERE profile='". $profile ."' ORDER BY date IS NULL, date DESC");
+                        $result = mysqli_query($con,"SELECT time,meet,name,distance,place,percent FROM overallxc WHERE profile='". $profile ."' ORDER BY date IS NULL, date DESC");
             
                     while($row = mysqli_fetch_array($result)) {
                         $meet = $row['meet'];
                         $distance = str_replace("mi"," Mile",$row['distance']);
                         echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
 
-                        echo "<td>";
+                        echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']." (".$row['percent']."%)'>";
                         echo $row['time'];
                         if (($row['time'] == $pr3mi && $row['distance'] == "3mi") || ($row['time'] == $pr2mi && $row['distance'] == "2mi") || ($row['time'] == $pr5k && $row['distance'] == "5k")) {
                             echo " <span class='badge badge-warning'>PR</span>";
@@ -228,7 +241,7 @@ if (!empty($awards)) {
                             </thead>
                             <tbody>
                                 <?php
-                        $result = mysqli_query($con,"SELECT time,meet,name,distance,points,relay FROM overalltf WHERE profile='". $profile ."' ORDER BY meet DESC");
+                        $result = mysqli_query($con,"SELECT time,meet,name,distance,points,relay,place FROM overalltf WHERE profile='". $profile ."' ORDER BY meet DESC");
             
                     while($row = mysqli_fetch_array($result)) {
                         $meet = $row['meet'];
@@ -236,7 +249,7 @@ if (!empty($awards)) {
                         echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
                         echo "<td>".$row['distance']."</td>";
                         
-                        echo "<td>";
+                        echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']."'>";
                         echo $row['time'];
                         if (($row['time'] == $pr3200m && $row['distance'] == "3200m") || ($row['time'] == $pr1600m && $row['distance'] == "1600m") || ($row['time'] == $pr800m && $row['distance'] == "800m") || ($row['time'] == $pr400m && $row['distance'] == "400m")) {
                             echo " <span class='badge badge-warning'>PR</span>";
@@ -275,7 +288,12 @@ if (!empty($awards)) {
             <canvas id="ppChart" width="400" height="200"></canvas>
             <canvas id="xcpercentChart" width="400" height="200"></canvas>
             <canvas id="tfpercentChart" width="400" height="200"></canvas>
-            <canvas id="3miChart" class="d-none" width="400" height="200"></canvas>
+            <canvas id="3miChart" width="400" height="200"></canvas>
+            <canvas id="2miChart" width="400" height="200"></canvas>
+            <canvas id="3200mChart" width="400" height="200"></canvas>
+            <canvas id="1600mChart" width="400" height="200"></canvas>
+            <canvas id="800mChart" width="400" height="200"></canvas>
+            <canvas id="400mChart" width="400" height="200"></canvas>
         </div>
     </div>
 </div>

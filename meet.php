@@ -99,6 +99,7 @@ while($row = mysqli_fetch_array($result)) {
 $content = $row['content'];
 $title = $row['title'];
 $image = $row['image'];
+$slug = $row['slug'];
 }
 
 include("header.php");
@@ -218,7 +219,7 @@ if ($season == "Community") {
                         echo "<h2>Meet Information</h2>";
                          } else if ($prepost == "post") {
                              if (!empty($title)) {
-                                echo "<h2>".$title."</h2>"; 
+                                echo "<h2><a href='/news/".$slug."'>".$title."</a></h2>"; 
                              } else {
                                 echo "<h2>Meet Recap</h2>"; 
                              }

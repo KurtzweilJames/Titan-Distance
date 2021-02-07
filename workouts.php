@@ -1,6 +1,21 @@
 <?php $pgtitle = "Workouts"; ?>
 <?php include ("header.php"); ?>
-
+<?php
+if (!empty($_GET["date"])) {
+    $date = date('Y-m-d',strtotime(htmlspecialchars($_GET["date"])));
+$sundaydate = $date;
+$saturdaydate = date('Y-m-d',strtotime('+7 days', $date));
+echo $saturdaydate;
+} else {
+if (date(l) == "Sunday") {
+    $sundaydate = date('Y-m-d', strtotime('today')); 
+} else {
+    $sundaydate = date('Y-m-d', strtotime('previous sunday'));
+}
+$saturdaydate = date('Y-m-d', strtotime('next sunday'));
+}
+$todaydate = date('Y-m-d');
+?>
 <section id="content">
     <div class="container mt-4">
         <div class="table-responsive">
@@ -19,32 +34,31 @@ if (!empty($_SESSION["strava"])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                        if (date(l) == "Sunday") {
-                            $sundaydate = date('Y-m-d', strtotime('today')); 
-                        } else {
-                            $sundaydate = date('Y-m-d', strtotime('previous sunday'));
-                        }
-                        $saturdaydate = date('Y-m-d', strtotime('next sunday'));
-                        $todaydate = date('Y-m-d');
-                        
-$result = mysqli_query($con, "SELECT * FROM xcworkouts WHERE date >= '".$sundaydate."' AND date < '".$saturdaydate."' ORDER BY date");
-
+                    <?php                   
+$result = mysqli_query($con, "SELECT * FROM workouts WHERE date >= '".$sundaydate."' AND date < '".$saturdaydate."' ORDER BY date");
 while ($row = mysqli_fetch_array($result)) {
 
-    $d = date("l", strtotime($row['date'])) . " (" . date("n/j", strtotime($row['date'])) . ")";
+        $d = date("l", strtotime($row['date'])) . " (" . date("n/j", strtotime($row['date'])) . ")";
+
+        if (!empty($row['practicename'])){
+            $tooltip = $row['practicename']." (".date("g:i a", strtotime($row['practicetime'])).")";
+        } else {
+            $tooltip = "No Organized Practice.";
+        }
+
         if ($row['date'] == $todaydate) {
             echo "<tr class='table-primary'>";
         }
         else {
             echo "<tr>";
         }
-        echo "<td>" . $d . "</td>";
+        echo "<td data-toggle='tooltip' data-placement='top' title='".$tooltip."'>" . $d . "</td>";
         echo "<td>";
-        if (!empty($row['1mileage'])){
-            echo "<strong>Group 1: </strong>".$row['1mileage'];
+        if (!empty($row['1mileage']) && empty($row['2mileage'])){
+            echo $row['1mileage'];
         }
-        if (!empty($row['2mileage'])){
+        if (!empty($row['1mileage']) && !empty($row['2mileage'])){
+            echo "<strong>Group 1: </strong>".$row['1mileage'];
             echo "<br><strong>Group 2: </strong>".$row['2mileage'];
         }
         if (!empty($row['3mileage'])){
@@ -58,13 +72,19 @@ while ($row = mysqli_fetch_array($result)) {
         }
 
         echo "<td>";
-        if ($row['weights'] == 1) {
-            echo "<span class='badge badge-primary'><i class='fas fa-dumbbell'></i> Weight Circuit</span>";
+        if ($row['weights'] >= 1) {
+            echo "<span class='badge badge-primary'><i class='fas fa-dumbbell'></i> Weight Circuit";
+            if ($row['weights'] > 1) {
+            echo "s (x".$row['weights'].")";
+            }
+            echo "</span>";
         }
-        if (isset($row['strides']) && $row['strides'] != 0) {
+        if (!empty($row['strides']) && $row['strides'] !== 0) {
             echo " <span class='badge badge-primary'><i class='fas fa-running'></i> ".$row['strides']."</span>";
         }
-        echo $row['notes'];
+        if (!empty($row['notes'])) {
+            echo "<br>*".$row['notes'];
+        }
 
         //STRAVA
         $metric = $row['1mileage'] * 1;
