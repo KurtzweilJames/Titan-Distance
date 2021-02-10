@@ -31,16 +31,19 @@ $id = htmlspecialchars($_GET["id"]);
             </select>
         </div>
     </div>
-    <div class="d-none justify-content-center" id="loading-spinner">
-        <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
+    <div id="loading-spinner">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         </div>
     </div>
     <div id="table" onchange="updateTable()"><strong>Please select a season from the dropdown above.</strong></div>
     <script type="text/javascript">
     $(document).ready(function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const view = urlParams.get('view');
+        const view = window.location.pathname.split("/").pop();
+
         if (view != null) {
             document.getElementById("SeasonSelect").value = view;
             showSeason(view);
@@ -78,7 +81,7 @@ $id = htmlspecialchars($_GET["id"]);
         xhttp.send();
 
         if (window.history.replaceState) {
-            window.history.replaceState({}, null, "/roster?view=" + str)
+            window.history.replaceState({}, null, "/roster/" + str)
         }
     }
     </script>

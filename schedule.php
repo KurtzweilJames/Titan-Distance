@@ -115,6 +115,10 @@ while($row = mysqli_fetch_array($result)) {
                 </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-warning" role="alert">
+                    If you've added the calendar prior to February 1, 2021, you must delete
+                    that calendar and use the new process below.
+                </div>
                 <strong>Select Calendar Options:</strong>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()"
@@ -186,12 +190,16 @@ function generateURL() {
 
     if (scheduleToggle.checked == false && practicesToggle.checked == false && eventsToggle.checked == false) {
         alert("You must select at least one option");
+        var url = "PLEASE SELECT MULTIPLE CHECKBOXES";
+        urlOutput.innerHTML = url;
+        addCalButton.classList.add("disabled");
     } else {
         var url = "https://titandistance.com/exportcal?include=" + options.join(",");
         var webcal = "webcal://titandistance.com/exportcal?include=" + options.join(",");
 
         urlOutput.innerHTML = url;
         addCalButton.href = webcal;
+        addCalButton.classList.remove("disabled");
     }
 }
 </script>
