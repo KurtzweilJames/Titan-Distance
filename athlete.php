@@ -10,6 +10,11 @@ if(!empty($name) or !empty($id)) {
 
 $result = mysqli_query($con,"SELECT * FROM athletes WHERE id='". $id ."' OR name='".$name."' OR profile='".$profile."'");
 
+if (mysqli_num_rows($result) == 0) {
+    header('Location: https://titandistance.com/notfound');
+    exit;
+}
+
 while($row = mysqli_fetch_array($result)) {
     $name = $row['name'];
     $class = $row['class'];

@@ -9,6 +9,12 @@ $result = mysqli_query($con,"SELECT * FROM news WHERE id='". $id ."'");
 } else if (!empty($slug)) {
 $result = mysqli_query($con,"SELECT * FROM news WHERE slug='". $slug ."'");    
 }
+
+if (mysqli_num_rows($result) == 0) {
+    header('Location: https://titandistance.com/notfound');
+    exit;
+}
+
 while($row = mysqli_fetch_array($result)) {
     $title = $row['title'];
     $image = $row['image'];
@@ -52,9 +58,9 @@ if(!empty($meet)) {
 ?>
 <?php include("header.php");?>
 
-<div class="container">
+<div class="container my-4">
     <!-- Title -->
-    <h1 class="mt-4"><?php echo $title;?></h1>
+    <h1><?php echo $title;?></h1>
 
     <hr>
 

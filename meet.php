@@ -14,6 +14,10 @@ if (strpos($id, '/') !== false) {
     $result = mysqli_query($con,"SELECT * FROM meets WHERE id='". $id ."'");
 }
 
+if (mysqli_num_rows($result) == 0) {
+    header('Location: https://titandistance.com/notfound');
+    exit;
+}
 
 while($row = mysqli_fetch_array($result)) {
     $id = $row['id'];
@@ -68,15 +72,6 @@ if (mysqli_num_rows($xc) > 0) {
     }
 }
 
-
-
-//Photos
-if (!empty($row['Photos'])) {
-    $photos = explode (";", $row['Photos']);
-    $credits = explode (";", $row['PhotosCredits']);
-    $covers = explode(";", $row['PhotosAlbums']);
-}
-
 //Badge
 if (!empty($row['Badge'])) {
     if ($row['Badge'] == 1) {
@@ -88,6 +83,14 @@ if (!empty($row['Badge'])) {
     }
 }
 
+}
+
+//Photos
+$result = mysqli_query($con,"SELECT * FROM photos WHERE meet='". $id ."'");
+if (mysqli_num_rows($result) > 0) {
+    $photos = yes;
+} else {
+    $photos = no;
 }
 
 if ($prepost == "post") {
@@ -139,6 +142,11 @@ include("header.php");
                                 $meetlevels[]=$levelnum;
                                 $dropdown[] = "<option value='".$abbreviations[$levelnum]."' name='".$abbreviations[$levelnum]."'>".$teams[$levelnum]." Results</option>";
                             }
+                        }
+
+                        if ($prepost == "post" && $sport == "tf"){
+                            echo "<a class='nav-link' id='dscores-tab' data-toggle='pill' href='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'>Distance Scores</a>";
+                            $dropdown[] = "<option value='dscores' name='dscores'>Distance Scores</option>";
                         }
 
                         if ($prepost == "post"){
@@ -235,11 +243,12 @@ if ($season == "Community") {
                         </div>
                         <div class="tab-pane fade" id="scores" role="tabpanel" aria-labelledby="scores-tab">
                             <h1>Team Scores</h1>
+                            <p><strong>Team scores for all events, including short-distance, field, etc.</strong></p>
                             <?php
 foreach ($meetlevels as $l) {
 $result = mysqli_query($con,"SELECT * FROM overallscores WHERE meet='". $id ."' AND level = '".$l."'");
-echo "<table class='table table-sm'>";
 echo "<h3>".$teams[$l]."</h3>";
+echo "<table class='table table-sm'>";
 while($row = mysqli_fetch_array($result)) {
     if ($row['school'] == "Glenbrook South" OR $row['school'] == "Glenview (Glenbrook South)") {
         echo "<tr class='row-highlight'>";
@@ -256,6 +265,61 @@ if (mysqli_num_rows($result) <= 0) {
     echo "<p class='card-text'><strong>This is either an unscored meet, or team results are missing from our database. If you believe this is an error, please reach out.</strong></p>";
 }
 }
+                            ?>
+                        </div>
+                        <div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">
+                            <h1>Distance Scores</h1>
+                            <p><strong>Team scores only for Distance Events</strong></p>
+                            <?php
+                            foreach ($meetlevels as $l) {
+                                $result = mysqli_query($con,"SELECT school, COUNT(*)  FROM overalltf WHERE meet=".$id." AND level = ".$l." GROUP BY school");
+                                while($row = mysqli_fetch_array($result)) {
+                                $scores[$row['school']] = 0;
+                                }
+                                
+                                $result = mysqli_query($con,"SELECT * FROM overalltf WHERE meet='". $id ."' AND level = ".$l." AND place IS NOT NULL");
+                                while($row = mysqli_fetch_array($result)) {
+                                    $place = $row['place'];
+                                    if ($place == 1) {
+                                        $score = 10;
+                                    } else if ($place == 2) {
+                                        $score = 8;
+                                    } else if ($place == 3) {
+                                        $score = 6;
+                                    } else if ($place == 4) {
+                                        $score = 4;
+                                    } else if ($place == 5) {
+                                        $score = 2;
+                                    } else if ($place == 6 && empty($row['relay'])) {
+                                        $score = 1;
+                                    } else if ($place == 6 && !empty($row['relay'])) {
+                                        $score = 0;
+                                    } else {
+                                        $score = 0;
+                                    }
+                                    
+                                    $scores[$row['school']] +=$score;
+                                }
+                            
+                                arsort($scores);
+                                echo "<h3>".$teams[$l]."</h3>";
+                                echo "<table class='table table-sm'>";
+                                $n = 1;
+                                foreach ($scores as $s => $p) {
+                                    if ($s == "Glenbrook South" OR $s == "Glenview (Glenbrook South)") {
+                                        echo "<tr class='row-highlight'>";
+                                    } else {
+                                    echo "<tr>";
+                                    }
+                                    echo "<td>".$n."</td>";
+                                    echo "<td>".$s."</td>";
+                                    echo "<td>".$p."</td>";
+                                    echo "</tr>";
+                                    $n += 1;
+                                }
+
+                                echo "</table>";
+                            }
                             ?>
                         </div>
                         <div class="tab-pane fade" id="map" role="tabpanel" aria-labelledby="map-tab">
@@ -333,16 +397,17 @@ if (mysqli_num_rows($result) <= 0) {
                             <?php
                             echo "<div class='row row-cols-1 row-cols-md-2'>";
 
-                                foreach($photos as $index => $link) {
+                            $result = mysqli_query($con,"SELECT * FROM photos WHERE meet='". $id ."'");
+                            while($row = mysqli_fetch_array($result)) {
                                 echo "<div class='col mb-2'>";
-                                    echo "<div class='card clickable text-center' data-href='".$link."'>";
-                                        echo "<img src='/assets/images/meets/".$covers[$index]."' class='card-img-top'>";
+                                    echo "<div class='card clickable text-center' data-href='".$row['link']."'>";
+                                        echo "<img src='/assets/images/meets/".$row['cover']."' class='card-img-top'>";
                                         echo "<div class='card-body'>";
-                                            echo "<p class='card-text'>Photographer: ".$credits[$index]."</p>";
+                                            echo "<p class='card-text'>Photographer(s): ".$row['credits']."</p>";
                                             echo "</div>";
                                         echo "</div>";
                                     echo "</div>";
-                                }
+                            }
 
                                 echo "</div>";
                         ?>

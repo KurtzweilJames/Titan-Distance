@@ -38,7 +38,7 @@ $id = htmlspecialchars($_GET["id"]);
             </div>
         </div>
     </div>
-    <div id="table" onchange="updateTable()"><strong>Please select a season from the dropdown above.</strong></div>
+    <div id="table"><strong>Please select a season from the dropdown above.</strong></div>
     <script type="text/javascript">
     $(document).ready(function() {
         const urlParams = new URLSearchParams(window.location.search);
