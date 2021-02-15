@@ -83,6 +83,21 @@ $id = htmlspecialchars($_GET["id"]);
         if (window.history.replaceState) {
             window.history.replaceState({}, null, "/roster/" + str)
         }
+
+        if (sport == "tf") {
+            sport = "Track";
+        } else if (sport == "xc") {
+            sport = "Cross Country"
+        }
+        if (document.title) {
+            if (str == "all") {
+                document.title = "All Time Roster - Titan Distance";
+            } else if (str == "picture") {
+                document.title = "All Time Picture Roster - Titan Distance";
+            } else {
+                document.title = sport + " 20" + year + " Roster - Titan Distance";
+            }
+        }
     }
     </script>
 </div>

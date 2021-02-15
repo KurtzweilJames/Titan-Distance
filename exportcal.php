@@ -6,13 +6,6 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/includes/calendar/zapcallib.php");
 
 include("db.php");
 
-// Check connection
-if (mysqli_connect_errno())
-{
-echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
-
-
 header('Content-type:text/calendar');
 
 $icalobj = new ZCiCal();

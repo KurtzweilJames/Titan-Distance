@@ -95,14 +95,19 @@ if ($currentsport == "xc" && $currentathlete == 1) {
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-3 p-md-0 text-center text-md-left">
+
             <?php
+                    echo "<div class='athlete-image'>";
+
                     $file = $_SERVER['DOCUMENT_ROOT']."/assets/images/athletes/".$profile.".png";
                     if (file_exists($file)) {
-                        echo "<img src='/assets/images/athletes/".$profile.".png' class='img-thumbnail' style='max-width: 150px;'>";
+                        echo "<img src='/assets/images/athletes/".$profile.".png' class='img-thumbnail'>";
                     } else {
-                        echo "<img src='/assets/images/athletes/blank.png' class='img-thumbnail' style='max-width: 150px;'>";
+                        echo "<img src='/assets/images/athletes/blank.png' class='img-thumbnail'>";
                     }
                     
+                    echo "</div>";
+
                     $y = substr($currentyear, -2);
                     if (date('n') > 6) {
                     $y = $y + 1;
@@ -117,7 +122,7 @@ if ($currentsport == "xc" && $currentathlete == 1) {
                     } else if ($class == $y + 3){
                         $grade = " (Fr.)";
                     }
-
+                    
                     echo "<h3>".$name."</h3>";
                     echo "<h5>Class of 20".$class.$grade."</h5>";
                     if (!empty($college)) {
