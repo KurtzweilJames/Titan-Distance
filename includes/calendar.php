@@ -1,6 +1,6 @@
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js"></script>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.css">
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', function() {
             right: 'dayGridMonth,listMonth'
         },
         themeSystem: 'bootstrap',
+        bootstrapFontAwesome: {
+            close: 'fa-times',
+            prev: 'bi bi-chevron-left',
+            next: 'bi bi-chevron-right',
+            prevYear: 'fa-angle-double-left',
+            nextYear: 'fa-angle-double-right'
+        },
         eventSources: [
 
             {
