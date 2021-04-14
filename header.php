@@ -35,8 +35,9 @@ $todaydate = date('Y-m-d');
     <!-- Stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700%7CRoboto:400,500,700" rel="stylesheet"
         type="text/css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- jQuery -->
@@ -241,12 +242,12 @@ if ($require == "meet") {
         margin-right: 5px;
     }
 
-    .badge-ihsa {
+    .bg-ihsa {
         color: #0d4183;
         background-color: #f4720e;
     }
 
-    .badge-csl {
+    .bg-csl {
         color: #fff;
         background-color: #6c757d;
     }
@@ -271,35 +272,13 @@ if ($require == "meet") {
         padding-top: 102px;
     }
 
-    body.dark-theme {
-        color: #bebebe !important;
-        background-color: #222 !important;
+    a {
+        text-decoration: none
     }
 
-    .card.dark-theme {
-        color: #bebebe !important;
-        background-color: #181818 !important;
+    .container {
+        max-width: 1200px;
     }
-
-    .bg-light.dark-theme {
-        color: #bebebe !important;
-        background-color: #181818 !important;
-    }
-
-    .footer.dark-theme {
-        color: #bebebe !important;
-        background-color: #181818 !important;
-    }
-
-    .nav-link.dark-theme {
-        color: #bebebe !important;
-    }
-
-    .table.dark-theme {
-        color: #bebebe !important;
-    }
-
-    .table:hover.dark-theme {}
     </style>
 
 
@@ -350,7 +329,7 @@ if ($require == "meet") {
         ?>
     <header>
         <div class="bg-light">
-            <div class="container d-flex bd-highlight">
+            <div class="container d-flex justify-content-between">
                 <div class="mr-auto p-2 m-0">
                     <?php
                     $result = mysqli_query($con,"SELECT Live,Name,id FROM meets WHERE Date = '".$todaydate."' AND Official != 1 AND Official != 2");
@@ -364,11 +343,11 @@ if ($require == "meet") {
                         }
                     } else if(isset($_SESSION["loggedin"])){
                         if ($template == "meet") {
-                            echo "<a href='/admin/meet?id=".$id."'><i class='fas fa-pencil-alt'></i> Edit Meet (ID = ".$id.")</a>";
+                            echo "<a href='/admin/meet?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit Meet (ID = ".$id.")</a>";
                         } else if ($template == "news") {
-                            echo "<a href='/admin/news?id=".$id."'><i class='fas fa-pencil-alt'></i> Edit News Article</a>";
+                            echo "<a href='/admin/news?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit News Article</a>";
                         } else {
-                            echo "Welcome, ".$_SESSION["username"]." <a class='ml-2' href='/admin'>Return to Admin</a>";
+                            echo "Welcome, ".$_SESSION["username"]." <a class='ml-2' href='/admin'><i class='bi bi-gear-wide-connected'></i> Return to Admin</a>";
                         }
                     } else {
                         if ($template == "home") {
@@ -383,13 +362,16 @@ if ($require == "meet") {
 $weatherfile = file_get_contents("https://titandistance.com/api/weather.php");
 $jsonweather = json_decode($weatherfile);
                 ?>
-                <div class="p-2 m-0" id="weather-widget" data-toggle="tooltip" data-html="true" data-placement="bottom"
-                    title="Weather: <?php echo $jsonweather->description; ?>
-                   <br>Feels Like: <?php echo $jsonweather->feelslike; ?>°F<br>Temperature:
-                    <?php echo $jsonweather->temp; ?>°F">
+                <div class="p-2 m-0 clickable-row" id="weather-widget" data-href="/weather" data-bs-toggle="tooltip"
+                    data-bs-html="true" data-bs-placement="bottom" title="Weather: <?php echo $jsonweather->current->description; ?>
+                   <br>Feels Like: <?php echo $jsonweather->current->feelslike; ?>°F<br>Wind: <?php echo $jsonweather->current->wind; ?>mph<br>Temperature:
+                    <?php echo $jsonweather->current->temp; ?>°F">
                     <?php
-echo "<span id='temp'>".$jsonweather->temp."°F</span>";
-echo "<i class='mb-0 mx-1 fas ".$jsonweather->icon."'></i>";
+echo "<span id='temp'>".$jsonweather->current->temp."°F</span>";
+echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
+                    if ($jsonweather->current->wind > 10) {
+                        echo "<i class='mb-0 mx-1 bi bi-wind'></i>";  
+                    }
                     ?>
                 </div>
             </div>
@@ -420,57 +402,60 @@ echo "<i class='mb-0 mx-1 fas ".$jsonweather->icon."'></i>";
         </div>
         <div class="pb-1" id="top-navbar">
             <nav class="navbar navbar-expand-lg navbar-light p-md-0">
-                <a href="/"><img src="https://titandistance.com/assets/logos/dotcom.svg" class="d-block d-md-none"
-                        height="30" alt="Titan Distance"></a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse"
-                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+                <div class="container">
+                    <a href="/"><img src="https://titandistance.com/assets/logos/dotcom.svg" class="d-block d-md-none"
+                            height="30" alt="Titan Distance"></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav mx-auto" id="navbar_nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/about">About</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="/history" id="navbarDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                History
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="/records">Records</a>
-                                <a class="dropdown-item" href="/routes">Running Routes</a>
-                                <a class="dropdown-item" href="/state">State Qualifers</a>
-                                <a class="dropdown-item" href="/innews">In the News</a>
-                                <a class="dropdown-item" href="/roster/all">All-Time
-                                    Roster</a>
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/roster/<?php echo $currentshort; ?>">Roster</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/schedule">Schedule</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/results">Results</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/news">News</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/workouts">Workouts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/photos">Photos</a>
-                        </li>
-                    </ul>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav mx-auto" id="navbar_nav">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/about">About</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="/history" id="navbarDropdown" role="button"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    History
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="/records">Records</a>
+                                    <a class="dropdown-item" href="/routes">Running Routes</a>
+                                    <a class="dropdown-item" href="/state">State Qualifers</a>
+                                    <a class="dropdown-item" href="/innews">In the News</a>
+                                    <a class="dropdown-item" href="/venues">Home Venues</a>
+                                    <a class="dropdown-item" href="/roster/all">All-Time
+                                        Roster</a>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/roster/<?php echo $currentshort; ?>">Roster</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/schedule">Schedule</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/results">Results</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/news">News</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/workouts">Workouts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/photos">Photos</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </nav>
         </div>
     </header>
-    <main>
+    <main id="main">

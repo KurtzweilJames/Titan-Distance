@@ -5,15 +5,34 @@ $result = mysqli_query($con,"SELECT * FROM series");
     while($row = mysqli_fetch_array($result)) {
         $series[$row['id']] = $row['slug'];
     }
+
+    $season = htmlspecialchars($_GET["season"]);
+    if (empty($season)) {
+        $season = $currentseason;
+    }
 ?>
 
 <section id="content">
     <div class="container mt-4">
         <div class="d-flex justify-content-between mb-2">
-            <i>*Schedule is subject to change.</i>
-            <button type="button" class="btn btn-primary btn-sm text-center" data-toggle="modal"
-                data-target="#addModal">
-                <i class="fas fa-calendar-plus"></i> Add to Calendar
+            <i class="my-auto">*Schedule is subject to change.</i>
+            <div class="form-group d-none d-md-block">
+                <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
+                    <option value="" disabled>Select a Season:</option>
+                    <?php
+                    foreach($seasons as $s) {
+                        if ($s == $season) {
+                            echo "<option value='".$s."' name='".$s."' selected>".$s."</option>";
+                        } else {
+                            echo "<option value='".$s."' name='".$s."'>".$s."</option>";
+                        }
+                    }
+                ?>
+                </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm text-center" data-bs-toggle="modal"
+                data-bs-target="#addModal">
+                <i class="bi bi-calendar-plus-fill"></i> Add to Calendar
             </button>
         </div>
         <div class="table-responsive">
@@ -31,10 +50,6 @@ $result = mysqli_query($con,"SELECT * FROM series");
                 <tbody>
 
                     <?php
-$season = htmlspecialchars($_GET["season"]);
-if (empty($season)) {
-    $season = $currentseason;
-}
 $result = mysqli_query($con,"SELECT * FROM meets WHERE Season = '".$season."' ORDER BY Date ASC");
 
 while($row = mysqli_fetch_array($result)) {
@@ -45,34 +60,39 @@ while($row = mysqli_fetch_array($result)) {
     }
     $dow = date("D",strtotime($row['Date']));
     $d = date("n/j",strtotime($row['Date']));
-    $dir = "<a href='https://maps.google.com/?q=" . $row['Location'] . "' target='_blank'>".$row['Location']."</a>";
-    $meethome = "/meet/" . $row['id'];
-    $home = "<a href='". $meethome . "' class='btn btn-primary' role='button' aria-pressed='true'><i class='fas fa-home'></i></a>";
-    
-            //Badge
-            if (!empty($row['Badge'])) {
-                if ($row['Badge'] == 1) {
-                    $badge = " <span class='badge badge-csl'>CSL</span>";
-                } else if ($row['Badge'] == 2) {
-                    $badge = " <span class='badge badge-ihsa'>IHSA</span>";
-                } else if ($row['Badge'] == 3) {
-                    $badge = " <span class='badge badge-info'>TT</span>";
-                }
-            } else {
-                $badge = "";
-            }
 
+    if($row['Location'] == "John Davis Titan Stadium") {
+        $dir = "<a href='/venues#stadium'>John Davis Titan Stadium</a>";
+    } else if($row['Location'] == "David Pasquini Fieldhouse") {
+        $dir = "<a href='/venues#fieldhouse'>David Pasquini Fieldhouse</a>";
+    } else if($row['Location'] == "Glenbrook South High School") {
+        $dir = "<a href='/venues#xccourse'>Glenbrook South High School</a>";
+    } else {
+        $dir = "<a href='https://maps.google.com/?q=" . $row['Location'] . "' target='_blank'>".$row['Location']."</a>";
+    }
+
+        if (array_key_exists($row['Badge'], $badges)) {
+            $badge = "<span class='ml-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
+        } else {
+            $badge = "";
+        }
+
+        
         echo "<tr class='clickable-row' data-href='".$url."'>";
         echo "<td>" . $dow . "</td>";
         echo "<td>" . $d . "</td>";
         echo "<td><a href='".$url."'>" . $row['Name'] . $badge . "</a></td>";
-        echo "<td>" . $row['Opponents'] . "</td>";
+        if(strlen($row['Opponents']) > 50) {
+            echo "<td data-toggle='tooltip' data-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 50)."..." . "</td>";
+        } else {
+            echo "<td>" . $row['Opponents'] . "</td>";
+        }
         echo "<td>" . $row['Levels'] . "</td>";
         echo "<td>" . $dir . "</td>";
         echo "</tr>";
 
         if (!empty($row['Day2Time'])){
-            echo "<tr class='clickable-row' data-href='".$meethome."'>";
+            echo "<tr class='clickable-row' data-href='".$url."'>";
             echo "<td>" . date("D",strtotime($row['Day2Time'])) . "</td>";
             echo "<td>" . date("n/j",strtotime($row['Day2Time'])) . "</td>";
             echo "<td><a href='/meet/" .$row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
@@ -110,15 +130,15 @@ while($row = mysqli_fetch_array($result)) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addModalLabel">Add to Calendar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <!--
                 <div class="alert alert-warning" role="alert">
                     If you've added the calendar prior to February 1, 2021, you must delete
                     that calendar and use the new process below.
                 </div>
+                -->
                 <strong>Select Calendar Options:</strong>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()"
@@ -143,7 +163,7 @@ while($row = mysqli_fetch_array($result)) {
                 <div class="my-3 d-flex justify-content-center">
                     <a class="btn btn-primary"
                         href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton"
-                        role="button" target="_blank"><i class="fas fa-calendar-plus" aria-hidden="true"></i> Add to
+                        role="button" target="_blank"><i class="bi bi-calendar-plus-fill" aria-hidden="true"></i> Add to
                         Calendar</a>
                 </div>
                 <hr>
@@ -201,6 +221,10 @@ function generateURL() {
         addCalButton.href = webcal;
         addCalButton.classList.remove("disabled");
     }
+}
+
+function showSeason(s) {
+    window.location = "/schedule?season=" + s;
 }
 </script>
 <?php include("footer.php");?>

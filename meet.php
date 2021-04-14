@@ -29,17 +29,23 @@ while($row = mysqli_fetch_array($result)) {
         while($row = mysqli_fetch_array($result)) {
             $slug = $row['slug'];
         }
+        http_response_code(301);
         header('Location: https://titandistance.com/meet/'.$slug."/".$year);
     }
 
 //Page Title
+if(!empty($series)) {
+    $pgtitle = $row['Name']." (".$year.")";
+} else {
 $pgtitle = $row['Name'];
+}
 $pgtitleignore = 1;
 $require = "meet";
 
 //Meet Variables
 $name = $row['Name'];
 $date = date("l, F d, Y",strtotime($row['Date']));
+$unformatteddate = $row['Date'];
 $location = $row['Location'];
 $athnet = $row['AthNet'];
 $message = $row['Message'];
@@ -72,15 +78,10 @@ if (mysqli_num_rows($xc) > 0) {
     }
 }
 
-//Badge
-if (!empty($row['Badge'])) {
-    if ($row['Badge'] == 1) {
-        $badge = " <span class='badge badge-csl'>CSL</span>";
-    } else if ($row['Badge'] == 2) {
-        $badge = " <span class='badge badge-ihsa'>IHSA</span>";
-    } else if ($row['Badge'] == 3) {
-        $badge = " <span class='badge badge-info'>TT</span>";
-    }
+if (array_key_exists($row['Badge'], $badges)) {
+    $badge = "<span class='ml-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
+} else {
+    $badge = "";
 }
 
 }
@@ -112,6 +113,26 @@ include("header.php");
         <div class="col-md-3">
             <div class="card" style="height: 100%;">
                 <div class="card-body">
+                    <div class="series-navigation d-flex justify-content-between">
+                        <?php
+                        if (isset($series)) {
+                            echo "<div>";
+                            $result = mysqli_query($con,"SELECT Date FROM meets WHERE Date < '".$unformatteddate."' AND Series = '".$series."'  ORDER BY Date DESC LIMIT 1");
+                            while($row = mysqli_fetch_array($result)) {
+                                $yr = date("Y", strtotime($row['Date']));
+                                echo "<a href='./".$yr."'><i class='bi bi-arrow-left'></i>".$yr."</a>";   
+                            }
+                            echo "</div>";
+                            echo "<div>";
+                            $result = mysqli_query($con,"SELECT Date FROM meets WHERE Date > '".$unformatteddate."' AND Series = '".$series."'  ORDER BY Date ASC LIMIT 1");
+                            while($row = mysqli_fetch_array($result)) {
+                                $yr = date("Y", strtotime($row['Date']));
+                                echo "<a href='./".$yr."'>".$yr."<i class='bi bi-arrow-right'></i></a>";  
+                            }
+                            echo "</div>";
+                    }
+                ?>
+                    </div>
                     <h4><?php echo $name.$badge; ?></h4>
                     <h5 class="mb-0"><?php echo $date; ?></h5>
                     <h5 class="mb-2"><?php echo $location; ?></h5>
@@ -119,17 +140,17 @@ include("header.php");
                         aria-orientation="vertical">
                         <?php
                     if ($prepost == "pre") {
-                        echo "<a class='nav-link active' id='news-tab' data-toggle='pill' href='#news' role='tab' aria-controls='news-tab' aria-selected='true'>Meet Information</a>";
+                        echo "<a class='nav-link active' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'>Meet Information</a>";
                         $dropdown[] = "<option value='news' name='news'>Meet Information</option>";
                     } else if ($prepost == "post") {
-                        echo "<a class='nav-link active' id='news-tab' data-toggle='pill' href='#news' role='tab' aria-controls='news-tab' aria-selected='true'>Meet Recap</a>";
+                        echo "<a class='nav-link active' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'>Meet Recap</a>";
                         $dropdown[] = "<option value='news' name='news'>Meet Recap</option>";
                     }
                         if ($sport == "xc") {
                             $result = mysqli_query($con,"SELECT DISTINCT level FROM overallxc WHERE meet = '".$id."'");
                             while($row = mysqli_fetch_array($result)) {
                                 $levelnum = $row['level'];
-                                echo "<a class='nav-link' id='".$abbreviations[$levelnum]."-tab' data-toggle='pill' href='#".$abbreviations[$levelnum]."-results' role='tab' aria-controls='".$abbreviations[$levelnum]."-tab' aria-selected='false'>".$teams[$levelnum]." Results</a>";
+                                echo "<a class='nav-link' id='".$abbreviations[$levelnum]."-tab' data-bs-toggle='pill' data-bs-target='#".$abbreviations[$levelnum]."-results' role='tab' aria-controls='".$abbreviations[$levelnum]."-tab' aria-selected='false'>".$teams[$levelnum]." Results</a>";
                                 $meetlevels[]=$levelnum;
                                 $dropdown[] = "<option value='".$abbreviations[$levelnum]."' name='".$abbreviations[$levelnum]."'>".$teams[$levelnum]." Results</option>";
                             }
@@ -138,36 +159,45 @@ include("header.php");
                             $result = mysqli_query($con,"SELECT DISTINCT level FROM overalltf WHERE meet = '".$id."'");
                             while($row = mysqli_fetch_array($result)) {
                                 $levelnum = $row['level'];
-                                echo "<a class='nav-link' id='".$abbreviations[$levelnum]."-tab' data-toggle='pill' href='#".$abbreviations[$levelnum]."-results' role='tab' aria-controls='".$abbreviations[$levelnum]."-tab' aria-selected='false'>".$teams[$levelnum]." Results</a>";
+                                echo "<a class='nav-link' id='".$abbreviations[$levelnum]."-tab' data-bs-toggle='pill' data-bs-target='#".$abbreviations[$levelnum]."-results' role='tab' aria-controls='".$abbreviations[$levelnum]."-tab' aria-selected='false'>".$teams[$levelnum]." Results</a>";
                                 $meetlevels[]=$levelnum;
                                 $dropdown[] = "<option value='".$abbreviations[$levelnum]."' name='".$abbreviations[$levelnum]."'>".$teams[$levelnum]." Results</option>";
                             }
                         }
 
                         if ($prepost == "post" && $sport == "tf"){
-                            echo "<a class='nav-link' id='dscores-tab' data-toggle='pill' href='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'>Distance Scores</a>";
+                            echo "<a class='nav-link' id='dscores-tab' data-bs-toggle='pill' data-bs-target='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'>Distance Scores</a>";
                             $dropdown[] = "<option value='dscores' name='dscores'>Distance Scores</option>";
                         }
 
                         if ($prepost == "post"){
-                            echo "<a class='nav-link' id='scores-tab' data-toggle='pill' href='#scores' role='tab' aria-controls='scores-tab' aria-selected='false'>Team Scores</a>";
+                            echo "<a class='nav-link' id='scores-tab' data-bs-toggle='pill' data-bs-target='#scores' role='tab' aria-controls='scores-tab' aria-selected='false'>Team Scores</a>";
                             $dropdown[] = "<option value='scores' name='scores'>Team Scores</option>";
                         }
 
-                        if ($sport == "xc") {
-                            echo "<a class='nav-link' id='map-tab' data-toggle='pill' href='#map' role='tab' aria-controls='map-tab' aria-selected='false'>Course Map/Directions</a>";
-                            $dropdown[] = "<option value='map' name='map'>Course Map/Directions</option>";
+                        if ($location == "David Pasquini Fieldhouse" OR $location == "John Davis Titan Stadium" OR $location == "Glenbrook South High School") {
+                            echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'>".$location."</a>";
+                            $dropdown[] = "<option value='venue' name='venue'>".$location."</option>";
+                        } else if ($sport == "xc") {
+                            echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'>Course Map/Directions</a>";
+                            $dropdown[] = "<option value='venue' name='venue'>Course Map/Directions</option>";
                         } else {
-                            echo "<a class='nav-link' id='map-tab' data-toggle='pill' href='#map' role='tab' aria-controls='map-tab' aria-selected='false'>Map & Directions</a>";
-                            $dropdown[] = "<option value='map' name='map'>Map & Directions</option>";
+                            echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'>Map & Directions</a>";
+                            $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
+
+                        if($slug == "titan") {
+                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'>Meet Records</a>";
+                            $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
+                        }
+
                         if (!empty($live) && $prepost == "pre"){
                             echo "<a class='nav-link' id='live' href='".$live."' role='tab' target='_blank'>LIVE Results <i class='fas fa-external-link-alt'></i></a>";
                             $dropdown[] = "<option value='link-".$live."' name='live'>LIVE Results <i class='fas fa-external-link-alt'></option>";
                         }
 
-                        if (!empty($photos) && $prepost == "post"){
-                            echo "<a class='nav-link' id='photos-tab' data-toggle='pill' href='#photos' role='tab' aria-controls='photos-tab' aria-selected='false'>Photos</a>";
+                        if ($photos == yes && $prepost == "post"){
+                            echo "<a class='nav-link' id='photos-tab' data-bs-toggle='pill' data-bs-target='#photos' role='tab' aria-controls='photos-tab' aria-selected='false'>Photos</a>";
                             $dropdown[] = "<option value='photos' name='photos'>Photos</option>";
                         }
 
@@ -190,7 +220,7 @@ include("header.php");
                     </div>
 
                     <div class="form-group d-block d-md-none">
-                        <select class="form-control" id="selectTab" onchange="selectTab(this.value)">
+                        <select class="form-select" id="selectTab" onchange="selectTab(this.value)">
                             <?php
 foreach($dropdown as $d) {
     echo $d;
@@ -269,7 +299,8 @@ if (mysqli_num_rows($result) <= 0) {
                         </div>
                         <div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">
                             <h1>Distance Scores</h1>
-                            <p><strong>Team scores only for Distance Events</strong></p>
+                            <p><strong>Team scores only for Distance Events. This is an automated process, so results
+                                    should be treated as-is.</strong></p>
                             <?php
                             foreach ($meetlevels as $l) {
                                 $result = mysqli_query($con,"SELECT school, COUNT(*)  FROM overalltf WHERE meet=".$id." AND level = ".$l." GROUP BY school");
@@ -322,18 +353,23 @@ if (mysqli_num_rows($result) <= 0) {
                             }
                             ?>
                         </div>
-                        <div class="tab-pane fade" id="map" role="tabpanel" aria-labelledby="map-tab">
-                            <?php
-                            if ($sport == "xc") {
-                                echo "<h1>Course Map & Directions</h1>";
-                            } else {
-                                echo "<h1>Map & Directions</h1>";
-                            }
-                        ?>
+                        <div class="tab-pane fade" id="venue" role="tabpanel" aria-labelledby="venue-tab">
                             <?php
                         $result = mysqli_query($con,"SELECT * FROM locations WHERE name='". $location. "'");
                         if(mysqli_num_rows($result) > 0) {
                         while($row = mysqli_fetch_array($result)) {
+                            if($location == "John Davis Titan Stadium") {
+                                include($_SERVER['DOCUMENT_ROOT'] ."/includes/venues/stadium.php");
+                            } else if($location == "David Pasquini Fieldhouse") {
+                                include($_SERVER['DOCUMENT_ROOT'] ."/includes/venues/fieldhouse.php");
+                            } else if($location == "Glenbrook South High School") {
+                                include($_SERVER['DOCUMENT_ROOT'] ."/includes/venues/xccourse.php");
+                            } else {
+                                if ($sport == "xc") {
+                                    echo "<h1>Course Map & Directions</h1>";
+                                } else {
+                                    echo "<h1>Map & Directions</h1>";
+                                }
                             if (!empty($row['xccourse']) && $sport == "xc") {
                             echo "<img class='img-fluid' src='/assets/images/course-maps/".$row['xccourse']."'>";
                             echo "<hr>";
@@ -385,13 +421,29 @@ if (mysqli_num_rows($result) <= 0) {
                                 echo "</div>";
                             }
                         }
+                    }
                     } else {
+                        if ($sport == "xc") {
+                            echo "<h1>Course Map & Directions</h1>";
+                        } else {
+                            echo "<h1>Map & Directions</h1>";
+                        }
                             echo "<div class='embed-responsive embed-responsive-4by3'>";
                             echo "<iframe class='embed-responsive-item' width='600' height='450' src='https://www.google.com/maps/embed/v1/search?key=".$gmapapikey."&q=".$location."' allowfullscreen></iframe>";
                             echo "</div>";
                     }
                             ?>
                         </div>
+
+                        <div class="tab-pane fade" id="special" role="tabpanel" aria-labelledby="special-tab">
+                            <?php
+                        if($slug == "titan") {
+                            include($_SERVER['DOCUMENT_ROOT'] ."/includes/titanrecords.php");
+                        }
+                        ?>
+                        </div>
+
+
                         <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                             <h1>Photos</h1>
                             <?php
@@ -424,6 +476,11 @@ if (mysqli_num_rows($result) <= 0) {
                         } else {
                             $splits = 0;
                         }
+                        if (!empty($row['place'])) {
+                            $places = 1;
+                        } else {
+                            $places = 0;
+                        }
                         }
                     echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
                     if ($sport == "xc") {    
@@ -434,12 +491,12 @@ if (mysqli_num_rows($result) <= 0) {
 
                     if($splits == 1) {
                         echo "<div class='d-none d-md-block'>";
-                        echo "<div class='custom-control custom-switch'>";
-                        echo "<input type='checkbox' class='custom-control-input' onChange='showSplits(this.checked)' id='splitsSwitch' checked>";
+                        echo "<div class='form-check form-switch'>";
+                        echo "<input type='checkbox' class='form-check-input' onChange='showSplits(this.checked)' id='splitsSwitch' checked>";
                         echo "<label class='custom-control-label' for='splitsSwitch'>Toggle Splits</label>";
                         echo "</div>";
-                        echo "<div class='custom-control custom-switch'>";
-                        echo "<input type='checkbox' class='custom-control-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
+                        echo "<div class='form-check form-switch'>";
+                        echo "<input type='checkbox' class='form-check-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
                         echo "<label class='custom-control-label' for='highlightSwitch'>Toggle Highlight</label>";
                         echo "</div>";
                         echo "</div>";
@@ -448,11 +505,11 @@ if (mysqli_num_rows($result) <= 0) {
                     echo "</div>";
 
                     if ($official == 1) {
-                        echo "<span class='badge badge-success'>Official Results (F.A.T.)</span>";
+                        echo "<span class='badge bg-success'>Official Results (F.A.T.)</span>";
                     } else if ($official == 2) {
-                        echo "<span class='badge badge-warning'>Official Results (Hand Timed)</span>";
+                        echo "<span class='badge bg-warning'>Official Results (Hand Timed)</span>";
                     } else if ($official == 0) {
-                        echo "<span class='badge badge-danger'>Unofficial Results</span>";
+                        echo "<span class='badge bg-danger'>Unofficial Results</span>";
                     }
 
                     if ($sport == "xc") {
@@ -460,14 +517,14 @@ if (mysqli_num_rows($result) <= 0) {
                         echo "<table class='table table-condensed table-sm dataTable' id='".$abbreviations[$l]."Results'>";
                         echo "<thead>
                         <tr>";
-                        if (!empty($row['place'])){
+                        if ($places == 1){
                         echo "<th>Place</th>";
                         }
                         echo "<th>Name</th>
                         <th>Grade</th> <th>Time</th>
                         <th>Team</th>";
                     if ($splits == 1) {
-                        echo "<th>Team</th><th>1 Mile</th>";
+                        echo "<th>1 Mile</th>";
                         if ($distance == "2mi") {
                         echo"<th>Finish</th>";
                         } else {
@@ -499,7 +556,7 @@ if (mysqli_num_rows($result) <= 0) {
                             if ($row['school'] == "Glenbrook South" OR $row['school'] == "Glenview (Glenbrook South)" OR $row['school'] == "Glenbrook South*"){
                                 echo "<tr class='row-highlight clickable-row' data-href='/athlete/".$row['profile']."'>";
                                 if (!empty($row['place'])) {
-                                    echo "<th data-toggle='tooltip' data-placement='top' title='".$percent."'>" . $row['place'] . "</th>";
+                                    echo "<th data-bs-toggle='tooltip' data-placement='top' title='".$percent."'>" . $row['place'] . "</th>";
                                 }
                             } else {
                                 echo "<tr>";
@@ -638,10 +695,10 @@ if (mysqli_num_rows($result) <= 0) {
                 }
             echo "</tbody></table>";
                     }
+                    echo "<a class='btn btn-primary' href='/printresults?id=".$id."' role='button'>Print Results</a>";
                     echo "</div>";
                     }
                     ?>
-
                     </div>
                 </div>
             </div>
@@ -670,9 +727,12 @@ var tab;
 
 function selectTab(str) {
     var dropdown = document.getElementById('selectTab');
-    tab = "#" + dropdown.options[dropdown.selectedIndex].value;
+    tab = "#" + dropdown.options[dropdown.selectedIndex].value + "-tab";
+    console.log(tab)
     if (tab.includes("link-") == false) {
-        $(tab + "-tab").trigger('click');
+        var someTabTriggerEl = document.querySelector(tab)
+        var tabt = new bootstrap.Tab(someTabTriggerEl)
+        tabt.show()
     } else {
         var link = tab.substring(6);
         console.log(link);

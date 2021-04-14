@@ -10,11 +10,11 @@ $id = htmlspecialchars($_GET["id"]);
         <input type="text" class="form-control mb-3" size="30" onkeyup="showResult(this.value)">
         <div id="livesearch"></div>
     </form>-->
-    <div class="d-flex justify-content-between flex-wrap text-sm-center text-lg-left">
+    <div class="d-flex justify-content-between flex-wrap text-sm-center text-lg-start">
         <p>Click on the name of an athlete in the table to view their profile.<br>The only times listed are ones in our
             database, so a "PR" listed below may not be accurate until our database is up-to-date.</p>
         <div class="form-group">
-            <select class="form-control" id="SeasonSelect" onchange="showSeason(this.value)">
+            <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
                 <option value="tf21" name="tf21">2021 Track</option>
                 <option value="xc20" name="xc20">2020 Cross Country</option>

@@ -46,9 +46,7 @@ $result = mysqli_query($con,"SELECT id,Name,Date FROM meets");
 while($row = mysqli_fetch_array($result)) {
     $meets[$row['id']] = $row['Name']." (".date("n/j/y",strtotime($row['Date'])).")";
 }
-?>
-<?php include("header.php"); ?>
-<?php
+
 //PRs
 $result = mysqli_query($con,"SELECT * FROM prs WHERE profile='". $profile ."' AND season='all'");
 while($row = mysqli_fetch_array($result)) {
@@ -90,22 +88,24 @@ if ($currentsport == "xc" && $currentathlete == 1) {
     }
     }
 }
+
+$file = $_SERVER['DOCUMENT_ROOT']."/assets/images/athletes/".$profile.".png";
+if (file_exists($file)) {
+    $image = "assets/images/athletes/".$profile.".png";
+} else {
+    $image = "assets/images/athletes/blank.png";
+}
+
+include("header.php");
 ?>
 
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-3 p-md-0 text-center text-md-left">
+        <div class="col-md-3 p-md-0 text-center text-md-start">
 
             <?php
-                    echo "<div class='athlete-image'>";
-
-                    $file = $_SERVER['DOCUMENT_ROOT']."/assets/images/athletes/".$profile.".png";
-                    if (file_exists($file)) {
-                        echo "<img src='/assets/images/athletes/".$profile.".png' class='img-thumbnail'>";
-                    } else {
-                        echo "<img src='/assets/images/athletes/blank.png' class='img-thumbnail'>";
-                    }
-                    
+                    echo "<div class='athlete-image mx-auto mx-md-0'>";
+                    echo "<img src='/".$image."' class='img-thumbnail'>";
                     echo "</div>";
 
                     $y = substr($currentyear, -2);
@@ -135,22 +135,25 @@ if ($currentsport == "xc" && $currentathlete == 1) {
                     }
 
 if ($pr3mi < "15:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge badge-warning mx-1'>Sub-15 Club</span>";
+    echo "<span class='badge bg-warning mx-1'>Sub-15 Club</span>";
 } else if ($pr3mi < "16:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge badge-warning mx-1'>Sub-16 Club</span>";
+    echo "<span class='badge bg-warning mx-1'>Sub-16 Club</span>";
+}
+if ($pr3200m < "10:00" && !empty($pr3200m)) {
+    echo "<span class='badge bg-warning mx-1'>Sub-10 Club</span>";
 }
 if ($pr1600m < "5:00" && !empty($pr1600m)) {
-    echo "<span class='badge badge-warning mx-1'>Sub-5 Club</span>";
+    echo "<span class='badge bg-warning mx-1'>Sub-5 Club</span>";
 }
 if ($pr800m < "2:00" && !empty($pr800m)) {
-    echo "<span class='badge badge-warning mx-1'>Sub-2 Club</span>";
+    echo "<span class='badge bg-warning mx-1'>Sub-2 Club</span>";
 }
 
 if (!empty($awards)) {
     echo "<hr class='mr-md-4'>";
     $awards = explode(", ", $awards);
     foreach ($awards as $a) {
-        echo "<span class='badge badge-primary mx-1'>".$a."</span>";
+        echo "<span class='badge bg-primary mx-1'>".$a."</span>";
     }
 }
 
@@ -223,7 +226,7 @@ if (!empty($awards)) {
                         echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']." (".$row['percent']."%)'>";
                         echo $row['time'];
                         if (($row['time'] == $pr3mi && $row['distance'] == "3mi") || ($row['time'] == $pr2mi && $row['distance'] == "2mi") || ($row['time'] == $pr5k && $row['distance'] == "5k")) {
-                            echo " <span class='badge badge-warning'>PR</span>";
+                            echo " <span class='badge bg-warning'>PR</span>";
                         }
                         echo "</td>";
 
@@ -262,10 +265,10 @@ if (!empty($awards)) {
                         echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']."'>";
                         echo $row['time'];
                         if (($row['time'] == $pr3200m && $row['distance'] == "3200m") || ($row['time'] == $pr1600m && $row['distance'] == "1600m") || ($row['time'] == $pr800m && $row['distance'] == "800m") || ($row['time'] == $pr400m && $row['distance'] == "400m")) {
-                            echo " <span class='badge badge-warning'>PR</span>";
+                            echo " <span class='badge bg-warning'>PR</span>";
                         }
                         if (isset($row['relay'])) {
-                           echo " <span class='badge badge-info'>R</span>";
+                           echo " <span class='badge bg-info'>R</span>";
                         }
                         echo "</td>";
 

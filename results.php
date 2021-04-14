@@ -33,7 +33,7 @@ $result = mysqli_query($con,"SELECT * FROM series");
                 </thead>
                 <tbody>
                     <?php
-            $result = mysqli_query($con,"SELECT * FROM meets WHERE (Date<='".$todaydate."')ORDER BY Date DESC");                  
+            $result = mysqli_query($con,"SELECT * FROM meets WHERE Date<'".$todaydate."' OR (Date <= '".$todaydate."' AND (Official = 1 OR Official = 2)) ORDER BY Date DESC");                  
             while($row = mysqli_fetch_array($result)) {
             if (empty($row['Series'])) {
                 $url = "/meet/".$row['id'];
@@ -44,10 +44,12 @@ $result = mysqli_query($con,"SELECT * FROM series");
             //Badge
 if (!empty($row['Badge'])) {
     if ($row['Badge'] == 1) {
-        $badge = " <span class='badge badge-csl'>CSL</span>";
+        $badge = " <span class='badge bg-csl'>CSL</span>";
     } else if ($row['Badge'] == 2) {
-        $badge = " <span class='badge badge-ihsa'>IHSA</span>";
-    } 
+        $badge = " <span class='badge bg-ihsa'>IHSA</span>";
+    } else if ($row['Badge'] == 3) {
+        $badge = " <span class='badge bg-info'>TT</span>";
+    }
 } else {
     $badge = "";
 }
@@ -56,7 +58,11 @@ if (!empty($row['Badge'])) {
 echo "<tr class='clickable-row' data-href='".$url."'>";
 echo "<td>" . $d . "</td>";
 echo "<td><a href='".$url."'>" . $row['Name'] . $badge. "</a></td>";
-echo "<td>" . $row['Opponents'] . "</td>";
+if(strlen($row['Opponents']) > 50) {
+    echo "<td data-toggle='tooltip' data-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 50)."..." . "</td>";
+} else {
+    echo "<td>" . $row['Opponents'] . "</td>";
+}
 echo "<td>" . $row['Location'] . "</td>";
 echo "<td>" . $row['Season'] . "</td>";
 echo "</tr>";  

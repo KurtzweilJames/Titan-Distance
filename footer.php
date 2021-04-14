@@ -11,16 +11,12 @@
 </footer>
 
 <!-- Scripts -->
-<script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous">
+</script>
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" language="javascript"
-    src="https://cdn.datatables.net/1.10.23/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
-</script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous">
-</script>
-</script>
+    src="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css"></script>
 
 <?php
 if ($require == "share") {
@@ -42,9 +38,6 @@ if ($require == "charts") {
 }
 ?>
 
-<!-- Font Awesome -->
-<script src="https://kit.fontawesome.com/d5ee56d8d1.js" crossorigin="anonymous"></script>
-
 <!-- Service Worker -->
 <script type="module">
 import 'https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate';
@@ -61,8 +54,11 @@ jQuery(document).ready(function($) {
     $(".clickable").click(function() {
         window.open($(this).data("href"), '_blank');
     });
-    $('[data-toggle="tooltip"]').tooltip();
 });
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl)
+})
 </script>
 <?php
 if ($pgtitle == "Results") {
@@ -174,25 +170,25 @@ if (document.getElementById("sayings")) {
 }
 
 
-// When the user scrolls the page, execute myFunction
 window.onscroll = function() {
     myFunction()
 };
 
-// Get the header
 var navbar = document.getElementById("top-navbar");
+var content = document.getElementById("main");
 
-// Get the offset position of the navbar
 var sticky = navbar.offsetTop;
+var navheight = navbar.offsetHeight;
 
-// Add the sticky class to the header when you reach its scroll position. Remove "sticky" when you leave the scroll position
 function myFunction() {
     if (window.pageYOffset >= sticky) {
         navbar.classList.add("sticky-header");
         navbar.classList.add("bg-light");
+        content.style = "margin-top:" + navheight + "px;";
     } else {
         navbar.classList.remove("sticky-header");
         navbar.classList.remove("bg-light");
+        content.style = "";
     }
 }
 </script>

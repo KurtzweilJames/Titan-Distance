@@ -66,18 +66,18 @@ if(!empty($meet)) {
 
     <nav aria-label="meta">
         <ol class="meta">
-            <li class="meta-item"><i class="fas fa-calendar-alt"></i> <?php echo $date;?></li>
+            <li class="meta-item"><i class="bi bi-calendar-fill"></i> <?php echo $date;?></li>
             <?php
             if (!empty($author)) {
-                echo "<li class='meta-item'><i class='fas fa-user'></i>".$author."</li>";
+                echo "<li class='meta-item'><i class='bi bi-person-circle'></i>".$author."</li>";
             }
             ?>
-            <li class="meta-item"><i class="fas fa-folder"></i> <?php echo $cat;?></li>
-            <li class="meta-item"><i class="fas fa-newspaper"></i> <a href="/release?id=<?php echo $id; ?>">Print
+            <li class="meta-item"><i class="bi bi-folder-fill"></i> <?php echo $cat;?></li>
+            <li class="meta-item"><i class="bi bi-printer-fill"></i> <a href="/release?id=<?php echo $id; ?>">Print
                     Release</a></li>
             <?php
             if (!empty($meet)) {
-                echo "<li class='meta-item'><i class='fas fa-running'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
+                echo "<li class='meta-item'><i class='bi bi-award-fill'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
             }
             ?>
         </ol>
