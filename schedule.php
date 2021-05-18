@@ -21,11 +21,14 @@ $result = mysqli_query($con,"SELECT * FROM series");
                     <option value="" disabled>Select a Season:</option>
                     <?php
                     foreach($seasons as $s) {
-                        if ($s == $season) {
-                            echo "<option value='".$s."' name='".$s."' selected>".$s."</option>";
-                        } else {
-                            echo "<option value='".$s."' name='".$s."'>".$s."</option>";
+                        echo "<option value='".$s."' name='".$s."'";
+                        if ($s == $currentseason) {
+                            echo "class='bg-info'";
                         }
+                        if ($s == $season) {
+                            echo "selected";
+                        }
+                        echo ">".$s."</option>";
                     }
                 ?>
                 </select>
@@ -72,7 +75,7 @@ while($row = mysqli_fetch_array($result)) {
     }
 
         if (array_key_exists($row['Badge'], $badges)) {
-            $badge = "<span class='ml-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
+            $badge = "<span class='ms-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
         } else {
             $badge = "";
         }

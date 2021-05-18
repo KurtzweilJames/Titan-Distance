@@ -15,9 +15,28 @@ if (date(l) == "Sunday") {
 $saturdaydate = date('Y-m-d', strtotime('next sunday'));
 }
 $todaydate = date('Y-m-d');
+
+$strava = $_GET["strava"];
 ?>
 <section id="content">
     <div class="container mt-4">
+        <?php
+if (!empty($strava)) {
+    if ($strava == "loggedin") {
+        echo "<div class='alert alert-success' role='alert'>
+        You have been logged in to your Strava account.
+        </div>";    
+    } else if ($strava !== "error") {
+        echo "<div class='alert alert-success' role='alert'>
+                Activity Succesfully Uploaded. <a href='https://www.strava.com/activities/".$strava."' target='_blank'>Check it out here!</a>
+                </div>";
+    } else {
+    echo "<div class='alert alert-danger' role='alert'>
+            Strava Upload failed. Please try again. You may need to log out, then log back in.
+            </div>";
+    }
+}
+    ?>
         <div class="table-responsive">
             <table class="table table-striped">
                 <thead>
@@ -47,12 +66,12 @@ while ($row = mysqli_fetch_array($result)) {
         }
 
         if ($row['date'] == $todaydate) {
-            echo "<tr class='table-primary'>";
+            echo "<tr class='table-primary' id='".$row['date']."'>";
         }
         else {
-            echo "<tr>";
+            echo "<tr id='".$row['date']."'>";
         }
-        echo "<td data-toggle='tooltip' data-placement='top' title='".$tooltip."'>" . $d . "</td>";
+        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='".$tooltip."'>" . $d . "</td>";
         echo "<td>";
         if (!empty($row['1mileage']) && empty($row['2mileage'])){
             echo $row['1mileage'];
@@ -73,17 +92,20 @@ while ($row = mysqli_fetch_array($result)) {
 
         echo "<td>";
         if ($row['weights'] >= 1) {
-            echo "<span class='badge badge-primary'><i class='fas fa-dumbbell'></i> Weight Circuit";
+            echo "<span class='badge bg-primary'>Weight Circuit";
             if ($row['weights'] > 1) {
             echo "s (x".$row['weights'].")";
             }
             echo "</span>";
         }
         if (!empty($row['strides']) && $row['strides'] !== 0) {
-            echo " <span class='badge badge-primary'><i class='fas fa-running'></i> ".$row['strides']."</span>";
+            echo " <span class='badge bg-primary'>".$row['strides']." strides</span>";
+        }
+        if (empty($row['weights']) && empty($row['strides']) && !empty($row['notes'])) {
+            echo "<br>";
         }
         if (!empty($row['notes'])) {
-            echo "<br>*".$row['notes'];
+            echo "*".$row['notes'];
         }
 
         //STRAVA
@@ -93,7 +115,7 @@ while ($row = mysqli_fetch_array($result)) {
         $elapsed = $row['1mileage'] * 420;
         echo "</td>";
         if (!empty($_SESSION["strava"])) {
-            echo "<th><button type='button' class='btn btn-strava btn-sm' onClick='showStrava(\"".$row['workout']."\",\"".$row['1mileage']."\",\"".$start."\")'><i class='fab fa-strava'></i></button></th>";
+            echo "<th><button type='button' class='btn btn-strava btn-sm' onClick='showStrava(\"".$row['workout']."\",\"".$row['1mileage']."\",\"".$start."\")'><img src='/assets/icons/strava.svg' height='18px'></button></th>";
         }
         echo "</tr>";
 
@@ -119,8 +141,7 @@ while ($row = mysqli_fetch_array($result)) {
             <?php
             if (empty($_SESSION["strava"])) {
                 echo "<a class='btn-strava btn-sm'
-                href='http://www.strava.com/oauth/authorize?client_id=42217&response_type=code&redirect_uri=https://titandistance.com/api/stravaauth&state=workouts&scope=read,activity:read_all,activity:write' role='button'>Strava
-                Login</a>";
+                href='http://www.strava.com/oauth/authorize?client_id=42217&response_type=code&redirect_uri=https://titandistance.com/api/stravaauth&state=workouts&scope=read,activity:read_all,activity:write' role='button'>Strava Login</a>";
             } else {
                 echo "<a class='btn-strava btn-sm' href='/api/stravaauth?state=workouts&destroy=1' role='button'>Strava
                 Logout</a>";
@@ -136,9 +157,7 @@ while ($row = mysqli_fetch_array($result)) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="StravaModalTitle">Send to Strava</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="/api/sendstrava.php" method="post">
@@ -151,7 +170,7 @@ while ($row = mysqli_fetch_array($result)) {
                             <label for="name">Distance</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" id="distance" name="distance" min="0" max="15"
-                                    step="any">
+                                    step="0.5">
                                 <div class="input-group-append">
                                     <div class="input-group-text">miles</div>
                                 </div>
@@ -190,6 +209,11 @@ while ($row = mysqli_fetch_array($result)) {
                         </div>
                     </div>
                     <div class="form-group">
+                        <label for="pace" class="form-label" id="paceLabel">Pace (7:00 min/mile)</label>
+                        <input type="range" class="form-range" min="270" max="510" id="pace" value="420"
+                            onchange="changePace()">
+                    </div>
+                    <div class="form-group">
                         <label for="description">Description</label>
                         <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                     </div>
@@ -226,6 +250,32 @@ while ($row = mysqli_fetch_array($result)) {
         document.getElementById("hr").value = hours;
         document.getElementById("min").value = minutes;
         document.getElementById("sec").value = seconds;
+    }
+
+    function changePace() {
+        range = document.getElementById("pace");
+        label = document.getElementById("paceLabel");
+        pace = range.value;
+
+        d = document.getElementById("distance").value;
+        hrs = document.getElementById("hr").value;
+        mins = document.getElementById("min").value;
+        secs = document.getElementById("sec").value;
+
+        paceEng = Math.floor(pace / 60) + ":" + ((pace % 60) < 10 ? '0' : '') + (pace % 60).toFixed(0)
+
+        elapsed = d * pace;
+
+        hours = Math.floor(elapsed / 3600);
+        elapsed %= 3600;
+        minutes = Math.floor(elapsed / 60);
+        seconds = elapsed % 60;
+
+        document.getElementById("hr").value = hours
+        document.getElementById("min").value = minutes
+        document.getElementById("sec").value = seconds
+
+        label.innerHTML = "Pace (" + paceEng + " min/mile)"
     }
     </script>
 

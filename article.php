@@ -23,6 +23,7 @@ while($row = mysqli_fetch_array($result)) {
     $meet = $row['meet'];
     $public = $row['public'];
     $author = $row['author'];
+    $include = $row['include'];
     if (isset($row['cat'])) {
        $cat = $row['cat']; 
     } else {
@@ -59,50 +60,48 @@ if(!empty($meet)) {
 <?php include("header.php");?>
 
 <div class="container my-4">
-    <!-- Title -->
-    <h1><?php echo $title;?></h1>
-
-    <hr>
-
-    <nav aria-label="meta">
-        <ol class="meta">
-            <li class="meta-item"><i class="bi bi-calendar-fill"></i> <?php echo $date;?></li>
-            <?php
+    <div class="post-head text-center text-md-start">
+        <h1><?php echo $title;?></h1>
+        <hr>
+        <nav aria-label="meta">
+            <ol class="meta">
+                <li class="meta-item"><i class="bi bi-calendar-fill"></i> <?php echo $date;?></li>
+                <?php
             if (!empty($author)) {
                 echo "<li class='meta-item'><i class='bi bi-person-circle'></i>".$author."</li>";
             }
             ?>
-            <li class="meta-item"><i class="bi bi-folder-fill"></i> <?php echo $cat;?></li>
-            <li class="meta-item"><i class="bi bi-printer-fill"></i> <a href="/release?id=<?php echo $id; ?>">Print
-                    Release</a></li>
-            <?php
+                <li class="meta-item"><i class="bi bi-folder-fill"></i> <?php echo $cat;?></li>
+                <li class="meta-item"><i class="bi bi-printer-fill"></i> <a href="/release?id=<?php echo $id; ?>">Print
+                        Release</a></li>
+                <?php
             if (!empty($meet)) {
                 echo "<li class='meta-item'><i class='bi bi-award-fill'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
             }
             ?>
-        </ol>
-    </nav>
-
-    <hr>
+            </ol>
+        </nav>
+        <hr>
+    </div>
     <div class="article">
-        <!-- Article Image -->
         <?php
-                        if (!empty($image)) {
-                            echo "<img class='img-responsive float-right' height='250' src='/assets/images/".$image."'>";
-                            //echo "</div>";
-                        } 
-                        ?>
-        <!-- Post Content -->
-        <?php echo $content; ?>
+        if (!empty($image) && empty($include)) {
+            echo "<img class='img-responsive float-end' height='250' src='/assets/images/".$image."'>";
+        } 
+        
+        echo $content;
+
+        if (!empty($include)) {
+            include("includes/specials/".$include);
+        }
+        ?>
     </div>
     <hr>
 
-    <!-- Share -->
-    <div class="row">
+    <div class="row text-center align-middle">
         <div class="col-md-4">
-            <strong>Share this Post:</strong>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 mb-xs-2 mb-lg-0">
             <?php
 
 if (!empty($meet)) {

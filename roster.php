@@ -5,15 +5,11 @@ $id = htmlspecialchars($_GET["id"]);
 ?>
 
 <div class="container mt-3 h-100">
-    <!--
-    <form>
-        <input type="text" class="form-control mb-3" size="30" onkeyup="showResult(this.value)">
-        <div id="livesearch"></div>
-    </form>-->
-    <div class="d-flex justify-content-between flex-wrap text-sm-center text-lg-start">
-        <p>Click on the name of an athlete in the table to view their profile.<br>The only times listed are ones in our
+    <div class="d-flex justify-content-between flex-wrap text-center text-md-start">
+        <p>Click on the name of an athlete in the table to view their
+            profile.<br>The only times listed are ones in our
             database, so a "PR" listed below may not be accurate until our database is up-to-date.</p>
-        <div class="form-group">
+        <div class="form-group mx-auto mx-lg-0 mb-2 mb-lg-0">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
                 <option value="tf21" name="tf21">2021 Track</option>
@@ -34,7 +30,7 @@ $id = htmlspecialchars($_GET["id"]);
     <div id="loading-spinner">
         <div class="d-flex justify-content-center">
             <div class="spinner-border" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="visually-hidden"></span>
             </div>
         </div>
     </div>
@@ -67,16 +63,16 @@ $id = htmlspecialchars($_GET["id"]);
             }
         };
         if (sport == "tf") {
-            xhttp.open("GET", "/rosterview/tfroster.php?y=" + year, true);
+            xhttp.open("GET", "/includes/rosterview/tfroster.php?y=" + year, true);
         }
         if (sport == "xc") {
-            xhttp.open("GET", "/rosterview/xcroster.php?y=" + year, true);
+            xhttp.open("GET", "/includes/rosterview/xcroster.php?y=" + year, true);
         }
         if (str.includes("all")) {
-            xhttp.open("GET", "/rosterview/allroster.php", true);
+            xhttp.open("GET", "/includes/rosterview/allroster.php", true);
         }
         if (str.includes("picture")) {
-            xhttp.open("GET", "/rosterview/picture.php", true);
+            xhttp.open("GET", "/includes/rosterview/picture.php", true);
         }
         xhttp.send();
 

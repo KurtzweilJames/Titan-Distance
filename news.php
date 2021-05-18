@@ -47,7 +47,7 @@ if ($page == 0) {
        }
        
        echo "<div class='col mb-4'>";
-       echo "<div class='card hover-card clickable-row' data-href='/news/".$row['slug']."'>";
+       echo "<div class='card hover-card clickable-row' data-href='/news/".$row['slug']."' loading='lazy'>";
        if (file_exists($image)) {
        echo "<img src='".$image."' class='card-img-top'>";
        } else {
@@ -55,7 +55,11 @@ if ($page == 0) {
        }
        echo "<div class='card-body'>";
        echo "<h3 class='card-title text-center'>".$row['title']."</h3>";
-       echo "<p class='card-text text-center'>".substr($content,0, 150)."...</p>";
+       if (!empty($content)) {
+            echo "<p class='card-text text-center'>".substr($content,0, 150)."...</p>";
+       } else {
+            echo "<p class='card-text text-center'><u>Read More</u></p>";
+       }
        echo "<p class='card-text'><small class='text-muted'>Published on ".$date.$cat."</small></p>";
        echo "</div>";
        echo "</div>";

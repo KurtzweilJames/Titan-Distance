@@ -33,7 +33,7 @@ $result = mysqli_query($con,"SELECT * FROM series");
                 </thead>
                 <tbody>
                     <?php
-            $result = mysqli_query($con,"SELECT * FROM meets WHERE Date<'".$todaydate."' OR (Date <= '".$todaydate."' AND (Official = 1 OR Official = 2)) ORDER BY Date DESC");                  
+            $result = mysqli_query($con,"SELECT * FROM meets WHERE Date<'".$todaydate."' OR (Date <= '".$todaydate."' AND Official != 0) ORDER BY Date DESC");                  
             while($row = mysqli_fetch_array($result)) {
             if (empty($row['Series'])) {
                 $url = "/meet/".$row['id'];
@@ -44,11 +44,11 @@ $result = mysqli_query($con,"SELECT * FROM series");
             //Badge
 if (!empty($row['Badge'])) {
     if ($row['Badge'] == 1) {
-        $badge = " <span class='badge bg-csl'>CSL</span>";
+        $badge = " <span class='badge bg-csl' data-bs-toggle='tooltip' data-bs-placement='top' title='Central Suburban League'>CSL</span>";
     } else if ($row['Badge'] == 2) {
-        $badge = " <span class='badge bg-ihsa'>IHSA</span>";
+        $badge = " <span class='badge bg-ihsa' data-bs-toggle='tooltip' data-bs-placement='top' title='Illinois High School Association'>IHSA</span>";
     } else if ($row['Badge'] == 3) {
-        $badge = " <span class='badge bg-info'>TT</span>";
+        $badge = " <span class='badge bg-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Time Trial'>TT</span>";
     }
 } else {
     $badge = "";
@@ -59,7 +59,7 @@ echo "<tr class='clickable-row' data-href='".$url."'>";
 echo "<td>" . $d . "</td>";
 echo "<td><a href='".$url."'>" . $row['Name'] . $badge. "</a></td>";
 if(strlen($row['Opponents']) > 50) {
-    echo "<td data-toggle='tooltip' data-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 50)."..." . "</td>";
+    echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 100)."..." . "</td>";
 } else {
     echo "<td>" . $row['Opponents'] . "</td>";
 }

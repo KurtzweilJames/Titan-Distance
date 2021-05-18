@@ -47,6 +47,38 @@ while($row = mysqli_fetch_array($result)) {
     $meets[$row['id']] = $row['Name']." (".date("n/j/y",strtotime($row['Date'])).")";
 }
 
+//Personal Records
+$result = mysqli_query($con,"SELECT * FROM overalltf WHERE pr = 1 AND profile = '".$profile."'");
+while($row = mysqli_fetch_array($result)) {
+    if ($row['distance'] == "3200m") {
+        $pr3200m = $row['time'];
+        $meet3200m = $row['meet'];
+    } else if ($row['distance'] == "1600m") {
+        $pr1600m = $row['time'];
+        $meet1600m = $row['meet'];
+    } else if ($row['distance'] == "800m") {
+        $pr800m = $row['time'];
+        $meet800m = $row['meet'];
+    } else if ($row['distance'] == "400m") {
+        $pr400m = $row['time'];
+        $meet400m = $row['meet'];
+    }
+}
+$result = mysqli_query($con,"SELECT * FROM overallxc WHERE pr = 1 AND profile = '".$profile."'");
+while($row = mysqli_fetch_array($result)) {
+    if ($row['distance'] == "3mi") {
+        $pr3mi = $row['time'];
+        $meet3mi = $row['meet'];
+    } else if ($row['distance'] == "2mi") {
+        $pr2mi = $row['time'];
+        $meet2mi = $row['meet'];
+    } else if ($row['distance'] == "5k") {
+        $pr5k = $row['time'];
+        $meet5k = $row['meet'];
+    }
+}
+
+/*
 //PRs
 $result = mysqli_query($con,"SELECT * FROM prs WHERE profile='". $profile ."' AND season='all'");
 while($row = mysqli_fetch_array($result)) {
@@ -73,6 +105,7 @@ while($row = mysqli_fetch_array($result)) {
     $srs[] = $row['season'];
     
 }
+*/
 
 if ($currentsport == "xc" && $currentathlete == 1) {
     $teampoints = 0;
@@ -135,18 +168,18 @@ include("header.php");
                     }
 
 if ($pr3mi < "15:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge bg-warning mx-1'>Sub-15 Club</span>";
+    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
 } else if ($pr3mi < "16:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge bg-warning mx-1'>Sub-16 Club</span>";
+    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
 }
 if ($pr3200m < "10:00" && !empty($pr3200m)) {
-    echo "<span class='badge bg-warning mx-1'>Sub-10 Club</span>";
+    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
 }
 if ($pr1600m < "5:00" && !empty($pr1600m)) {
-    echo "<span class='badge bg-warning mx-1'>Sub-5 Club</span>";
+    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
 }
 if ($pr800m < "2:00" && !empty($pr800m)) {
-    echo "<span class='badge bg-warning mx-1'>Sub-2 Club</span>";
+    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
 }
 
 if (!empty($awards)) {
@@ -183,30 +216,40 @@ if (!empty($awards)) {
                     </thead>
                     <tbody>
                         <tr>
-                            <td><?php echo "<a href='/meet/".$meet3mi."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet3mi]."'>".$pr3mi."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet3mi."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet3mi]."'>".$pr3mi."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet2mi."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet2mi]."'>".$pr2mi."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet2mi."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet2mi]."'>".$pr2mi."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet5k."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet5k]."'>".$pr5k."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet5k."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet5k]."'>".$pr5k."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet3200m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet3200m]."'>".$pr3200m."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet3200m."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet3200m]."'>".$pr3200m."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet1600m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet1600m]."'>".$pr1600m."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet1600m."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet1600m]."'>".$pr1600m."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet800m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet800m]."'>".$pr800m."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet800m."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet800m]."'>".$pr800m."</a>"; ?>
                             </td>
-                            <td><?php echo "<a href='/meet/".$meet400m."' data-toggle='tooltip' data-placement='bottom' title='".$meets[$meet400m]."'>".$pr400m."</a>"; ?>
+                            <td><?php echo "<a href='/meet/".$meet400m."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$meet400m]."'>".$pr400m."</a>"; ?>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+            <?php
+$xc = mysqli_query($con,"SELECT * FROM overallxc WHERE profile='". $profile ."' ORDER BY date IS NULL, date DESC");
+$tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' ORDER BY date IS NULL, date DESC");
+?>
             <div class="row">
-                <div class="col-md-6 p-md-1">
-                    <h3>Cross Country</h3>
+                <?php
+                if(mysqli_num_rows($xc) > 0) {
+                    if(mysqli_num_rows($tf) > 0) {
+                        echo "<div class='col-md-6'>";
+                    } else {
+                        echo "<div class='col-md-12'>";
+                    }
+                    echo "<h3>Cross Country</h3>
                     <hr>
-                    <div class="table-responsive overflow-hidden">
-                        <table class="table table-condensed table-striped table-hover dataTable" id="xcPersonal">
+                    <div class='table-responsive overflow-hidden'>
+                        <table class='table table-condensed table-striped table-hover dataTable' id='xcPersonal'>
                             <thead>
                                 <tr>
                                     <th>Time</th>
@@ -214,73 +257,69 @@ if (!empty($awards)) {
                                     <th>Distance</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php
-                        $result = mysqli_query($con,"SELECT time,meet,name,distance,place,percent FROM overallxc WHERE profile='". $profile ."' ORDER BY date IS NULL, date DESC");
-            
-                    while($row = mysqli_fetch_array($result)) {
+                            <tbody>";         
+                    while($row = mysqli_fetch_array($xc)) {
                         $meet = $row['meet'];
                         $distance = str_replace("mi"," Mile",$row['distance']);
                         echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
 
-                        echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']." (".$row['percent']."%)'>";
+                        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: ".$row['place']." (".$row['percent']."%)'>";
                         echo $row['time'];
-                        if (($row['time'] == $pr3mi && $row['distance'] == "3mi") || ($row['time'] == $pr2mi && $row['distance'] == "2mi") || ($row['time'] == $pr5k && $row['distance'] == "5k")) {
-                            echo " <span class='badge bg-warning'>PR</span>";
+                        if ($row['pr'] == 1) {
+                            echo "<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                        } else if ($row['sr'] == 1) {
+                            echo "<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                         }
-                        echo "</td>";
+                        echo "</td>"; 
 
                         echo "<td><a href='/meet/".$meet."'>".$meets[$meet]."</a></td>";
                         echo "<td>".$distance."</td>";
                         echo "</tr>";
                     }
-                        ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="col-md-6 p-md-1">
-                    <h3>Track</h3>
+                echo "</tbody></table></div></div>";
+                }
+
+                if(mysqli_num_rows($tf) > 0) {
+                    if(mysqli_num_rows($xc) > 0) {
+                        echo "<div class='col-md-6'>";
+                    } else {
+                        echo "<div class='col-md-12'>";
+                    }
+                    echo "<h3>Distance Track</h3>
                     <hr>
-                    <div class="table-responsive overflow-hidden">
-                        <table class="table table-condensed table-striped table-hover dataTable" id="tfPersonal">
+                    <div class='table-responsive overflow-hidden'>
+                        <table class='table table-condensed table-striped table-hover dataTable' id='tfPersonal'>
                             <thead>
                                 <tr>
                                     <th>Event</th>
                                     <th>Mark</th>
                                     <th>Meet</th>
-                                    <th>Points</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php
-                        $result = mysqli_query($con,"SELECT time,meet,name,distance,points,relay,place FROM overalltf WHERE profile='". $profile ."' ORDER BY meet DESC");
-            
-                    while($row = mysqli_fetch_array($result)) {
-                        $meet = $row['meet'];
-                        $points = $row['points'];
-                        echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
-                        echo "<td>".$row['distance']."</td>";
-                        
-                        echo "<td data-toggle='tooltip' data-placement='top' title='Finish Place: ".$row['place']."'>";
-                        echo $row['time'];
-                        if (($row['time'] == $pr3200m && $row['distance'] == "3200m") || ($row['time'] == $pr1600m && $row['distance'] == "1600m") || ($row['time'] == $pr800m && $row['distance'] == "800m") || ($row['time'] == $pr400m && $row['distance'] == "400m")) {
-                            echo " <span class='badge bg-warning'>PR</span>";
+                            <tbody>";   
+                            while($row = mysqli_fetch_array($tf)) {
+                                $meet = $row['meet'];
+                                echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
+                                echo "<td>".$row['distance']."</td>";
+                                
+                                echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: ".$row['place']."'>";
+                                echo $row['time'];
+                                if ($row['pr'] == 1) {
+                                    echo "<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                } else if ($row['sr'] == 1) {
+                                    echo "<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                }
+                                if (isset($row['relay'])) {
+                                   echo "<span class='badge bg-info ms-1'>R</span>";
+                                }
+                                echo "</td>";
+        
+                                echo "<td><a href='/meet/".$meet."'>".$meets[$meet]."</a></td>";
+                                echo "</tr>";
+                            }  
+                            echo "</tbody></table></div></div>";
                         }
-                        if (isset($row['relay'])) {
-                           echo " <span class='badge bg-info'>R</span>";
-                        }
-                        echo "</td>";
-
-                        echo "<td><a href='/meet/".$meet."'>".$meets[$meet]."</a></td>";
-                        echo "<td>".$points."</td>";
-                        echo "</tr>";
-                    }
                         ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
             <h3>Data Visualization</h3>
             <hr>
