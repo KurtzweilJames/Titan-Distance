@@ -15,6 +15,17 @@ include("config.php");
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
 
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/favicon-16x16.png">
+    <link rel='manifest' href='/manifest.json'>
+    <link rel="mask-icon" href="/assets/icons/safari-pinned-tab.svg" color="#ffd700">
+    <link rel="shortcut icon" href="/assets/icons/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/assets/icons/browserconfig.xml">
+    <meta name="theme-color" content="#073763">
+
     <style>
     body {
         margin: 0px;
@@ -99,6 +110,13 @@ include("config.php");
         background: #073763;
         color: #fff;
     }
+
+    .gbs-marker {
+        background-image: url('/assets/logos/GBSAthletics.svg');
+        background-size: cover;
+        width: 50px;
+        cursor: pointer;
+    }
     </style>
 </head>
 
@@ -180,6 +198,12 @@ include("config.php");
         <h3 class="route" id="crestwood" onclick="viewRoute('crestwood')">
             Crestwood<span class="miles">2.15 mi</span>
         </h3>
+        <h3 class="route" id="xccourse" onclick="viewRoute('xccourse')">
+            XC Course<span class="miles">1.0 mi</span>
+        </h3>
+        <h3 class="route" id="dinosaur" onclick="viewRoute('dinosaur')">
+            Dinosaur<span class="miles">0.9 mi</span>
+        </h3>
     </div>
     <div id="map"></div>
 
@@ -201,15 +225,17 @@ include("config.php");
         '<?php echo $mapboxapikey; ?>';
     var map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/jkurtzweil2/ckgacb5xw02fp19r16el5q4xc', // stylesheet location
-        center: [-87.8333, 42.087], // starting position [lng, lat]
-        zoom: zoom // starting zoom
+        style: 'mapbox://styles/jkurtzweil2/ckgacb5xw02fp19r16el5q4xc',
+        center: [-87.8333, 42.087],
+        maxBounds: mapboxgl.LngLatBounds((mapboxgl.LngLat(-87.905364, 42.142278), mapboxgl.LngLat(-87.779986,
+            42.063568))),
+        zoom: zoom
     });
 
     var marker = new mapboxgl.Marker()
         .setLngLat([-87.850, 42.089])
         .addTo(map);
-    marker.className = 'marker';
+    marker.className = 'gbs-marker';
 
     // Add geolocate control to the map.
     map.addControl(
