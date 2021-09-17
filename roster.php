@@ -6,12 +6,13 @@ $id = htmlspecialchars($_GET["id"]);
 
 <div class="container mt-3 h-100">
     <div class="d-flex justify-content-between flex-wrap text-center text-md-start">
-        <p>Click on the name of an athlete in the table to view their
-            profile.<br>The only times listed are ones in our
-            database, so a "PR" listed below may not be accurate until our database is up-to-date.</p>
+        <p>Only times in our database are considered for PRs. Alumni are slowly being added in, thank you for your
+            patience.
+        </p>
         <div class="form-group mx-auto mx-lg-0 mb-2 mb-lg-0">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
+                <option value="xc21" name="xc21">2021 Cross Country</option>
                 <option value="tf21" name="tf21">2021 Track</option>
                 <option value="xc20" name="xc20">2020 Cross Country</option>
                 <option value="tf20" name="tf20">2020 Track</option>

@@ -18,21 +18,29 @@
                     </thead>";
                     echo "<tbody>";
             
+            //Get Profiles
+            $profiles = [];
+            $result = mysqli_query($con,"SELECT UNIQUE profile FROM overallxc WHERE season = 'xc".$y."' ORDER BY time DESC");
+            while($row = mysqli_fetch_array($result)) {
+            $profiles[] = $row['profile'];
+            }
+
             //Get Athlete Names
             $athletes = [];
-            $result = mysqli_query($con,"SELECT * FROM athletes WHERE xc".$y." = 1");
+            foreach($profiles as $profile) {
+            $result = mysqli_query($con,"SELECT * FROM athletes WHERE profile = '".$profile."'");
                     while($row = mysqli_fetch_array($result)) {
                         $name = $row['name'];
                         $id = $row['id'];
                         $class = $row['class'];
                         $profile = $row['profile'];
-                    if ($class == ($y+1)) {
+                    if ($class == ($y+2001)) {
                         $grade = "Sr.";
-                    } else if ($class == ($y+2)) {
+                    } else if ($class == ($y+2002)) {
                         $grade = "Jr.";
-                    } else if ($class == ($y+3)) {
+                    } else if ($class == ($y+2003)) {
                         $grade = "So.";
-                    } else if ($class == ($y+4)) {
+                    } else if ($class == ($y+2004)) {
                         $grade = "Fr.";
                     } else {
                         $grade = $row['year'];
@@ -44,19 +52,20 @@
 
                     $athletes[$profile] = ["name" => $name, "grade" => $grade];
                 }
+            }
 
                 $result = mysqli_query($con,"SELECT id,Name,Date FROM meets");
                 while($row = mysqli_fetch_array($result)) {
                     $meets[$row['id']] = $row['Name']." (".date("n/j/y",strtotime($row['Date'])).")";
                 }
 
-                foreach ($athletes as $profile => $a) {
-                   $result = mysqli_query($con,"SELECT * FROM overallxc WHERE sr = 1 AND season = 'xc".$y."' AND profile='".$profile."'");
+                // foreach ($athletes as $profile => $a) {
+                   $result = mysqli_query($con,"SELECT * FROM overallxc WHERE sr = 1 AND season = 'xc".$y."'");
                     while($row = mysqli_fetch_array($result)) { 
-                        $athletes[$profile][$row['distance']] = $row['time'];
-                        $athletes[$profile][$row['distance']."_meet"] = $row['meet'];
+                        $athletes[$row['profile']][$row['distance']] = $row['time'];
+                        $athletes[$row['profile']][$row['distance']."_meet"] = $row['meet'];
                     }
-                }
+                // }
 
                 uasort($athletes, function ($a, $b) {
                     if (empty($a["3mi"])) {

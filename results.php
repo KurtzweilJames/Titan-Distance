@@ -12,7 +12,7 @@ $result = mysqli_query($con,"SELECT * FROM series");
         <?php
             $result = mysqli_query($con,"SELECT * FROM meets WHERE date = '".$todaydate."'");
             while($row = mysqli_fetch_array($result)){
-            if (!empty($row['Live'])){
+            if (!empty($row['Live']) && $row['Official'] == 0){
             echo "<div class='alert alert-info' role='alert'>";
             echo "<a href='".$row['Live']."' target='_blank'>Live Results for ".$row['Name']." are available at ".$row['Live'].".</a>";
             echo "</div>";

@@ -34,6 +34,11 @@ while($row = mysqli_fetch_array($result)) {
         $id = $row['id'];
     }
 
+    if(!empty($row['link'])) {
+        header('Location: '.$row['link']);
+        exit;
+    }
+
     $date = date("F j, Y",strtotime($row['date']));
 
 

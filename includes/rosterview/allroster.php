@@ -48,13 +48,13 @@
                         $athletes[$profile][$row['distance']."_meet"] = $row['meet'];
                     }
                 }
-                foreach ($athletes as $profile => $a) {
-                    $result = mysqli_query($con,"SELECT * FROM overallxc WHERE pr = 1 AND profile='".$profile."'");
+
+                    $result = mysqli_query($con,"SELECT * FROM overallxc WHERE pr = 1");
                      while($row = mysqli_fetch_array($result)) { 
-                         $athletes[$profile][$row['distance']] = $row['time'];
-                         $athletes[$profile][$row['distance']."_meet"] = $row['meet'];
+                         $athletes[$row['profile']][$row['distance']] = $row['time'];
+                         $athletes[$row['profile']][$row['distance']."_meet"] = $row['meet'];
                      }
-                 }
+
 
                 uasort($athletes, function ($a, $b) {
                     if (empty($a["1600m"])) {
@@ -72,7 +72,7 @@
                     $url = "/athlete/".$profile;
                     echo "<tr class='clickable-row' data-href='".$url."'>";
                     echo "<th><a href='".$url."'>".$athletes[$profile]["name"]."</a></th>";
-                    echo "<th>20".$athletes[$profile]["class"]."</th>"; 
+                    echo "<th>".$athletes[$profile]["class"]."</th>"; 
                     foreach (["3200m", "1600m", "800m", "400m","3mi","2mi","5k"] as $d) {
                         if (!empty($athletes[$profile][$d])) {
                             echo "<td><a href='/meet/".$athletes[$profile][$d."_meet"]."' data-bs-toggle='tooltip' data-bs-placement='bottom' title='".$meets[$athletes[$profile][$d."_meet"]]."'>".$athletes[$profile][$d]."</a></td>";

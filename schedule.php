@@ -121,8 +121,15 @@ while($row = mysqli_fetch_array($result)) {
 <div class="container mt-4">
     <div id='calendar'></div>
     <div class="my-3 d-flex justify-content-center">
-        <a class="btn btn-primary" href="https://gbsathletics.glenbrook225.org/page/3050" role="button"
-            target="_blank">GBS Athletics
+        <a class="btn btn-primary" href="
+        <?php
+        if (strpos($season, 'Track') !== false) {
+            echo "https://gbsathletics.glenbrook225.org/page/3050";
+        } else {
+            echo "https://gbsathletics.glenbrook225.org/page/2924";
+        }
+        ?>
+        " role="button" target="_blank">GBS Athletics
             Schedule</a>
     </div>
 </div>

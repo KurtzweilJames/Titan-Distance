@@ -146,18 +146,18 @@ include("header.php");
                     $y = $y + 1;
                     }
 
-                    if ($class == $y) {
+                    if ($class == $y+2000) {
                         $grade = " (Sr.)";
-                    } else if ($class == $y + 1){
+                    } else if ($class == $y + 2001){
                         $grade = " (Jr.)";
-                    } else if ($class == $y + 2){
+                    } else if ($class == $y + 2002){
                         $grade = " (So.)";
-                    } else if ($class == $y + 3){
+                    } else if ($class == $y + 2003){
                         $grade = " (Fr.)";
                     }
                     
                     echo "<h3>".$name."</h3>";
-                    echo "<h5>Class of 20".$class.$grade."</h5>";
+                    echo "<h5>Class of ".$class.$grade."</h5>";
                     if (!empty($college)) {
                     echo "<h5>".$college."</h5>";
                     } else {

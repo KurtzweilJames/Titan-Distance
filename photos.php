@@ -2,7 +2,7 @@
 <?php include("header.php");?>
 
 <?php
-$result = mysqli_query($con,"SELECT id,Name FROM meets WHERE Date < '".$todaydate."'");
+$result = mysqli_query($con,"SELECT id,Name FROM meets WHERE Date <= '".$todaydate."'");
 while($row = mysqli_fetch_array($result)) {
 $meets[$row['id']]=$row['Name'];
 }

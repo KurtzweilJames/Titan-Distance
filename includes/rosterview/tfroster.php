@@ -4,7 +4,7 @@
             //Set Season
             $y = $_REQUEST["y"];
             
-            if ($y == "20") {
+            if ($y == "2020") {
                 echo "<p><strong>*The 2020 Track Season was shortened due to the <a href='https://en.wikipedia.org/wiki/COVID-19_pandemic'>COVID-19 Pandemic</a></strong>.</p>";
             }
 
@@ -31,13 +31,13 @@
                         $id = $row['id'];
                         $class = $row['class'];
                         $profile = $row['profile'];
-                    if ($class == $y) {
+                    if ($class == $y+2000) {
                         $grade = "Sr.";
-                    } else if ($class == ($y+1)) {
+                    } else if ($class == ($y+2001)) {
                         $grade = "Jr.";
-                    } else if ($class == ($y+2)) {
+                    } else if ($class == ($y+2002)) {
                         $grade = "So.";
-                    } else if ($class == ($y+3)) {
+                    } else if ($class == ($y+2003)) {
                         $grade = "Fr.";
                     } else {
                         $grade = $row['year'];

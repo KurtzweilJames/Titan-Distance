@@ -47,6 +47,7 @@ while ($row = mysqli_fetch_array($result)) {
     $results = $row['Results'];
     $series = $row['Series'];
     $website = $row['Website'];
+    $weather = $row['Weather'];
     $official = $row['Official']; //Two Day
     if (!empty($row['Day2Time'])) {
         $date = $date . " -<br>" . date("l, F d, Y", strtotime($row['Day2Time']));
@@ -119,8 +120,13 @@ include "header.php";
                     </div>
                     <h4><?php echo $name . $badge; ?></h4>
                     <h5 class="mb-0"><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
-                    <h5 class="mb-2"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
-                    <hr>
+                    <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
+                    <?php
+                        if(!empty($weather)) {
+                            echo "<h5 class='mb-0'><i class='bi bi-cloud-sun-fill me-1'></i>".$weather."</h5>";
+                        }
+                    ?>
+                    <hr class="mt-2">
                     <div class="nav flex-column nav-pills d-none d-md-block" id="v-pills-tab" role="tablist"
                         aria-orientation="vertical">
                         <?php
@@ -141,7 +147,7 @@ include "header.php";
                                     $abbreviations[$levelnum] .
                                     "-results' role='tab' aria-controls='" .
                                     $abbreviations[$levelnum] .
-                                    "-tab' aria-selected='false'>" .
+                                    "-tab' aria-selected='false'>" . "<i class='bi bi-list-ul me-1'></i>" .
                                     $teams[$levelnum] .
                                     " Results</a>";
                                 $meetlevels[] = $levelnum;
@@ -158,7 +164,7 @@ include "header.php";
                                     $abbreviations[$levelnum] .
                                     "-results' role='tab' aria-controls='" .
                                     $abbreviations[$levelnum] .
-                                    "-tab' aria-selected='false'>" .
+                                    "-tab' aria-selected='false'>" . "<i class='bi bi-list-ul me-1'></i>" .
                                     $teams[$levelnum] .
                                     " Results</a>";
                                 $meetlevels[] = $levelnum;
@@ -190,19 +196,19 @@ include "header.php";
                             $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
                         }
                         if (!empty($live)) {
-                            echo "<a class='nav-link' id='live' href='" . $live . "' role='tab' target='_blank'><i class='bi bi-award-fill me-1'></i>LIVE Results</a>";
+                            echo "<a class='nav-link' id='live' href='" . $live . "' role='tab' target='_blank'><i class='bi bi-bar-chart-fill me-1'></i>LIVE Results</a>";
                             $dropdown[] = "<option value='link-" . $live . "' name='live'>LIVE Results</option>";
                         }
                         if (!empty($stream)) {
-                            echo "<a class='nav-link' id='stream' href='" . $stream . "' role='tab' target='_blank'><i class='bi bi-tv me-1'></i>Live Stream</a>";
-                            $dropdown[] = "<option value='link-" . $stream . "' name='stream'>Live Stream</option>";
+                            echo "<a class='nav-link' id='stream' href='" . $stream . "' role='tab' target='_blank'><i class='bi bi-tv me-1'></i>Live Stream/Video</a>";
+                            $dropdown[] = "<option value='link-" . $stream . "' name='stream'>Live Stream/Video</option>";
                         }
-                        if ($photos == 1 && $prepost == "post") {
+                        if ($photos == 1) {
                             echo "<a class='nav-link' id='photos-tab' data-bs-toggle='pill' data-bs-target='#photos' role='tab' aria-controls='photos-tab' aria-selected='false'><i class='bi bi-camera-fill me-1'></i>Photos</a>";
                             $dropdown[] = "<option value='photos' name='photos'>Photos</option>";
                         }
                         if (!empty($results)) {
-                            echo "<a class='nav-link' id='download' href='" . $results . "' role='tab' target='_blank'>Download Results <i class='bi bi-box-arrow-in-up-right'></i></a>";
+                            echo "<a class='nav-link' id='download' href='" . $results . "' role='tab' target='_blank'><i class='bi bi-file-earmark-pdf-fill me-1'></i>Download Results</a>";
                             $dropdown[] = "<option value='link-" . $results . "' name='results'>Download Results</option>";
                         }
                         if (!empty($athnet)) {
@@ -367,7 +373,7 @@ include "header.php";
                         </div>
                         <div class="tab-pane fade" id="venue" role="tabpanel" aria-labelledby="venue-tab">
                             <?php
-                            $result = mysqli_query($con, "SELECT * FROM locations WHERE name='" . $location . "'");
+                            $result = mysqli_query($con, "SELECT * FROM locations WHERE name='" . addslashes($location) . "'");
                             if (mysqli_num_rows($result) > 0) {
                                 while ($row = mysqli_fetch_array($result)) {
                                     if ($location == "John Davis Titan Stadium") {
@@ -437,7 +443,7 @@ include "header.php";
                                             echo "</div>";
                                         } else {
                                             echo "<div class='text-center'>";
-                                            echo "<a class='btn btn-primary' href='https://maps.google.com/?q=" . $location . "' role='button' target='_blank'>Open in Google Maps</a>";
+                                            echo "<a class='btn btn-primary' href='https://maps.google.com/?q=" . addslashes($location) . "' role='button' target='_blank'>Open in Google Maps</a>";
                                             echo "</div>";
                                         }
                                     }
@@ -636,13 +642,15 @@ include "header.php";
                                 }
                                 $events = [];
                                 $relays = [];
-                                $result = mysqli_query($con, "SELECT DISTINCT distance FROM overalltf WHERE meet = '" . $id . "' AND level = '" . $l . "'");
+                                $result = mysqli_query($con, "SELECT DISTINCT distance,relay FROM overalltf WHERE meet = '" . $id . "' AND level = '" . $l . "'");
                                 while ($row = mysqli_fetch_array($result)) {
+                                    if (!in_array($row['distance'], $events) and !in_array($row['distance'], $relays)) {
                                     if (strpos($row['distance'], 'x') !== false or $row['distance'] == "DMR") {
                                         $relays[] = $row['distance'];
                                     } else if (empty($row['relay'])) {
                                         $events[] = $row['distance'];
                                     }
+                                }
                                 }
 
                                 if(in_array("DMR",$relays)) {
@@ -853,7 +861,13 @@ include "header.php";
                                         }
                                         echo "<td>" . $grade . "</td>";
                                         
-                                        $time = $row['time'];
+                                        if($row['distance'] == "3200m" AND substr($row['time'], 0,2) == "09") {
+                                            $time = substr($row['time'], 1);
+                                        } else if($row['distance'] == "400m" AND substr($row['time'], 0,2) == "0:") {
+                                            $time = substr($row['time'], 2);
+                                        } else {
+                                            $time = $row['time'];
+                                        }
 
                                         if($row['pr'] == 1) {
                                             $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
