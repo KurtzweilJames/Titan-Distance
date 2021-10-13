@@ -6,8 +6,8 @@ $id = htmlspecialchars($_GET["id"]);
 
 <div class="container mt-3 h-100">
     <div class="d-flex justify-content-between flex-wrap text-center text-md-start">
-        <p>Only times in our database are considered for PRs. Alumni are slowly being added in, thank you for your
-            patience.
+        <p>Only times in our database are considered. Individual Season rosters show the top times for that season,
+            while the All-Time rosters show Personal Records.
         </p>
         <div class="form-group mx-auto mx-lg-0 mb-2 mb-lg-0">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
@@ -28,14 +28,7 @@ $id = htmlspecialchars($_GET["id"]);
             </select>
         </div>
     </div>
-    <div id="loading-spinner">
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden"></span>
-            </div>
-        </div>
-    </div>
-    <div id="table"><strong>Please select a season from the dropdown above.</strong></div>
+    <div id="table" class="overflow-hidden"><strong>Please select a season from the dropdown above.</strong></div>
     <script type="text/javascript">
     $(document).ready(function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -61,6 +54,7 @@ $id = htmlspecialchars($_GET["id"]);
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("table").innerHTML = this.responseText;
+                updateTable();
             }
         };
         if (sport == "tf") {

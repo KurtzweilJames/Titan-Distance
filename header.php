@@ -35,9 +35,9 @@ $todaydate = date('Y-m-d');
     <!-- Stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700%7CRoboto:400,500,700" rel="stylesheet"
         type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- jQuery -->
@@ -66,7 +66,7 @@ if (isset($image)) {
     <meta property="twitter:description" content="Home of Glenbrook South Cross Country and Track">
 
     <!-- Data Table -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/dataTables.bootstrap4.min.css"
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css"
         type="text/css" />
 
     <!-- OneSignal -->
@@ -83,8 +83,8 @@ if (isset($image)) {
     <!-- Other JS -->
     <?php
 if ($require == "meet") {
-    echo "<script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>";
-    echo "<link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />";
+    echo "<script src='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js'></script>";
+    echo "<link href='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css' rel='stylesheet' />";
 }
     ?>
 
@@ -279,6 +279,10 @@ if ($require == "meet") {
     .container {
         max-width: 1200px;
     }
+
+    .splits-col {
+        display: table-cell;
+    }
     </style>
 
 
@@ -333,21 +337,24 @@ if ($require == "meet") {
                 <div class="mr-auto p-2 m-0">
                     <?php
                     $result = mysqli_query($con,"SELECT Live,Name,id FROM meets WHERE Date = '".$todaydate."' AND Official != 1 AND Official != 2");
-                    if(mysqli_num_rows($result) > 0) {
+                    if(isset($_SESSION["loggedin"])){
+                        if ($template == "meet") {
+                            echo "<a href='/admin/meet?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit Meet (ID = ".$id.")</a><a href='/admin/results?id=".$id."'><i class='bi bi-list-ul ms-2'></i> Results Manager</a>";
+                        } else if ($template == "news") {
+                            echo "<a href='/admin/news?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit News Article</a>";
+                        } else {
+                            echo "Welcome, ".$_SESSION["username"]." <a class='ml-2' href='/admin'><i class='bi bi-gear-wide-connected'></i> Return to Admin</a>";
+                        }
+                    } else if(mysqli_num_rows($result) > 0) {
                         while($row = mysqli_fetch_array($result)){
                             if (!empty($row['Live'])) {
                                 echo "<a href='".$row['Live']."'><strong>Live Results for ".$row['Name']." are available here.</strong></a>";
                             } else {
                                 echo "<a href='/meet/".$row['id']."'><strong>Good Luck Titans at ".$row['Name']."!</strong></a>";
                             }
-                        }
-                    } else if(isset($_SESSION["loggedin"])){
-                        if ($template == "meet") {
-                            echo "<a href='/admin/meet?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit Meet (ID = ".$id.")</a>";
-                        } else if ($template == "news") {
-                            echo "<a href='/admin/news?id=".$id."'><i class='bi bi-pencil-fill'></i> Edit News Article</a>";
-                        } else {
-                            echo "Welcome, ".$_SESSION["username"]." <a class='ml-2' href='/admin'><i class='bi bi-gear-wide-connected'></i> Return to Admin</a>";
+                            if(mysqli_num_rows($result) > 1) {
+                                echo "<br>";
+                            }
                         }
                     } else {
                         if ($template == "home") {
@@ -362,8 +369,8 @@ if ($require == "meet") {
 $weatherfile = file_get_contents("https://titandistance.com/api/weather.php");
 $jsonweather = json_decode($weatherfile);
                 ?>
-                <div class="p-2 m-0 clickable-row" id="weather-widget" data-href="/weather" data-bs-toggle="tooltip"
-                    data-bs-html="true" data-bs-placement="bottom" title="Weather: <?php echo $jsonweather->current->description; ?>
+                <div class="p-2 m-0 clickable-row my-auto" id="weather-widget" data-href="/weather"
+                    data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Weather: <?php echo $jsonweather->current->description; ?>
                    <br>Feels Like: <?php echo $jsonweather->current->feelslike; ?>°F<br>Wind: <?php echo $jsonweather->current->wind; ?>mph<br>Temperature:
                     <?php echo $jsonweather->current->temp; ?>°F">
                     <?php
@@ -379,11 +386,11 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
         <div class="container p-4 d-none d-md-block">
             <div class="row">
                 <div class="col-sm-4 text-center my-auto">
+                    <a href="https://twitter.com/TitanDistance" target="_blank"><img src="/assets/icons/twitter.svg"
+                            class="social-icons" alt="Twitter" width="32" height="32" title="Twitter"></a>
                     <a href="https://www.facebook.com/titandistance" target="_blank"><img
                             src="/assets/icons/facebook.svg" class="social-icons" alt="Facebook" width="32" height="32"
                             title="Facebook"></a>
-                    <a href="https://twitter.com/TitanDistance" target="_blank"><img src="/assets/icons/twitter.svg"
-                            class="social-icons" alt="Twitter" width="32" height="32" title="Twitter"></a>
                     <a href="https://instagram.com/TitanDistance" target="_blank"><img src="/assets/icons/instagram.svg"
                             class="social-icons" alt="Instagram" width="32" height="32" title="Instagram"></a>
                 </div>
@@ -425,13 +432,17 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
                                     History
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="/records">Records</a>
                                     <a class="dropdown-item" href="/routes">Running Routes</a>
                                     <a class="dropdown-item" href="/state">State Qualifers</a>
                                     <a class="dropdown-item" href="/innews">In the News</a>
                                     <a class="dropdown-item" href="/venues">Home Venues</a>
                                     <a class="dropdown-item" href="/roster/all">All-Time
                                         Roster</a>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <a class="dropdown-item" href="/records">Misc. Records</a>
+                                    <a class="dropdown-item" href="/courserecords">Course Records</a>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -451,6 +462,9 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/photos">Photos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/alumni">Alumni</a>
                             </li>
                         </ul>
                     </div>

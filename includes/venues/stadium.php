@@ -9,12 +9,26 @@
 </div>
 <div class="container">
     <h3 class="display">Some Things to Know:</h3>
-    <div class="alert alert-warning" role="alert">
+    <!-- <div class="alert alert-warning" role="alert">
         <h6>COVID-19 Updates:</h6>
-        On Monday, March 8th, the IHSA and IDPH announced that spectators may attend outdoor sporting events at 20%
-        capacity. This may change by the time Track events are held.
-        For more information visit <a href="https://www.ihsa.org/Resources/COVID-19">the IHSA COVID-19 website.</a>
-    </div>
+        <ul>
+            <li>Spectators will be distanced from participants/competitions in compliance with current IDPH guidelines.
+            </li>
+            <li>Spectators must self-verify they are symptom free and have a temperature below 100.4 prior to attending
+                events.</li>
+            <li>Spectators should not arrive earlier than 20 minutes prior to the scheduled start time.</li>
+            <li>ALL spectators must adhere to social distancing and wear masks at all times regardless of vaccination
+                status.</li>
+            <li>
+                Bathrooms are located in the stadium.</li>
+            <li>
+                No pets allowed at ANY outdoor events. </li>
+        </ul>
+
+        For more information visit <a
+            href="https://docs.google.com/document/d/1wtvN-mWVNcOOKT1k52fhwCnDv88uxaqi-1KRDgG5eoU/edit">the Athletic
+            Department guidelines.</a>
+    </div> -->
     <div class="row py-2">
         <div class="col-3 my-auto p-0 p-md-4">
             <img src="/assets/images/misc/fooddrink.svg" width="100%" alt="Food & Drinks Available">
@@ -168,48 +182,48 @@
                 </tr>
                 <tr>
                     <th>High Jump</th>
-                    <td>7-0</td>
+                    <td>2.13m (7-0 ft)</td>
                     <td>Nat Page</td>
                     <td>Evanston</td>
                     <td>1975</td>
                 </tr>
                 <tr>
                     <th>Pole Vault</th>
-                    <td>15-6</td>
+                    <td>2.74m (15-6 ft)</td>
                     <td>Declan Ritzenthaler</td>
                     <td>Loyola</td>
                     <td>2018</td>
                 </tr>
                 <tr>
                     <th>Long Jump</th>
-                    <td>23-10 ¼</td>
+                    <td>3.89m (23-10 ¼ ft)</td>
                     <td>Steve Battle</td>
                     <td>Gordon Tech</td>
                     <td>1989</td>
                 </tr>
                 <tr>
                     <th>Triple Jump</th>
-                    <td>48-1</td>
+                    <td>14.33m (48-1 ft)</td>
                     <td>Smith</td>
                     <td>Evanston</td>
                     <td>1985</td>
                 </tr>
                 <tr>
                     <th>Shot Put</th>
-                    <td>60-2 ¼</td>
+                    <td>17.60m (60-2 ¼ ft)</td>
                     <td>Ira Dolin</td>
                     <td>Glenbrook North</td>
                     <td>1979</td>
                 </tr>
                 <tr>
                     <th>Discus</th>
-                    <td>174-11</td>
+                    <td>49.68m (174-11 ft)</td>
                     <td>Ron Eichaker</td>
                     <td>Niles North</td>
                     <td>1974</td>
                 </tr>
             </tbody>
+            <caption>Field events converted to metric, with actual distance measured listed.</caption>
         </table>
     </div>
-    <p><i>Last Updated: <?php echo date("F j, Y", getlastmod()); ?></i></p>
 </div>

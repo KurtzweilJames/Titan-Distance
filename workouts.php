@@ -115,7 +115,7 @@ while ($row = mysqli_fetch_array($result)) {
         $elapsed = $row['1mileage'] * 420;
         echo "</td>";
         if (!empty($_SESSION["strava"])) {
-            echo "<th><button type='button' class='btn btn-strava btn-sm' onClick='showStrava(\"".$row['workout']."\",\"".$row['1mileage']."\",\"".$start."\")'><img src='/assets/icons/strava.svg' height='18px'></button></th>";
+            echo "<th><button type='button' class='btn btn-strava btn-sm' onClick='showStrava(\"".$row['workout']."\",\"".$row['1mileage']."\",\"".$start."\")'><i class='bi bi-strava'></i></button></th>";
         }
         echo "</tr>";
 

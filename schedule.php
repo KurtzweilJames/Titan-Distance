@@ -64,15 +64,7 @@ while($row = mysqli_fetch_array($result)) {
     $dow = date("D",strtotime($row['Date']));
     $d = date("n/j",strtotime($row['Date']));
 
-    if($row['Location'] == "John Davis Titan Stadium") {
-        $dir = "<a href='/venues#stadium'>John Davis Titan Stadium</a>";
-    } else if($row['Location'] == "David Pasquini Fieldhouse") {
-        $dir = "<a href='/venues#fieldhouse'>David Pasquini Fieldhouse</a>";
-    } else if($row['Location'] == "Glenbrook South High School") {
-        $dir = "<a href='/venues#xccourse'>Glenbrook South High School</a>";
-    } else {
-        $dir = "<a href='https://maps.google.com/?q=" . $row['Location'] . "' target='_blank'>".$row['Location']."</a>";
-    }
+    $dir = "<a href='".$url."#venue'>".$row['Location']."</a>";
 
         if (array_key_exists($row['Badge'], $badges)) {
             $badge = "<span class='ms-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
@@ -126,7 +118,7 @@ while($row = mysqli_fetch_array($result)) {
         if (strpos($season, 'Track') !== false) {
             echo "https://gbsathletics.glenbrook225.org/page/3050";
         } else {
-            echo "https://gbsathletics.glenbrook225.org/page/2924";
+            echo "https://gbsathletics.glenbrook225.org/page/2937";
         }
         ?>
         " role="button" target="_blank">GBS Athletics

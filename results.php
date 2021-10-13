@@ -44,14 +44,17 @@ $result = mysqli_query($con,"SELECT * FROM series");
             //Badge
 if (!empty($row['Badge'])) {
     if ($row['Badge'] == 1) {
-        $badge = " <span class='badge bg-csl' data-bs-toggle='tooltip' data-bs-placement='top' title='Central Suburban League'>CSL</span>";
+        $badge = "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Central Suburban League'>CSL</span>";
     } else if ($row['Badge'] == 2) {
-        $badge = " <span class='badge bg-ihsa' data-bs-toggle='tooltip' data-bs-placement='top' title='Illinois High School Association'>IHSA</span>";
+        $badge = "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Illinois High School Association'>IHSA</span>";
     } else if ($row['Badge'] == 3) {
-        $badge = " <span class='badge bg-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Time Trial'>TT</span>";
+        $badge = "<span class='badge bg-info ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Time Trial'>TT</span>";
     }
 } else {
     $badge = "";
+}
+if ($row['Official'] == "3"){
+    $badge = $badge."<span class='badge bg-danger ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Results marked as Unofficial, and may not be complete.'>U</span>";
 }
             
                   $d = date("n/j/Y",strtotime($row['Date']));
@@ -63,7 +66,7 @@ if(strlen($row['Opponents']) > 50) {
 } else {
     echo "<td>" . $row['Opponents'] . "</td>";
 }
-echo "<td>" . $row['Location'] . "</td>";
+echo "<td><a href='".$url."#venue'>" . $row['Location'] . "</a></td>";
 echo "<td>" . $row['Season'] . "</td>";
 echo "</tr>";  
               }  

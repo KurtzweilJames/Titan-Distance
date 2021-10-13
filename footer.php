@@ -5,18 +5,18 @@
     <div class="container">
         <div class="text-muted d-flex justify-content-between">
             <div><a href="/about#disclaimer">&copy; <?php echo date("Y"); ?> Titan Distance PR Committee</a></div>
-            <div><a href="/admin">Admin Login</a></div>
+            <div><a href="/admin">Admin Login</a><img src="/assets/us_flag.svg" height="14" class="ms-2"></div>
+
         </div>
     </div>
 </footer>
 
 <!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous">
 </script>
 <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" language="javascript"
-    src="https://cdn.datatables.net/1.10.24/css/dataTables.bootstrap5.min.css"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap5.min.js"></script>
 
 <?php
 if ($require == "share") {
@@ -78,18 +78,6 @@ if ($pgtitle == "Results") {
 }
 if ($pgtitle == "Roster") {
     echo "<script>
-    $(document).ready(function() {
-        setTimeout(function() {
-            showSpinner();
-            updateTable();
-          }, 1000);
-    });
-    $('#SeasonSelect').change(function(){
-        setTimeout(function() {
-            showSpinner();
-            updateTable();
-          }, 100);
-    });
         function updateTable() {
             $('#rosterTable').DataTable({
                 \"ordering:\": false,
@@ -100,15 +88,6 @@ if ($pgtitle == "Roster") {
                 \"iDisplayLength\": -1,
                 \"order\": []
             });
-            $('#rosterTable').show();
-            hideSpinner();
-        }
-
-        function showSpinner() {
-            document.getElementById(\"loading-spinner\").classList = 'd-block';
-        }
-        function hideSpinner() {
-            document.getElementById(\"loading-spinner\").classList = 'd-none';
         }
         </script>";
     }
@@ -192,6 +171,10 @@ function myFunction() {
     }
 }
 </script>
+
+<!-- Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+    data-cf-beacon='{"token": "7e1ad18bd4604d4486a579c7d687d825"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 
 </html>

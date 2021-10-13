@@ -185,8 +185,8 @@ include "header.php";
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>" . $location . "</a>";
                             $dropdown[] = "<option value='venue' name='venue'>" . $location . "</option>";
                         } elseif ($sport == "xc") {
-                            echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Course Map/Directions</a>";
-                            $dropdown[] = "<option value='venue' name='venue'>Course Map/Directions</option>";
+                            echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Course Information</a>";
+                            $dropdown[] = "<option value='venue' name='venue'>Course Information</option>";
                         } else {
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Map & Directions</a>";
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
@@ -249,6 +249,9 @@ include "header.php";
             if (!empty($notes)) {
                 echo "<div class='alert alert-info' role='alert'>" . $notes . "</div>";
             }
+            if ($official == 3) {
+                echo "<div class='alert alert-danger' role='alert'>These results have been marked Unofficial for a variety of reasons. The results may be incomplete or incorrect. Please use caution when viewing these results, as the times and date may be inaccurate.</div>";
+            }
             ?>
             <div class="card">
                 <div class="card-body">
@@ -281,9 +284,14 @@ include "header.php";
                                 echo "</div>";
                                 echo "</div>";
                                 echo "</div>";
+
+                                if ($sport == "tf") {
+                                   echo "<p><strong>Team scores for all events, including short-distance, field, etc.</strong></p>";
+                                }
                             ?>
-                            <p><strong>Team scores for all events, including short-distance, field, etc.</strong></p>
-                            <?php foreach ($meetlevels as $l) {
+                            <?php
+                            $quad = 0;
+                            foreach ($meetlevels as $l) {
                                 $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "' AND level = '" . $l . "'");
                                 echo "<h3>" . $teams[$l] . "</h3>";
                                 echo "<table class='table table-sm'>";
@@ -302,7 +310,14 @@ include "header.php";
                                 if (mysqli_num_rows($result) <= 0) {
                                     echo "<p class='card-text'><strong>This is either an unscored meet, or team results are missing from our database. If you believe this is an error, please reach out.</strong></p>";
                                 }
-                            } ?>
+                                if (strpos($row['score'], '-') !== false) {
+                                    $quad = 1;
+                                }
+                            }
+                            if ($quad == 1) {
+                                echo "<p>This meet is a scored team meet, where each team is scored against each other. This is why you see a record instead of a score.</p>";
+                            }
+                            ?>
                         </div>
                         <div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">
                             <?php
@@ -383,8 +398,10 @@ include "header.php";
                                     } elseif ($location == "Glenbrook South High School") {
                                         include $_SERVER['DOCUMENT_ROOT'] . "/includes/venues/xccourse.php";
                                     } else {
+                                        $geojson = $row['geojson'];
+
                                         if ($sport == "xc") {
-                                            echo "<h1>Course Map & Directions</h1>";
+                                            echo "<h1>Course Information & Directions</h1>";
                                         } else {
                                             echo "<h1>Map & Directions</h1>";
                                         }
@@ -404,7 +421,7 @@ include "header.php";
                         center: [" .
                                                 $row['coordinates'] .
                                                 "], // starting position [lng, lat]
-                        zoom: 14 // starting zoom
+                        zoom: 15 // starting zoom
                         });
 
                         var marker = new mapboxgl.Marker()
@@ -412,45 +429,118 @@ include "header.php";
                                                 $row['coordinates'] .
                                                 "])
                         .addTo(map);";
-                                            echo "$('#map-tab').on('shown.bs.tab', function() {
-                            map.resize();
-                          });"; /*
-                        if (!empty($row['geojson'])) {
-                            echo "map.addSource(route, {
-                                type: 'geojson',
-                                data: 'https://titandistance.com/assets/geojson/".$row['geojson'].".geojson'
-                            });
-                            map.addLayer({
-                                id: route,
-                                source: route,
-                                type: 'line',
-                                'paint': {
-                            'line-width': 5,
-                            'line-color': '#073763'
-                                }
-                            });";
-                        }
-*/
                                             echo "</script>";
                                         }
                                         if (!empty($row['gmap'])) {
                                             echo "<div class='text-center'>";
-                                            echo "<a class='btn btn-primary' href='https://www.google.com/maps/search/?api=1&query=" .
+                                            echo "<a class='btn btn-primary mt-2' href='https://www.google.com/maps/search/?api=1&query=" .
                                                 $row['name'] .
                                                 "&query_place_id=" .
                                                 $row['gmap'] .
                                                 "' role='button' target='_blank'>Open in Google Maps</a>";
+                                                if (!empty($row['osm'])) {
+                                                    echo "<a class='btn btn-primary mt-2 ms-2' href='https://openstreetmap.org/way/" . $row['osm'] ."' role='button' target='_blank'>Open in OpenStreetMap</a>";
+                                                }
                                             echo "</div>";
                                         } else {
                                             echo "<div class='text-center'>";
-                                            echo "<a class='btn btn-primary' href='https://maps.google.com/?q=" . addslashes($location) . "' role='button' target='_blank'>Open in Google Maps</a>";
+                                            echo "<a class='btn btn-primary mt-2' href='https://maps.google.com/?q=" . addslashes($location) . "' role='button' target='_blank'>Open in Google Maps</a>";
                                             echo "</div>";
                                         }
+
+                                        //Top Times
+                                    if ($sport == "xc") {
+                                    echo"<hr>";
+                                        echo"<h4>Top ".$row['primarydistance']." Times by GBS Athletes";
+                                        
+                                    if ($row['verified'] == 1) {
+                                        echo "<i class=\"ms-4 text-success bi bi-patch-check-fill\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Verified as Accurate & Updated\"></i>";
+                                    } else {
+                                        echo "<i class=\"ms-4 text-warning bi bi-patch-exclamation-fill\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Some Times May be Missing\"></i>";
+                                    }
+                                    echo "</h4>";
+                                    
+                                    $result2 = mysqli_query($con,"SELECT * FROM meets WHERE Location = '".addslashes($location)."' ORDER BY Date DESC");   
+                                    $meets2 = [];
+                                    while($row2 = mysqli_fetch_array($result2)) { 
+                            array_push($meets2,"meet = ".$row2['id']);
+                                          }
+                                          
+
+                                    echo "
+                                    <div class=\"table-responsive\">
+                                        <table class=\"table table-condensed table-sm table-hover\">
+                                            <thead>
+                                                <tr>
+                                                    <th>Time</th>
+                                                    <th>Athlete</th>
+                                                    <th>Year</th>
+                                            </thead>
+                                            <tbody>";
+                                                $duplicates = [];
+                                                $num = 0;
+                        $result2 = mysqli_query($con,"SELECT * FROM overallxc"." WHERE (".join($meets2," OR ").") AND distance = '".$row['primarydistance']."' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
+                        while($row2 = mysqli_fetch_array($result2)) {
+                            if (in_array($row2['name'],$duplicates) OR $num >= 10) {
+                                continue;
+                            }
+                            echo "<tr>";
+                        echo "<td>".$row2["time"]."</td>";
+                        if (!empty($row2['profile'])) {
+                            echo "<td><a href='/athlete/".$row2['profile']."'>".$row2["name"]."</a></td>";
+                        } else {
+                            echo "<td>".$row2["name"]."</td>";
+                        }
+                        echo "<td><a href='/meet/".$row2['meet']."'>".date("Y",strtotime($row2['date']))."</a></td>";
+                        echo "</tr>";
+                        $duplicates[] = $row2['name'];
+                        $num += 1;
+                        }
+
+echo"                                            </tbody>
+                                        </table>
+                                    </div>";
+                            }
+                            echo " <h4>Previous GBS Appearances</h4>
+                                    <div class=\"table-responsive\">
+                                        <table class=\"table table-condensed table-sm table-hover\">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Name</th>
+                                                    <th>Season</th>
+                                            </thead>
+                                            <tbody>";
+                                    
+                        $result = mysqli_query($con,"SELECT * FROM meets WHERE Location = '".addslashes($location)."' ORDER BY Date DESC");
+                        while($row = mysqli_fetch_array($result)) {
+                            //Badge
+                            if (!empty($row['Badge'])) {
+                                if ($row['Badge'] == 1) {
+                                    $badge = " <span class='badge bg-csl' data-bs-toggle='tooltip' data-bs-placement='top' title='Central Suburban League'>CSL</span>";
+                                } else if ($row['Badge'] == 2) {
+                                    $badge = " <span class='badge bg-ihsa' data-bs-toggle='tooltip' data-bs-placement='top' title='Illinois High School Association'>IHSA</span>";
+                                } else if ($row['Badge'] == 3) {
+                                    $badge = " <span class='badge bg-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Time Trial'>TT</span>";
+                                }
+                            } else {
+                                $badge = "";
+                            }
+                            echo "<tr>";
+                            echo "<td>".$row["Date"]."</td>";
+                            echo "<td><a href='/meet/".$row['id']."'>".$row['Name'].$badge."</a></td>";
+                            echo "<td>".$row["Season"]."</td>";
+                            echo "</tr>";
+                        }
+
+echo"                                            </tbody>
+                                        </table>
+                                    </div>";
                                     }
                                 }
                             } else {
                                 if ($sport == "xc") {
-                                    echo "<h1>Course Map & Directions</h1>";
+                                    echo "<h1>Course Information</h1>";
                                 } else {
                                     echo "<h1>Map & Directions</h1>";
                                 }
@@ -944,6 +1034,19 @@ document.getElementById("selectTab").addEventListener("change", function() {
     selectTab();
 });
 
+var tabEl = document.getElementById("v-pills-tab");
+tabEl.addEventListener('shown.bs.tab', function(event) {
+    map.resize();
+    //window.location.hash = event.target.id.replace("-tab", "")
+})
+window.onload = function() {
+    if (window.location.hash) {
+        tab = window.location.hash + "-tab"
+        var someTabTriggerEl = document.querySelector(tab)
+        var tabt = new bootstrap.Tab(someTabTriggerEl)
+        tabt.show()
+    }
+};
 
 function selectTab(str) {
     var dropdown = document.getElementById('selectTab');
@@ -961,7 +1064,6 @@ function selectTab(str) {
         } else {
             window.open(link, "_blank")
         }
-
     }
 }
 
@@ -990,5 +1092,26 @@ function showHighlight(c) {
     }
 
 }
+map.on('style.load', function() {
+    <?php
+if(!empty($geojson)) {
+    echo "map.addSource(\"course\", {
+        type: 'geojson',
+        data: '/assets/geojson/".$geojson.".geojson'
+    });
+
+    map.addLayer({
+        id: \"course\",
+        source: \"course\",
+        type: 'line',
+        'paint': {
+            'line-width': 5,
+            'line-color': '#073763',
+            'line-opacity': 0.9
+        }
+    });";
+}
+    ?>
+})
 </script>
 <?php include "footer.php"; ?>

@@ -14,7 +14,8 @@
             <img src="/assets/images/misc/nospikes.svg" width="100%" alt="No Spikes">
         </div>
         <div class="col-9 my-auto">
-            Any shoes can be worn on the track surface, as long as they are <strong>without spikes</strong>.
+            Any shoes can be worn on the track surface, as long as they are <strong>without spikes</strong>. Shoes with
+            spikes are allowed, as long as the spikes have been removed.
         </div>
     </div>
     <div class="row py-2">
@@ -228,5 +229,4 @@
             </tbody>
         </table>
     </div>
-    <p><i>Last Updated: <?php echo date("F j, Y", getlastmod()); ?></i></p>
 </div>
