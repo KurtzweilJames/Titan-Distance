@@ -67,7 +67,7 @@ while($row = mysqli_fetch_array($result)) {
     $dir = "<a href='".$url."#venue'>".$row['Location']."</a>";
 
         if (array_key_exists($row['Badge'], $badges)) {
-            $badge = "<span class='ms-1 badge ".$badges[$row['Badge']][0]."'>".$badges[$row['Badge']][1]."</span>";
+            $badge = "<span class='ms-1 badge ".$badges[$row['Badge']][0]."' data-bs-toggle='tooltip' data-bs-placement='top' title='".$badges[$row['Badge']][2]."'>".$badges[$row['Badge']][1]."</span>";
         } else {
             $badge = "";
         }

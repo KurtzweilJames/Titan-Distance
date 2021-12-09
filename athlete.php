@@ -25,12 +25,6 @@ while($row = mysqli_fetch_array($result)) {
     $athnet = $row['athnet'];
     $captain = $row['captain'];
     $awards = $row['awards'];
-
-    if ($row['xc20'] == 1) {
-        $currentathlete = 1;
-    } else {
-        $currentathlete = 0;
-    }
 }
 
 if ($redir == 1) {
@@ -107,21 +101,6 @@ while($row = mysqli_fetch_array($result)) {
 }
 */
 
-if ($currentsport == "xc" && $currentathlete == 1) {
-    $teampoints = 0;
-    $result = mysqli_query($con,"SELECT percent FROM overallxc WHERE profile='". $profile ."' AND season='".$currentshort."'"); 
-    while($row = mysqli_fetch_array($result)) {
-        $percent = $row['percent'];
-    if ($percent <= 33 && $percent > 0) {
-        $teampoints = $teampoints + 3;
-    } else if ($percent <= 66 && $percent > 33) {
-        $teampoints = $teampoints + 2;
-    } else if ($percent <= 100 && $percent > 66) {
-        $teampoints = $teampoints + 1;
-    }
-    }
-}
-
 $file = $_SERVER['DOCUMENT_ROOT']."/assets/images/athletes/".$profile.".png";
 if (file_exists($file)) {
     $image = "assets/images/athletes/".$profile.".png";
@@ -157,38 +136,70 @@ include("header.php");
                     }
                     
                     echo "<h3>".$name."</h3>";
-                    echo "<h5>Class of ".$class.$grade."</h5>";
+                    echo "<h4>Class of ".$class.$grade."</h4>";
                     if (!empty($college)) {
-                    echo "<h5>".$college."</h5>";
-                    } else {
-                    echo "<h5>".$elementary."</h5>";   
+                        $json = json_decode(file_get_contents("api/collegelogos.json"),true);
+    
+                        $colleges = explode(",",$college);
+                        foreach($colleges as $c) {
+                            echo "<h5>";
+                            echo $c;
+                            $c = str_replace(" (DI)","",$c);
+                            $c = str_replace(" (DIII)","",$c);
+                            if ($json[$c]) {
+                                echo "<img class='ms-1' src='/assets/logos/colleges/".$json[$c]["logo"]."' height='14px'>";
+                            }
+                            echo "</h5>";
+                        }
                     }
-                    if ($currentsport == "xc" && $currentathlete == 1) {
-                        echo "<h5>Team Points: ".$teampoints."</h5>";
-                    }
+                    // if ($currentsport == "xc" && $currentathlete == 1) {
+                    //     echo "<h5>Team Points: ".$teampoints."</h5>";
+                    // }
 
 if ($pr3mi < "15:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
+    echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
 } else if ($pr3mi < "16:00:00" && !empty($pr3mi)) {
-    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
+    echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
 }
 if ($pr3200m < "10:00" && !empty($pr3200m)) {
-    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
+    echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
 }
 if ($pr1600m < "5:00" && !empty($pr1600m)) {
-    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
+    echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
 }
 if ($pr800m < "2:00" && !empty($pr800m)) {
-    echo "<span class='badge bg-warning mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
+    echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
 }
 
-if (!empty($awards)) {
     echo "<hr class='mr-md-4'>";
-    $awards = explode(", ", $awards);
-    foreach ($awards as $a) {
-        echo "<span class='badge bg-primary mx-1'>".$a."</span>";
+
+    $possible = ["xc_allconf" => "XC All-Conference", "tf_allconf" => "TF All-Conference", "xc_mvp" => "XC MVP", "tf_mvp" => "TF MVP", "xc_allstate" => "XC All-State", "tf_allstate" => "TF All-State", "xc_allsectional" => "XC All-Sectional", "tf_allsectional" => "TF All-Sectional", "xc_allregional" => "XC All-Regional", "xc_improved" => "XC Most Improved", "xc_spirited" => "XC Most Spirited" , "xc_ironman" => "XC Dave Pasquini \"Mr. Ironman\"", "xc_sportsmanship" => "CSL Sportsmanship", "xc_goldbrick" => "Goldbrick"];
+    $result = mysqli_query($con,"SELECT * FROM athletes WHERE profile='".$profile."'");
+    while($row = mysqli_fetch_array($result)) {
+        foreach ($possible as $d => $a) {
+            if(!empty($row[$d])) {
+                $years = [];
+                $years = explode(",",$row[$d]);
+                foreach ($years as $y) {
+                    if (strpos($d, 'conf') !== false) {
+                        $badge = 'bg-csl';
+                    } else if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
+                        $badge = 'bg-ihsa';
+                    } else if (strpos($d, 'goldbrick') !== false) {
+                        $badge = 'bg-award';
+                    } else {
+                        $badge = "bg-award-inv";
+                    }
+                    echo "<span class='badge ".$badge." mx-1'>";
+                    if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
+                        echo "<img src='/assets/icons/ihsa.svg' height='10px' class='me-2'>";
+                    }
+                    echo $a." (".$y.")";
+                    echo "</span>";
+                }
+            }
+        }
     }
-}
 
                     if(!empty($athnet)){
                         echo "<hr class='mr-md-4'>";
@@ -199,8 +210,8 @@ if (!empty($awards)) {
             <hr class="d-block d-md-none">
         </div>
         <div class="col-md-9 p-md-1">
-            <h3>Personal Records</h3>
-            <hr>
+            <h3 class="mb-0">Personal Records</h3>
+            <hr class="mt-0 mb-0">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
@@ -246,8 +257,8 @@ $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' 
                     } else {
                         echo "<div class='col-md-12'>";
                     }
-                    echo "<h3>Cross Country</h3>
-                    <hr>
+                    echo "<h3 class='mb-0'>Cross Country</h3>
+                    <hr class='mt-0'>
                     <div class='table-responsive overflow-hidden'>
                         <table class='table table-condensed table-striped table-hover dataTable' id='xcPersonal'>
                             <thead>
@@ -263,12 +274,12 @@ $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' 
                         $distance = str_replace("mi"," Mile",$row['distance']);
                         echo "<tr class='clickable-row' data-href='/meet/".$meet."'>";
 
-                        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: ".$row['place']." (".$row['percent']."%)'>";
+                        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: ".$row['place']."'>";
                         echo $row['time'];
                         if ($row['pr'] == 1) {
-                            echo "<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                            echo "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                         } else if ($row['sr'] == 1) {
-                            echo "<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                            echo "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                         }
                         echo "</td>"; 
 
@@ -285,8 +296,8 @@ $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' 
                     } else {
                         echo "<div class='col-md-12'>";
                     }
-                    echo "<h3>Distance Track</h3>
-                    <hr>
+                    echo "<h3 class='mb-0'>Track</h3>
+                    <hr class='mt-0'>
                     <div class='table-responsive overflow-hidden'>
                         <table class='table table-condensed table-striped table-hover dataTable' id='tfPersonal'>
                             <thead>
@@ -305,9 +316,9 @@ $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' 
                                 echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: ".$row['place']."'>";
                                 echo $row['time'];
                                 if ($row['pr'] == 1) {
-                                    echo "<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                    echo "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                                 } else if ($row['sr'] == 1) {
-                                    echo "<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                    echo "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                                 }
                                 if (isset($row['relay'])) {
                                    echo "<span class='badge bg-info ms-1'>R</span>";
@@ -321,56 +332,9 @@ $tf = mysqli_query($con,"SELECT * FROM overalltf WHERE profile='". $profile ."' 
                         }
                         ?>
             </div>
-            <h3>Data Visualization</h3>
-            <hr>
-            <!--
-            <div class="form-group">
-                <select class="form-control" id="ChartSelect" onchange="showChart()">
-                    <option value="pp">Performance Points</option>
-                    <option value="xcpercent">XC Finish Percentage</option>
-                    <option value="tfpercent">TF Finish Percentage</option>
-                    <option value="3mi" disabled>3 Mile Times</option>
-                    <option value="2mi" disabled>2 Mile Times</option>
-                    <option value="3200m" disabled>3200m Times</option>
-                    <option value="1600m" disabled>1600m Times</option>
-                    <option value="800m" disabled>800m Times</option>
-                    <option value="400m" disabled>400m Times</option>
-                </select>
-            </div>-->
-            <canvas id="ppChart" width="400" height="200"></canvas>
-            <canvas id="xcpercentChart" width="400" height="200"></canvas>
-            <canvas id="tfpercentChart" width="400" height="200"></canvas>
-            <canvas id="3miChart" width="400" height="200"></canvas>
-            <canvas id="2miChart" width="400" height="200"></canvas>
-            <canvas id="3200mChart" width="400" height="200"></canvas>
-            <canvas id="1600mChart" width="400" height="200"></canvas>
-            <canvas id="800mChart" width="400" height="200"></canvas>
-            <canvas id="400mChart" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
-<script>
-/*
-function showChart() {
-    var x = document.getElementById("ChartSelect");
-    var chart = x.value;
-}
-
-var json = (function() {
-    var json = null;
-    $.ajax({
-        'async': false,
-        'global': false,
-        'url': "https://titandistance.com/api/charts?profile=kurtzweil_j&chart=pp",
-        'dataType': "json",
-        'success': function(data) {
-            json = data;
-        }
-    });
-    console.log(json);
-})();
-*/
-</script>
 
 <?php $require = "charts"; ?>
 <?php include("footer.php"); ?>

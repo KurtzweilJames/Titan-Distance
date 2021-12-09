@@ -4,16 +4,12 @@ $id = htmlspecialchars($_GET["id"]);
 $template = "meet";
 if (strpos($id, '/') !== false) {
     list($slug, $year) = explode("/", $id, 2);
-    $result = mysqli_query($con, "SELECT * FROM series WHERE slug='" . $slug . "'");
-    while ($row = mysqli_fetch_array($result)) {
-        $series = $row['id'];
-    }
-    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date LIKE '" . $year . "-%' AND Series = '" . $series . "'");
+    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date LIKE '" . $year . "-%' AND Slug = '" . $slug . "'");
 } else {
     $result = mysqli_query($con, "SELECT * FROM meets WHERE id='" . $id . "'");
 }
 if (mysqli_num_rows($result) == 0) {
-    header('Location: https://titandistance.com/notfound');
+    header('Location: https://titandistance.com/notfound?from=meets&url='.$id);
     exit();
 }
 while ($row = mysqli_fetch_array($result)) {
@@ -93,6 +89,15 @@ while ($row = mysqli_fetch_array($result)) {
     $image = $row['image'];
     $slug = $row['slug'];
 }
+
+if(empty($image)) {
+    $result = mysqli_query($con, "SELECT * FROM photos WHERE meet='" . $id . "' LIMIT 1");
+    if (mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_array($result)) {
+            $image = "meets/".$row['cover'];
+        }
+    }
+}
 include "header.php";
 ?>
 <div class="container mt-4 mb-4">
@@ -138,7 +143,7 @@ include "header.php";
                             $dropdown[] = "<option value='news' name='news'>Meet Recap</option>";
                         }
                         if ($sport == "xc") {
-                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "'");
+                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "' ORDER BY level ASC");
                             while ($row = mysqli_fetch_array($result)) {
                                 $levelnum = $row['level'];
                                 echo "<a class='nav-link' id='" .
@@ -155,7 +160,7 @@ include "header.php";
                             }
                         }
                         if ($sport == "tf") {
-                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overalltf WHERE meet = '" . $id . "'");
+                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overalltf WHERE meet = '" . $id . "' ORDER BY level ASC");
                             while ($row = mysqli_fetch_array($result)) {
                                 $levelnum = $row['level'];
                                 echo "<a class='nav-link' id='" .
@@ -459,8 +464,11 @@ include "header.php";
                                         echo "<i class=\"ms-4 text-warning bi bi-patch-exclamation-fill\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Some Times May be Missing\"></i>";
                                     }
                                     echo "</h4>";
-                                    
-                                    $result2 = mysqli_query($con,"SELECT * FROM meets WHERE Location = '".addslashes($location)."' ORDER BY Date DESC");   
+                                    if(!empty($row['startdate'])) {
+                                        $result2 = mysqli_query($con,"SELECT * FROM meets WHERE Location = '".addslashes($location)."' ORDER BY Date DESC");
+                                    } else {
+                                        $result2 = mysqli_query($con,"SELECT * FROM meets WHERE Location = '".addslashes($location)."' AND Date >= '".$row['startdate']."' ORDER BY Date DESC");
+                                    }   
                                     $meets2 = [];
                                     while($row2 = mysqli_fetch_array($result2)) { 
                             array_push($meets2,"meet = ".$row2['id']);
@@ -664,7 +672,6 @@ echo"                                            </tbody>
                                 echo "<tbody>";
                                 $result = mysqli_query($con, "SELECT * FROM overallxc WHERE meet='" . $id . "' AND level = '" . $l . "' ORDER BY place IS NULL, place ASC, time ASC");
                                 while ($row = mysqli_fetch_array($result)) {
-                                    $percent = $row['percent'] . "%";
                                     if ($row['grade'] == 12) {
                                         $grade = "Sr.";
                                     } elseif ($row['grade'] == 11) {
@@ -679,7 +686,7 @@ echo"                                            </tbody>
                                     if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") {
                                         echo "<tr class='row-highlight clickable-row' data-href='/athlete/" . $row['profile'] . "'>";
                                         if ($places == 1) {
-                                            echo "<th data-bs-toggle='tooltip' data-placement='top' title='" . $percent . "'>" . $row['place'] . "</th>";
+                                            echo "<th>" . $row['place'] . "</th>";
                                         }
                                     } else {
                                         echo "<tr>";
@@ -696,15 +703,17 @@ echo"                                            </tbody>
                                     $time = $row['time'];
 
                                     if($row['pr'] == 1) {
-                                        $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                        $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                                     } else if ($row["sr"] == 1) {
-                                        $time = $time."<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                        $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                                     }
 
                                     if($row['tags'] == "IQ") {
                                         $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                                     } else if($row['tags'] == "TQ") {
                                         $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                                    } else if($row['tags'] == "All-Conf") {
+                                        $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
                                     } else if(!empty($row['tags'])) {
                                         $time = $time."<span class='badge bg-secondary text-light ms-1'>".$row['tags']."</span>";
                                     }
@@ -839,15 +848,17 @@ echo"                                            </tbody>
                                         }
 
                                         if($row['pr'] == 1) {
-                                            $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                            $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                                         } else if ($row["sr"] == 1) {
-                                            $time = $time."<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                            $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                                         }
 
                                         if($row['tags'] == "IQ") {
                                             $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                                         } else if($row['tags'] == "TQ") {
                                             $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                                        } else if($row['tags'] == "All-Conf") {
+                                            $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
                                         } else if(!empty($row['tags'])) {
                                             $time = $time."<span class='badge bg-secondary text-light ms-1'>".$row['tags']."</span>";
                                         }
@@ -960,9 +971,9 @@ echo"                                            </tbody>
                                         }
 
                                         if($row['pr'] == 1) {
-                                            $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                            $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                                         } else if ($row["sr"] == 1) {
-                                            $time = $time."<span class='badge bg-secondary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                            $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                                         }
                                         
                                         echo "<td>" . $time . "</td>";

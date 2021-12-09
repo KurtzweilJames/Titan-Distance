@@ -77,11 +77,13 @@ if(!empty($meet)) {
             }
             ?>
                 <li class="meta-item"><i class="bi bi-folder-fill"></i> <?php echo $cat;?></li>
-                <li class="meta-item"><i class="bi bi-printer-fill"></i> <a href="/release?id=<?php echo $id; ?>">Print
-                        Release</a></li>
                 <?php
+            if (empty($include)) {
+                echo "<li class='meta-item'><i class='bi bi-printer-fill'></i> <a href='/release?id=".$id."'>Print
+                Release</a></li>";
+            }
             if (!empty($meet)) {
-                echo "<li class='meta-item'><i class='bi bi-award-fill'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
+                echo "<li class='meta-item'><i class='bi bi-activity'></i><a href='/meet/".$meet."'>".$meetname."</a></li>";
             }
             ?>
             </ol>
