@@ -5,11 +5,12 @@ $id = htmlspecialchars($_GET["id"]);
 ?>
 
 <div class="container mt-3 h-100">
-    <div class="d-flex justify-content-between flex-wrap text-center text-md-start">
-        <p>Only times in our database are considered. Individual Season rosters show the top times for that season,
-            while the All-Time rosters show Personal Records.
+    <div class="d-flex justify-content-between text-center text-md-start">
+        <p>Only results currently imported into our database are displayed. Individual Season rosters show the best
+            times for that season,
+            while the All-Time rosters show athletes' Personal Records.
         </p>
-        <div class="form-group mx-auto mx-lg-0 mb-2 mb-lg-0">
+        <div class="ms-1 mx-auto mx-lg-0 mb-2 mb-lg-0">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
                 <option value="xc21" name="xc21">2021 Cross Country</option>

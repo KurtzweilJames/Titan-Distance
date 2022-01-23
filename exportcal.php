@@ -37,7 +37,7 @@ while($row = mysqli_fetch_array($result)) {
 }
 
 if (in_array('schedule', $include)) {
-$result = mysqli_query($con,"SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Series FROM meets");
+$result = mysqli_query($con,"SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Slug FROM meets");
 while ($row = $result->fetch_assoc())  {
       $location = $row['Location'];
       $start = $row['Date']." ".$row['Time'];
@@ -59,10 +59,10 @@ while ($row = $result->fetch_assoc())  {
       $eventobj->addNode(new ZCiCalDataNode("DTSTAMP:" . ZCiCal::fromSqlDateTime()));
       $eventobj->addNode(new ZCiCalDataNode("LOCATION:" . ZCiCal::formatContent($location)));
 
-      if (empty($row['Series'])) {
+      if (empty($row['Slug'])) {
             $url = "https://titandistance.com/meet/".$row['id'];
         } else {
-            $url = "https://titandistance.com/meet/".$series[$row['Series']]."/".$d = date("Y",strtotime($row['Date']));
+            $url = "https://titandistance.com/meet/".$row['Slug']."/".$d = date("Y",strtotime($row['Date']));
         }
 
       $eventobj->addNode(new ZCiCalDataNode("Description:" . ZCiCal::formatContent("For Meet Information, please visit: ".$url)));

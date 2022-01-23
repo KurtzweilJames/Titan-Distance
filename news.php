@@ -38,7 +38,7 @@ if ($page == 0) {
        if (!empty($row['image'])) {
        $image = "assets/images/".$row['image'];
        } else {
-           $image = "askldhalskhdla";
+        $image = "assets/images/blog/blank.png";
        }
        if (isset($row['cat'])) {
        $cat = " // Categorized under ".$row['cat']; 

@@ -1,11 +1,5 @@
 <?php $pgtitle = "Results"; ?>
 <?php include("header.php");?>
-<?php
-$result = mysqli_query($con,"SELECT * FROM series");
-    while($row = mysqli_fetch_array($result)) {
-        $series[$row['id']] = $row['slug'];
-    }
-?>
 
 <section id="content">
     <div class="container mt-4">
@@ -35,10 +29,10 @@ $result = mysqli_query($con,"SELECT * FROM series");
                     <?php
             $result = mysqli_query($con,"SELECT * FROM meets WHERE Date<'".$todaydate."' OR (Date <= '".$todaydate."' AND Official != 0) ORDER BY Date DESC");                  
             while($row = mysqli_fetch_array($result)) {
-            if (empty($row['Series'])) {
+            if (empty($row['Slug'])) {
                 $url = "/meet/".$row['id'];
             } else {
-                $url = "/meet/".$series[$row['Series']]."/".$d = date("Y",strtotime($row['Date']));
+                $url = "/meet/".$row['Slug']."/".$d = date("Y",strtotime($row['Date']));
             }
                   
             //Badge

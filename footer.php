@@ -114,29 +114,6 @@ if ($pgtitle == "Roster") {
         });
         </script>";
     }
-
-    if ($require == "countdown") {
-        echo "<script>
-var countDownDate = new Date(\"April 19, 2021 00:00:00\").getTime();
-
-var x = setInterval(function() {
-
-  var now = new Date().getTime();
-
-  var distance = countDownDate - now;
-
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-
-  document.getElementById(\"countdown\").innerHTML = days + \" days\";
-
-  // If the count down is finished, write some text
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById(\"countdown\").innerHTML = \"EXPIRED\";
-  }
-}, 1000);
-        </script>";
-    }
 ?>
 
 <script>
@@ -148,18 +125,13 @@ if (document.getElementById("sayings")) {
     }, 10000);
 }
 
-
-window.onscroll = function() {
-    myFunction()
-};
-
 var navbar = document.getElementById("top-navbar");
 var content = document.getElementById("main");
 
 var sticky = navbar.offsetTop;
 var navheight = navbar.offsetHeight;
 
-function myFunction() {
+window.onscroll = function() {
     if (window.pageYOffset >= sticky) {
         navbar.classList.add("sticky-header");
         navbar.classList.add("bg-light");
@@ -169,7 +141,7 @@ function myFunction() {
         navbar.classList.remove("bg-light");
         content.style = "";
     }
-}
+};
 </script>
 
 <!-- Cloudflare Web Analytics -->

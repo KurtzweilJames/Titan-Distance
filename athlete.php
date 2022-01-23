@@ -139,7 +139,6 @@ include("header.php");
                     echo "<h4>Class of ".$class.$grade."</h4>";
                     if (!empty($college)) {
                         $json = json_decode(file_get_contents("api/collegelogos.json"),true);
-    
                         $colleges = explode(",",$college);
                         foreach($colleges as $c) {
                             echo "<h5>";

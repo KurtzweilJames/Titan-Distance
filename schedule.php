@@ -1,11 +1,6 @@
 <?php $pgtitle = "Schedule"; ?>
 <?php include("header.php");?>
 <?php
-$result = mysqli_query($con,"SELECT * FROM series");
-    while($row = mysqli_fetch_array($result)) {
-        $series[$row['id']] = $row['slug'];
-    }
-
     $season = htmlspecialchars($_GET["season"]);
     if (empty($season)) {
         $season = $currentseason;
@@ -56,10 +51,10 @@ $result = mysqli_query($con,"SELECT * FROM series");
 $result = mysqli_query($con,"SELECT * FROM meets WHERE Season = '".$season."' ORDER BY Date ASC");
 
 while($row = mysqli_fetch_array($result)) {
-    if (empty($row['Series'])) {
+    if (empty($row['Slug'])) {
         $url = "/meet/".$row['id'];
     } else {
-        $url = "/meet/".$series[$row['Series']]."/".$d = date("Y",strtotime($row['Date']));
+        $url = "/meet/".$row["Slug"]."/".$d = date("Y",strtotime($row['Date']));
     }
     $dow = date("D",strtotime($row['Date']));
     $d = date("n/j",strtotime($row['Date']));

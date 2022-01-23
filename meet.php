@@ -3,8 +3,8 @@
 $id = htmlspecialchars($_GET["id"]);
 $template = "meet";
 if (strpos($id, '/') !== false) {
-    list($slug, $year) = explode("/", $id, 2);
-    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date LIKE '" . $year . "-%' AND Slug = '" . $slug . "'");
+    list($urlslug, $year) = explode("/", $id, 2);
+    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date LIKE '" . $year . "-%' AND Slug = '" . $urlslug . "'");
 } else {
     $result = mysqli_query($con, "SELECT * FROM meets WHERE id='" . $id . "'");
 }
@@ -14,16 +14,16 @@ if (mysqli_num_rows($result) == 0) {
 }
 while ($row = mysqli_fetch_array($result)) {
     $id = $row['id'];
-    if (!empty($row['Series']) && empty($slug)) {
+    if (!empty($row['Series']) && empty($urlslug)) {
         $year = date("Y", strtotime($row['Date']));
         $result = mysqli_query($con, "SELECT * FROM series WHERE id='" . $row['Series'] . "'");
         while ($row = mysqli_fetch_array($result)) {
-            $slug = $row['slug'];
+            $urlslug = $row['slug'];
         }
         http_response_code(301);
-        header('Location: https://titandistance.com/meet/' . $slug . "/" . $year);
+        header('Location: https://titandistance.com/meet/' . $urlslug . "/" . $year);
     } //Page Title
-    if (!empty($series)) {
+    if (!empty($slug)) {
         $pgtitle = $row['Name'] . " (" . $year . ")";
     } else {
         $pgtitle = $row['Name'];
@@ -41,7 +41,7 @@ while ($row = mysqli_fetch_array($result)) {
     $live = $row['Live'];
     $stream = $row['Stream'];
     $results = $row['Results'];
-    $series = $row['Series'];
+    $slug = $row['Slug'];
     $website = $row['Website'];
     $weather = $row['Weather'];
     $official = $row['Official']; //Two Day
@@ -87,7 +87,7 @@ while ($row = mysqli_fetch_array($result)) {
     $content = $row['content'];
     $title = $row['title'];
     $image = $row['image'];
-    $slug = $row['slug'];
+    $newsslug = $row['slug'];
 }
 
 if(empty($image)) {
@@ -106,16 +106,16 @@ include "header.php";
             <div class="card" style="height: 100%;">
                 <div class="card-body text-center text-md-start">
                     <div class="series-navigation d-flex justify-content-between">
-                        <?php if (!empty($series)) {
+                        <?php if (!empty($slug)) {
                             echo "<div>";
-                            $result = mysqli_query($con, "SELECT Date FROM meets WHERE Date < '" . $unformatteddate . "' AND Series = '" . $series . "'  ORDER BY Date DESC LIMIT 1");
+                            $result = mysqli_query($con, "SELECT Date FROM meets WHERE Date < '" . $unformatteddate . "' AND Slug = '" . $slug . "'  ORDER BY Date DESC LIMIT 1");
                             while ($row = mysqli_fetch_array($result)) {
                                 $yr = date("Y", strtotime($row['Date']));
                                 echo "<a href='./" . $yr . "'><i class='bi bi-arrow-left'></i>" . $yr . "</a>";
                             }
                             echo "</div>";
                             echo "<div>";
-                            $result = mysqli_query($con, "SELECT Date FROM meets WHERE Date > '" . $unformatteddate . "' AND Series = '" . $series . "'  ORDER BY Date ASC LIMIT 1");
+                            $result = mysqli_query($con, "SELECT Date FROM meets WHERE Date > '" . $unformatteddate . "' AND Slug = '" . $slug . "'  ORDER BY Date ASC LIMIT 1");
                             while ($row = mysqli_fetch_array($result)) {
                                 $yr = date("Y", strtotime($row['Date']));
                                 echo "<a href='./" . $yr . "'>" . $yr . "<i class='bi bi-arrow-right'></i></a>";
@@ -196,7 +196,7 @@ include "header.php";
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Map & Directions</a>";
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
-                        if ($series == 11) {
+                        if ($slug == "titan") {
                             echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-award-fill me-1'></i>Titan Invite Records</a>";
                             $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
                         }
@@ -267,7 +267,7 @@ include "header.php";
                                 echo "<h2>Meet Information</h2>";
                             } elseif ($prepost == "post") {
                                 if (!empty($title)) {
-                                    echo "<h2><a href='/news/" . $slug . "'>" . $title . "</a></h2>";
+                                    echo "<h2><a href='/news/" . $newsslug . "'>" . $title . "</a></h2>";
                                 } else {
                                     echo "<h2>Meet Recap</h2>";
                                 }
@@ -560,7 +560,7 @@ echo"                                            </tbody>
                         </div>
 
                         <div class="tab-pane fade" id="special" role="tabpanel" aria-labelledby="special-tab">
-                            <?php if ($series == 11) {
+                            <?php if ($slug == "titan") {
                                 include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
                             } ?>
                         </div>
@@ -709,9 +709,9 @@ echo"                                            </tbody>
                                     }
 
                                     if($row['tags'] == "IQ") {
-                                        $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                                        $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                                     } else if($row['tags'] == "TQ") {
-                                        $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                                        $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
                                     } else if($row['tags'] == "All-Conf") {
                                         $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
                                     } else if(!empty($row['tags'])) {
@@ -854,9 +854,9 @@ echo"                                            </tbody>
                                         }
 
                                         if($row['tags'] == "IQ") {
-                                            $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                                            $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                                         } else if($row['tags'] == "TQ") {
-                                            $time = $time."<span class='badge bg-warning text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                                            $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
                                         } else if($row['tags'] == "All-Conf") {
                                             $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
                                         } else if(!empty($row['tags'])) {

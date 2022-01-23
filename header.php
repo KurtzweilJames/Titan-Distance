@@ -37,7 +37,7 @@ $todaydate = date('Y-m-d');
         type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.0/font/bootstrap-icons.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- jQuery -->
@@ -252,6 +252,16 @@ if ($require == "meet") {
         background-color: #6c757d;
     }
 
+    .bg-award {
+        background-color: #ffd700;
+        color: #073763;
+    }
+
+    .bg-award-inv {
+        color: #ffd700;
+        background-color: #073763;
+    }
+
     .btn-strava {
         color: #fff;
         background-color: #fc4d02;
@@ -270,6 +280,35 @@ if ($require == "meet") {
 
     .sticky-header+.tdmasthead {
         padding-top: 102px;
+    }
+
+    @media print {
+        .sticky-header {
+            display: none;
+        }
+
+        #top-bar {
+            display: none;
+        }
+
+        .navbar-toggler {
+            display: none;
+        }
+
+        .header-logo {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 40%;
+        }
+
+        #selectTab {
+            display: none;
+        }
+
+        hr {
+            display: none;
+        }
     }
 
     a {
@@ -332,7 +371,7 @@ if ($require == "meet") {
     }
         ?>
     <header>
-        <div class="bg-light">
+        <div class="bg-light" id="top-bar">
             <div class="container d-flex justify-content-between">
                 <div class="mr-auto p-2 m-0">
                     <?php
@@ -398,7 +437,7 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
                     <a href="/"><img src="/assets/logos/dotcom.svg" class="mx-auto img-fluid" alt="Titan Distance"></a>
                 </div>
                 <div class="col-sm-4 text-center my-auto">
-                    <a href="https://www.athletic.net/CrossCountry/School.aspx?SchoolID=16382" target="_blank"><img
+                    <a href="https://www.athletic.net/TrackAndField/School.aspx?SchoolID=16382" target="_blank"><img
                             src="/assets/icons/athnet.svg" class="social-icons" alt="Athletic.net" width="32"
                             height="32" title="Athletic.net"></a>
                     <a href="https://www.strava.com/clubs/titandistance" target="_blank"><img
@@ -410,8 +449,8 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
         <div class="pb-1" id="top-navbar">
             <nav class="navbar navbar-expand-lg navbar-light p-md-0">
                 <div class="container">
-                    <a href="/"><img src="https://titandistance.com/assets/logos/dotcom.svg" class="d-block d-md-none"
-                            height="30" alt="Titan Distance"></a>
+                    <a href="/" id="header-logo"><img src="https://titandistance.com/assets/logos/dotcom.svg"
+                            class="d-block d-md-none" height="30" alt="Titan Distance"></a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -441,8 +480,20 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
-                                    <a class="dropdown-item" href="/records">Misc. Records</a>
-                                    <a class="dropdown-item" href="/courserecords">Course Records</a>
+                                    <li>
+                                        <h6 class="dropdown-header">Cross Country</h6>
+                                    </li>
+                                    <a class="dropdown-item" href="/records/course">Course Records</a>
+                                    <a class="dropdown-item" href="/records/sub16">Sub-16 Club</a>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <h6 class="dropdown-header">Track</h6>
+                                    </li>
+                                    <a class="dropdown-item" href="/records/outdoor10">Outdoor Top 10</a>
+                                    <a class="dropdown-item" href="/records/indoor10">Indoor Top 10</a>
+                                    <a class="dropdown-item" href="/records/distance">Distance by Class</a>
                                 </ul>
                             </li>
                             <li class="nav-item">
@@ -465,6 +516,14 @@ echo "<i class='mb-0 mx-1 ".$jsonweather->current->icon."'></i>";
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/alumni">Alumni</a>
+                            </li>
+                            <li class="nav-item d-sm-block d-md-none">
+                                <a class="mx-2" style="color: rgba(0,0,0,.55);"
+                                    href="https://instagram.com/TitanDistance"><i class="bi bi-instagram"></i></a>
+                                <a class="mx-2" style="color: rgba(0,0,0,.55);"
+                                    href="https://twitter.com/TitanDistance"><i class="bi bi-twitter"></i></a>
+                                <a class="mx-2" style="color: rgba(0,0,0,.55);"
+                                    href="https://facebook.com/TitanDistance"><i class="bi bi-facebook"></i></a>
                             </li>
                         </ul>
                     </div>
