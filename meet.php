@@ -123,7 +123,7 @@ include "header.php";
                             echo "</div>";
                         } ?>
                     </div>
-                    <h4><?php echo $name . $badge; ?></h4>
+                    <h4><?php echo $name; ?></h4>
                     <h5 class="mb-0"><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
                     <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
                     <?php
@@ -142,48 +142,21 @@ include "header.php";
                             echo "<a class='nav-link active' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'><i class='bi bi-newspaper me-1'></i>Meet Recap</a>";
                             $dropdown[] = "<option value='news' name='news'>Meet Recap</option>";
                         }
-                        if ($sport == "xc") {
-                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "' ORDER BY level ASC");
-                            while ($row = mysqli_fetch_array($result)) {
-                                $levelnum = $row['level'];
-                                echo "<a class='nav-link' id='" .
-                                    $abbreviations[$levelnum] .
-                                    "-tab' data-bs-toggle='pill' data-bs-target='#" .
-                                    $abbreviations[$levelnum] .
-                                    "-results' role='tab' aria-controls='" .
-                                    $abbreviations[$levelnum] .
-                                    "-tab' aria-selected='false'>" . "<i class='bi bi-list-ul me-1'></i>" .
-                                    $teams[$levelnum] .
-                                    " Results</a>";
-                                $meetlevels[] = $levelnum;
-                                $dropdown[] = "<option value='" . $abbreviations[$levelnum] . "' name='" . $abbreviations[$levelnum] . "'>" . $teams[$levelnum] . " Results</option>";
-                            }
+                        
+                        //INDIVIDUAL RESULTS
+                        if ($prepost == "post") {
+                            echo "<a class='nav-link' id='results-tab' data-bs-toggle='pill' data-bs-target='#results' role='tab' aria-controls='scores-tab' aria-selected='false'><i class='bi bi-list-ol me-1'></i>Individual Results</a>";
+                            $dropdown[] = "<option value='results' name='results'>Individual Results</option>";
                         }
-                        if ($sport == "tf") {
-                            $result = mysqli_query($con, "SELECT DISTINCT level FROM overalltf WHERE meet = '" . $id . "' ORDER BY level ASC");
-                            while ($row = mysqli_fetch_array($result)) {
-                                $levelnum = $row['level'];
-                                echo "<a class='nav-link' id='" .
-                                    $abbreviations[$levelnum] .
-                                    "-tab' data-bs-toggle='pill' data-bs-target='#" .
-                                    $abbreviations[$levelnum] .
-                                    "-results' role='tab' aria-controls='" .
-                                    $abbreviations[$levelnum] .
-                                    "-tab' aria-selected='false'>" . "<i class='bi bi-list-ul me-1'></i>" .
-                                    $teams[$levelnum] .
-                                    " Results</a>";
-                                $meetlevels[] = $levelnum;
-                                $dropdown[] = "<option value='" . $abbreviations[$levelnum] . "' name='" . $abbreviations[$levelnum] . "'>" . $teams[$levelnum] . " Results</option>";
-                            }
-                        }
+                                                
                         $result = mysqli_query($con, "SELECT DISTINCT school FROM overalltf WHERE meet = '" . $id . "'");
                         if ($prepost == "post" && $sport == "tf" && mysqli_num_rows($result) > 1) {
-                            echo "<a class='nav-link' id='dscores-tab' data-bs-toggle='pill' data-bs-target='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'><i class='bi bi-list-ol me-1'></i>Distance Scores</a>";
+                            echo "<a class='nav-link' id='dscores-tab' data-bs-toggle='pill' data-bs-target='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'><i class='bi bi-list-stars me-1'></i>Distance Scores</a>";
                             $dropdown[] = "<option value='dscores' name='dscores'>Distance Scores</option>";
                         }
                         $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "'");
                         if ($prepost == "post" && mysqli_num_rows($result) > 0) {
-                            echo "<a class='nav-link' id='scores-tab' data-bs-toggle='pill' data-bs-target='#scores' role='tab' aria-controls='scores-tab' aria-selected='false'><i class='bi bi-award-fill me-1'></i>Team Scores</a>";
+                            echo "<a class='nav-link' id='scores-tab' data-bs-toggle='pill' data-bs-target='#scores' role='tab' aria-controls='scores-tab' aria-selected='false'><i class='bi bi-trophy-fill me-1'></i>Team Scores</a>";
                             $dropdown[] = "<option value='scores' name='scores'>Team Scores</option>";
                         }
                         if ($location == "David Pasquini Fieldhouse" or $location == "John Davis Titan Stadium" or $location == "Glenbrook South High School") {
@@ -217,15 +190,15 @@ include "header.php";
                             $dropdown[] = "<option value='link-" . $results . "' name='results'>Download Results</option>";
                         }
                         if (!empty($athnet)) {
-                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'>Athletic.net Page <i class='bi bi-box-arrow-in-up-right'></i></a>";
+                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'>Athletic.net Page<i class='bi bi-box-arrow-in-up-right ms-1'></i></a>";
                             $dropdown[] = "<option value='link-" . $athnet . "' name='athnet'>Athletic.net</option>";
                         }
                         if (!empty($website)) {
-                            echo "<a class='nav-link' id='homepage' href='" . $website . "' role='tab' target='_blank'>Meet Homepage <i class='bi bi-box-arrow-in-up-right'></i></a>";
-                            $dropdown[] = "<option value='link-" . $website . "' name='results'>Meet Homepage</option>";
+                            echo "<a class='nav-link' id='homepage' href='" . $website . "' role='tab' target='_blank'>Meet Website<i class='bi bi-box-arrow-in-up-right ms-1'></i></a>";
+                            $dropdown[] = "<option value='link-" . $website . "' name='results'>Meet Website</option>";
                         }
                         if (!empty($results)) {
-                            echo "<a class='nav-link' id='report' href='https://forms.gle/NQjahvTVmbNnsASo8' role='tab' target='_blank'>Request Correction <i class='bi bi-box-arrow-in-up-right'></i></a>";
+                            echo "<a class='nav-link' id='report' href='https://forms.gle/NQjahvTVmbNnsASo8' role='tab' target='_blank'>Request Correction<i class='bi bi-box-arrow-in-up-right ms-1'></i></a>";
                             $dropdown[] = "<option value='link-https://forms.gle/NQjahvTVmbNnsASo8' name='report'>Request Correction</option>";
                         }
                         ?>
@@ -259,7 +232,7 @@ include "header.php";
             }
             ?>
             <div class="card">
-                <div class="card-body">
+                <div class="card-body p-2 p-md-3">
                     <div class="tab-content" id="v-pills-tabContent">
                         <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
                             <?php
@@ -272,12 +245,77 @@ include "header.php";
                                     echo "<h2>Meet Recap</h2>";
                                 }
                             }
-                            echo $content;
                             if (empty($content)) {
                                 echo "<p>No meet recap or information is available at this time. Please be sure to use the links on the left to view more about the meet.</p><p>If this meet has already occured, our results are missing or have not been processed into our database.</p>";
+                            } else {
+                                $content = str_replace("../athlete/","/athlete/",$content);
+                                echo $content;
                             }
                             ?>
                         </div>
+                        
+                        <div class="tab-pane fade" id="results" role="tabpanel" aria-labelledby="results-tab">
+                            <div class='d-flex justify-content-between align-items-center mb-2'>
+                                <h1>Individual Results</h1>
+                                <div class='d-none d-md-block'>
+                                    <?php
+                                    if ($official == 1) {
+                                        echo "<span class='badge bg-success'>Official Results (F.A.T.)</span>";
+                                    } elseif ($official == 2) {
+                                        echo "<span class='badge bg-warning'>Official Results (Hand Timed)</span>";
+                                    } elseif ($official == 3) {
+                                        echo "<span class='badge bg-danger'>Unofficial Results</span>";
+                                    } elseif ($official == 4) {
+                                        echo "<span class='badge bg-primary'>Live Results</span>";
+                                    }
+                                ?>
+                                    <div class='form-check form-switch'>
+                                        <input type='checkbox' class='form-check-input'
+                                            onChange='showHighlight(this.checked)' id='INDVhighlightSwitch' checked>
+                                        <label class='custom-control-label' for='INDVhighlightSwitch'>Toggle
+                                            Highlight</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                            $meetEvents = [];
+                            $meetLevels = [];
+                                    if($sport == "tf"){
+                                        echo "<select class='form-select' aria-label='Event Selector' id='selectEvent'
+                                onChange='showTFResults(this.value)'>
+                                <option selected disabled>Select Event</option>";
+                                        $result = mysqli_query($con, "SELECT DISTINCT event,level FROM overalltf WHERE meet = '" . $id . "' AND relay IS NULL");
+                                        while ($row = mysqli_fetch_array($result)) {
+                                            echo "<option value='".$row['event']."-".$row['level']."'>".$teams[$row['level']]." ".$trackevents[$row['event']]."</option>";
+                                            $meetEvents[]="\"".$row['event']."-".$row['level']."\"";
+                                            if (!in_array($row['level'], $meetLevels)) {
+                                                $meetLevels[]=$row['level'];
+                                            }
+                                        }
+                                            echo "<option value='all'>Show All</option>";
+                                            echo "</select>";
+                                    } else if($sport == "xc"){
+                                        echo "<select class='form-select' aria-label='Event Selector' id='selectEvent'
+                                onChange='showXCResults(this.value)'>
+                                <option selected disabled>Select Division</option>";
+                                        $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "'");
+                                        while ($row = mysqli_fetch_array($result)) {
+                                            echo "<option value='".$row['level']."'>".$teams[$row['level']]."</option>";
+                                            $meetEvents[]="\"".$row['level']."\"";
+                                            if (!in_array($row['level'], $meetLevels)) {
+                                                $meetLevels[]=$row['level'];
+                                            }
+                                        }
+                                            echo "<option value='all'>Show All</option>";
+                                            echo "</select>";
+                                    }
+                                ?>
+
+                            <div class="mt-3" id="indresultsContainer">
+                                <p>Please select an event from the dropdown above.</p>
+                            </div>
+                        </div>
+                        
                         <div class="tab-pane fade" id="scores" role="tabpanel" aria-labelledby="scores-tab">
                             <?php
                                 echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
@@ -296,7 +334,7 @@ include "header.php";
                             ?>
                             <?php
                             $quad = 0;
-                            foreach ($meetlevels as $l) {
+                            foreach ($meetLevels as $l) {
                                 $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "' AND level = '" . $l . "'");
                                 echo "<h3>" . $teams[$l] . "</h3>";
                                 echo "<table class='table table-sm'>";
@@ -336,16 +374,16 @@ include "header.php";
                                 echo "</div>";
                                 echo "</div>";
                             ?>
-                            <p><strong>Team scores only for Distance Events (ones featured on results tabs). This is an
+                            <p><strong>Team scores only for Distance Events (3200m,1600m,800m,4x800m). This is an
                                     automated process, so results
                                     should be treated as-is.</strong></p>
-                            <?php foreach ($meetlevels as $l) {
+                            <?php foreach ($meetLevels as $l) {
                                 $result = mysqli_query($con, "SELECT school, COUNT(*)  FROM overalltf WHERE meet=" . $id . " AND level = " . $l . " GROUP BY school");
                                 while ($row = mysqli_fetch_array($result)) {
                                     $scores[$row['school']] = 0;
                                     $math[$row['school']] = [];
                                 }
-                                $result = mysqli_query($con, "SELECT * FROM overalltf WHERE meet='" . $id . "' AND level = " . $l . " AND place IS NOT NULL");
+                                $result = mysqli_query($con, "SELECT * FROM overalltf WHERE meet='" . $id . "' AND level = " . $l . " AND (event = '3200m' OR event = '1600m' OR event = '800m' OR event = '4x800m') AND place IS NOT NULL");
                                 while ($row = mysqli_fetch_array($result)) {
                                     $place = $row['place'];
                                     if ($place == 1) {
@@ -471,8 +509,9 @@ include "header.php";
                                     }   
                                     $meets2 = [];
                                     while($row2 = mysqli_fetch_array($result2)) { 
-                            array_push($meets2,"meet = ".$row2['id']);
-                                          }
+                                        //array_push($meets2,"meet = ".$row2['id']);
+                                        array_push($meets2,$row2['id']);
+                                    }
                                           
 
                                     echo "
@@ -487,7 +526,9 @@ include "header.php";
                                             <tbody>";
                                                 $duplicates = [];
                                                 $num = 0;
-                        $result2 = mysqli_query($con,"SELECT * FROM overallxc"." WHERE (".join($meets2," OR ").") AND distance = '".$row['primarydistance']."' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
+                        //$result2 = mysqli_query($con,"SELECT * FROM overallxc"." WHERE (".join($meets2," OR ").") AND distance = '".$row['primarydistance']."' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
+                        $result2 = mysqli_query($con,"SELECT * FROM overallxc"." WHERE meet IN (".join(",",$meets2).") AND distance = '".$row['primarydistance']."' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
+
                         while($row2 = mysqli_fetch_array($result2)) {
                             if (in_array($row2['name'],$duplicates) OR $num >= 10) {
                                 continue;
@@ -585,462 +626,301 @@ echo"                                            </tbody>
                             ?>
                         </div>
 
-                        <?php foreach ($meetlevels as $l) {
-                            echo "<div class='tab-pane fade' id='" . $abbreviations[$l] . "-results' role='tabpanel' aria-labelledby='" . $abbreviations[$l] . "-tab'>";
-                            if ($sport == "xc") {
-                                $result = mysqli_query($con,"SELECT * FROM overallxc WHERE meet='" .$id ."' AND level = '" .$l ."' AND (school = 'Glenbrook South' OR school = 'Glenview (Glenbrook South)' OR school = 'Glenbrook South*') ORDER BY place IS NULL, place ASC LIMIT 1");
-                                while ($row = mysqli_fetch_array($result)) {
-                                    $distance = $row['distance'];
-                                    if (!empty($row['split1'])) {
-                                        $splits = 1;
-                                    } else {
-                                        $splits = 0;
-                                    }
-                                    if (!empty($row['place'])) {
-                                        $places = 1;
-                                    } else {
-                                        $places = 0;
-                                    }
-                                }
-                            } else if ($sport == "tf") {
-                                $result = mysqli_query($con,"SELECT * FROM overalltf WHERE meet='" .$id ."' AND level = '" .$l ."' AND (school = 'Glenbrook South' OR school = 'Glenview (Glenbrook South)' OR school = 'Glenbrook South*') AND relay IS NULL ORDER BY place IS NULL, place ASC LIMIT 1");
-                                while ($row = mysqli_fetch_array($result)) {  
-                                    if (!empty($row['split1'])) {
-                                        $splits = 1;
-                                    } else {
-                                        $splits = 0;
-                                    }
-                                    if (!empty($row['heat'])) {
-                                        $heats = 1;
-                                    } else {
-                                        $heats = 0;
-                                    }  
-                                }
-                                
-                            }
-                            echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
-                            if ($sport == "xc") {
-                                echo "<h1>" . $teams[$l] . " Results (" . $distance . ")</h1>";
-                            } else {
-                                echo "<h1>" . $teams[$l] . " Results</h1>";
-                            }
-                            
-                            echo "<div class='d-none d-md-block'>";
-                            if ($splits == 1) {
-                                echo "<div class='form-check form-switch'>";
-                                echo "<input type='checkbox' class='form-check-input' onChange='showSplits(this.checked)' id='splitsSwitch' checked>";
-                                echo "<label class='custom-control-label' for='splitsSwitch'>Toggle Splits</label>";
-                                echo "</div>";
-                            }
-                            echo "<div class='form-check form-switch'>";
-                            echo "<input type='checkbox' class='form-check-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
-                            echo "<label class='custom-control-label' for='highlightSwitch'>Toggle Highlight</label>";
-                            echo "</div>";
-                            echo "</div>";
-                            echo "</div>";
-                            if ($official == 1) {
-                                echo "<span class='badge bg-success'>Official Results (F.A.T.)</span>";
-                            } elseif ($official == 2) {
-                                echo "<span class='badge bg-warning'>Official Results (Hand Timed)</span>";
-                            } elseif ($official == 3) {
-                                echo "<span class='badge bg-danger'>Unofficial Results</span>";
-                            } elseif ($official == 4) {
-                                echo "<span class='badge bg-primary'>Live Results</span>";
-                            }
-                            if ($sport == "xc") {
-                                echo "<div class='table-responsive'>";
-                                echo "<table class='table table-condensed table-sm table-striped dataTable' id='" . $abbreviations[$l] . "Results'>";
-                                echo "<thead>
-                        <tr>";
-                                if ($places == 1) {
-                                    echo "<th>Place</th>";
-                                }
-                                echo "<th>Name</th>
-                        <th>Grade</th> <th>Time</th>
-                        <th>Team</th>";
-                                if ($splits == 1) {
-                                    echo "<th class='splits-col'>1 Mile</th>";
-                                    if ($distance == "2mi") {
-                                        echo "<th class='splits-col'>Finish</th>";
-                                    } else {
-                                        echo "<th class='splits-col'>2 Mile</th>
-                        <th class='splits-col'>Finish</th>";
-                                    }
-                                }
-                                echo "</tr>
-                        </thead>";
-                                echo "<tbody>";
-                                $result = mysqli_query($con, "SELECT * FROM overallxc WHERE meet='" . $id . "' AND level = '" . $l . "' ORDER BY place IS NULL, place ASC, time ASC");
-                                while ($row = mysqli_fetch_array($result)) {
-                                    if ($row['grade'] == 12) {
-                                        $grade = "Sr.";
-                                    } elseif ($row['grade'] == 11) {
-                                        $grade = "Jr.";
-                                    } elseif ($row['grade'] == 10) {
-                                        $grade = "So.";
-                                    } elseif ($row['grade'] == 9) {
-                                        $grade = "Fr.";
-                                    } else {
-                                        $grade = $row['grade'];
-                                    }
-                                    if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") {
-                                        echo "<tr class='row-highlight clickable-row' data-href='/athlete/" . $row['profile'] . "'>";
-                                        if ($places == 1) {
-                                            echo "<th>" . $row['place'] . "</th>";
-                                        }
-                                    } else {
-                                        echo "<tr>";
-                                        if ($places == 1) {
-                                            echo "<th>" . $row['place'] . "</th>";
-                                        }
-                                    }
-                                    if (!empty($row['profile'])) {
-                                        echo "<th><a href='/athlete/" . $row['profile'] . "'>" . $row['name'] . "</a></th>";
-                                    } else {
-                                        echo "<th>" . $row['name'] . "</th>";
-                                    }
-                                    echo "<td>" . $grade . "</td>";
-                                    $time = $row['time'];
-
-                                    if($row['pr'] == 1) {
-                                        $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
-                                    } else if ($row["sr"] == 1) {
-                                        $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
-                                    }
-
-                                    if($row['tags'] == "IQ") {
-                                        $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
-                                    } else if($row['tags'] == "TQ") {
-                                        $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
-                                    } else if($row['tags'] == "All-Conf") {
-                                        $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
-                                    } else if(!empty($row['tags'])) {
-                                        $time = $time."<span class='badge bg-secondary text-light ms-1'>".$row['tags']."</span>";
-                                    }
-                                    echo "<th>" . $time . "</th>";
-                                    echo "<td>" . $row['school'] . "</td>";
-                                    if ($splits == 1) {
-                                        echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                        echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                        if ($distance !== "2mi") {
-                                            echo "<td class='splits-col'>" . $row['split3'] . "</td>";
-                                        }
-                                    }
-                                    echo "</tr>";
-                                }
-                                echo "</tbody>";
-                                echo "</table>";
-                                echo "</div>";
-                            } elseif ($sport == "tf") {
-                                $fivesplits = 0;
-                                $result = mysqli_query($con,"SELECT * FROM overalltf WHERE meet='".$id."' AND distance = '3200m' AND level = '".$l."' AND (school = 'Glenbrook South' OR school = 'Glenview (Glenbrook South)' OR school = 'Glenbrook South*') LIMIT 1");
-                                while ($row = mysqli_fetch_array($result)) {
-                                    if (!empty($row['split5'])) {
-                                        $fivesplits = 1;
-                                    }
-                                }
-                                $events = [];
-                                $relays = [];
-                                $result = mysqli_query($con, "SELECT DISTINCT distance,relay FROM overalltf WHERE meet = '" . $id . "' AND level = '" . $l . "'");
-                                while ($row = mysqli_fetch_array($result)) {
-                                    if (!in_array($row['distance'], $events) and !in_array($row['distance'], $relays)) {
-                                    if (strpos($row['distance'], 'x') !== false or $row['distance'] == "DMR") {
-                                        $relays[] = $row['distance'];
-                                    } else if (empty($row['relay'])) {
-                                        $events[] = $row['distance'];
-                                    }
-                                }
-                                }
-
-                                if(in_array("DMR",$relays)) {
-                                    echo "<p>*There is a formatting error that occurs with the DMR event. While a solution is being worked on, please use the \"Downloadable Results\" tab to view the proper formatting.</p>";
-                                }
-
-                                //INDIVIDUAL EVENTS
-                                foreach ($events as $d) {
-                                    $result = mysqli_query($con, "SELECT * FROM overalltf WHERE meet='" . $id . "' AND level = '" . $l . "' AND relay IS NULL AND distance = '" . $d . "'");
-                                    echo "<h5>" . $d . "</h5>";
-                                    echo "<div class='table-responsive'>";
-                                    echo "<table class='table table-sm table-striped'>";
-                                    echo "<thead><tr>";
-                                    echo "<th>Place</th>";
-                                    if ($heats == 1) {
-                                        echo "<th>Heat</th>";
-                                    }
-                                    echo "<th>Name</th><th>Grade</th><th>Time</th><th>Team</th>";
-                                    if ($splits == 1) {
-                                        if ($d == "800m") {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                        }
-                                        if ($d == "1600m") {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1200m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                        }
-                                        if ($d == "3200m" && $fivesplits == 1) {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1200m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                            echo "<th class='splits-col'>2000m</th>";
-                                            echo "<th class='splits-col'>2400m</th>";
-                                            echo "<th class='splits-col'>2800m</th>";
-                                            echo "<th class='splits-col'>3200m</th>";
-                                        } elseif ($d == "3200m" && $fivesplits == 0) {
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                            echo "<th class='splits-col'>2400m</th>";
-                                            echo "<th class='splits-col'>3200m</th>";
-                                        }
-                                    }  
-                                    echo "</tr></thead><tbody>";
-                                    
-                                    while ($row = mysqli_fetch_array($result)) {
-                                        if ($row['grade'] == 12) {
-                                            $grade = "Sr.";
-                                        } elseif ($row['grade'] == 11) {
-                                            $grade = "Jr.";
-                                        } elseif ($row['grade'] == 10) {
-                                            $grade = "So.";
-                                        } elseif ($row['grade'] == 9) {
-                                            $grade = "Fr.";
-                                        } else {
-                                            $grade = $row['grade'];
-                                        }
-                                        if ($row['name'] == "RELAY") {
-                                            $name = "Relay Team";
-                                        } else {
-                                            $name = $row['name'];
-                                        }
-                                        if (($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") and $row['name'] !== "RELAY" and $row['name'] !== "Relay Team") {
-                                            echo "<tr class='row-highlight clickable-row' data-href='/athlete/" . $row['profile'] . "'>";
-                                        } elseif ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") {
-                                            echo "<tr class='row-highlight'>";
-                                        } else {
-                                            echo "<tr>";
-                                        }
-                                        echo "<th>" . $row['place'] . "</th>";
-                                        if ($heats == 1) {
-                                            echo "<td>" . $row['heat'] . "</td>";  
-                                        }
-                                        if (isset($row['relay']) and $name != "Relay Team") {
-                                            if (empty($row['profile'])) {
-                                                echo "<td>" . $name . "</td>";
-                                            } else {
-                                                echo "<td><a href='/athlete/" . $row['profile'] . "'>" . $name . "</a></td>";
-                                            }
-                                        } else {
-                                            if (empty($row['profile'])) {
-                                                echo "<th>" . $name . "</th>";
-                                            } else {
-                                                echo "<th><a href='/athlete/" . $row['profile'] . "'>" . $name . "</a></th>";
-                                            }
-                                        }
-                                        echo "<td>" . $grade . "</td>";
-                                        if($row['distance'] == "3200m" AND substr($row['time'], 0,2) == "09") {
-                                            $time = substr($row['time'], 1);
-                                        } else if($row['distance'] == "400m" AND substr($row['time'], 0,2) == "0:") {
-                                            $time = substr($row['time'], 2);
-                                        } else {
-                                            $time = $row['time'];
-                                        }
-
-                                        if($row['pr'] == 1) {
-                                            $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
-                                        } else if ($row["sr"] == 1) {
-                                            $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
-                                        }
-
-                                        if($row['tags'] == "IQ") {
-                                            $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
-                                        } else if($row['tags'] == "TQ") {
-                                            $time = $time."<span class='badge bg-ihsa text-dark ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
-                                        } else if($row['tags'] == "All-Conf") {
-                                            $time = $time."<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
-                                        } else if(!empty($row['tags'])) {
-                                            $time = $time."<span class='badge bg-secondary text-light ms-1'>".$row['tags']."</span>";
-                                        }
-                                        
-                                        echo "<td>" . $time . "</td>";
-                                        echo "<td>" . $row['school'] . "</td>";
-                                        if ($splits == 1) {
-                                            if ($row['distance'] !== "400m") {
-                                                echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                            }
-                                            if ($row['distance'] == "1600m" or $row['distance'] == "3200m") {
-                                                echo "<td class='splits-col'>" . $row['split3'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split4'] . "</td>";
-                                            }
-                                            if ($row['distance'] == "3200m" && $fivesplits == 1) {
-                                                echo "<td class='splits-col'>" . $row['split5'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split6'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split7'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split8'] . "</td>";
-                                            }
-                                        }
-                                        echo "</tr>";
-                                    }
-                                    echo "</tbody></table></div>";
-                                } 
-                                //RELAYS
-                                foreach ($relays as $d) {
-                                    $rd = str_replace("4x", "", $d);
-                                    echo "<h5>" . $d . "</h5>";
-                                    echo "<div class='table-responsive'>";
-                                    echo "<table class='table table-sm table-striped'>";
-                                    echo "<thead><tr>";
-                                    echo "<th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th>";
-                                    if ($splits == 1) {
-                                        if ($d == "4x800m" or $d == "800m") {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                        }
-                                        if ($d == "4x1600m" or $d == "1600m") {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1200m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                        }
-                                        if ($d == "3200m" && $fivesplits == 1) {
-                                            echo "<th class='splits-col'>400m</th>";
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1200m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                            echo "<th class='splits-col'>2000m</th>";
-                                            echo "<th class='splits-col'>2400m</th>";
-                                            echo "<th class='splits-col'>2800m</th>";
-                                            echo "<th class='splits-col'>3200m</th>";
-                                        } elseif ($d == "3200m" && $fivesplits == 0) {
-                                            echo "<th class='splits-col'>800m</th>";
-                                            echo "<th class='splits-col'>1600m</th>";
-                                            echo "<th class='splits-col'>2400m</th>";
-                                            echo "<th class='splits-col'>3200m</th>";
-                                        }
-                                    }
-                                    echo "</tr></thead><tbody>";
-                                    $result = mysqli_query($con, "SELECT * FROM overalltf WHERE meet='" . $id . "' AND level = '" . $l . "' AND (distance = '" . $d . "' OR (relay IS NOT NULL AND distance = '" . $rd . "'))");
-                                    while ($row = mysqli_fetch_array($result)) {
-                                        if ($row['grade'] == 12) {
-                                            $grade = "Sr.";
-                                        } elseif ($row['grade'] == 11) {
-                                            $grade = "Jr.";
-                                        } elseif ($row['grade'] == 10) {
-                                            $grade = "So.";
-                                        } elseif ($row['grade'] == 9) {
-                                            $grade = "Fr.";
-                                        } else {
-                                            $grade = $row['grade'];
-                                        }
-                                        if ($row['name'] == "RELAY") {
-                                            $name = "Relay Team";
-                                        } else {
-                                            $name = $row['name'];
-                                        }
-                                        if (($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") and $row['name'] !== "RELAY" and $row['name'] !== "Relay Team") {
-                                            echo "<tr class='row-highlight clickable-row' data-href='/athlete/" . $row['profile'] . "'>";
-                                        } elseif ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" or $row['school'] == "Glenbrook South*") {
-                                            echo "<tr class='row-highlight'>";
-                                        } else {
-                                            echo "<tr>";
-                                        }
-                                        echo "<th>" . $row['place'] . "</th>";
-                                        if (isset($row['relay']) and $name != "Relay Team") {
-                                            if (empty($row['profile'])) {
-                                                echo "<td>" . $name . "</td>";
-                                            } else {
-                                                echo "<td><a href='/athlete/" . $row['profile'] . "'>" . $name . "</a></td>";
-                                            }
-                                        } else {
-                                            if (empty($row['profile'])) {
-                                                echo "<th>" . $name . "</th>";
-                                            } else {
-                                                echo "<th><a href='/athlete/" . $row['profile'] . "'>" . $name . "</a></th>";
-                                            }
-                                        }
-                                        echo "<td>" . $grade . "</td>";
-                                        
-                                        if($row['distance'] == "3200m" AND substr($row['time'], 0,2) == "09") {
-                                            $time = substr($row['time'], 1);
-                                        } else if($row['distance'] == "400m" AND substr($row['time'], 0,2) == "0:") {
-                                            $time = substr($row['time'], 2);
-                                        } else {
-                                            $time = $row['time'];
-                                        }
-
-                                        if($row['pr'] == 1) {
-                                            $time = $time."<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
-                                        } else if ($row["sr"] == 1) {
-                                            $time = $time."<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
-                                        }
-                                        
-                                        echo "<td>" . $time . "</td>";
-                                        echo "<td>" . $row['school'] . "</td>";
-                                        if ($splits == 1) {
-                                            if ($row['distance'] == "4x800m" or $row['distance'] == "800m") {
-                                                echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                            }
-                                            if ($row['distance'] == "4x1600m" or $row['distance'] == "1600m") {
-                                                echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split3'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split4'] . "</td>";
-                                            }
-                                            if ($row['distance'] == "3200m" && $fivesplits == 0) {
-                                                echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split3'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split4'] . "</td>";
-                                            } elseif ($row['distance'] == "3200m" && $fivesplits == 1) {
-                                                echo "<td class='splits-col'>" . $row['split1'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split2'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split3'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split4'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split5'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split6'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split7'] . "</td>";
-                                                echo "<td class='splits-col'>" . $row['split8'] . "</td>";
-                                            }
-                                        }
-                                        echo "</tr>";
-                                    }
-                                    echo "</tbody></table></div>";
-                                }
-                            }
-                            echo "<a class='btn btn-primary' href='/printresults?id=" . $id . "' role='button'>Print Results</a>";
-                            echo "</div>";
-                        } ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-<?php
-if ($sport == "xc") {
-foreach ($meetlevels as $l) {
-    echo "<script>";
-    echo "$(document).ready(function() {";
-    echo "    $('#" .
-        $abbreviations[$l] .
-        "Results').DataTable({
-        \"lengthMenu\": [
-            [25, 50, 100, -1],
-            [25, 50, 100, \"All\"]
-        ],
-        \"iDisplayLength\": 50,
-        \"order\": []
-    });";
-    echo "});";
-    echo "</script>";
-}
-}
-?>
 <script type="text/javascript">
+//INDIVIDUAL RESULTS
+var events = {
+    "3200m": "3200m Run",
+    "1600m": "1600m Run",
+    "1000m": "1000m Run",
+    "800m": "800m Run",
+    "400m": "400m Dash",
+    "300mIH": "300m Intermediate Hurdles",
+    "200m": "200m Dash",
+    "160m": "160m Dash",
+    "110mHH": "110m High Hurdles",
+    "110m IH": "110m Intermediate Hurdles",
+    "100m": "100m Dash",
+    "60m":"60m Dash",
+    "60mHH":"60m High Hurdles",
+    "50mLH": "50m Low Hurdles",
+    "55mIH": "55m Intermediate Hurdles",
+    "50m": "50m Dash",
+    "SP": "Shot Put",
+    "DS": "Discus",
+    "HJ": "High Jump",
+    "PV": "Pole Vault",
+    "LJ": "Long Jump",
+    "TJ": "Triple Jump",
+    "4x800m": "4x800m Relay",
+    "4x400m": "4x400m Relay",
+    "4x200m": "4x200m Relay",
+    "4x160m": "4x1 Lap Relay",
+    "4x100m": "4x100m Relay",
+    "DMR":"Distance Medley Relay",
+    "SMR":"Short Medley Relay"
+};
+
+var levels = {
+    1: "Varsity",
+    2: "Junior Varsity",
+    3: "Freshmen",
+    4: "Sophomore",
+    5: "Frosh/Soph",
+    6: "Open",
+    7: "Junior Varsity 2"
+}
+
+var response, results;
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        response = this.responseText;
+        results = JSON.parse(response);
+        <?php
+            if ($sport == "xc" && count($meetLevels) == 1) {
+                echo "showXCResults(".$meetLevels[0].");\n";
+                echo "document.getElementById(\"selectEvent\").value=".$meetLevels[0].";\n";
+                echo "document.getElementById(\"selectEvent\").classList.add=\"d-none\";\n";
+            }
+        ?>
+    }
+};
+var url = "/api/results.php?id=<?php echo $id; ?>"
+xhttp.open("GET", url, true);
+xhttp.send();
+
+var indresultsContainer = document.getElementById("indresultsContainer");
+var INDVhighlightSwitch = document.getElementById("INDVhighlightSwitch");
+
+function showTFResults(raw) {
+    var tables = [];
+
+    if (raw == "all") {
+        tables.push(<?php echo implode(",",$meetEvents);?>)
+    } else {
+        tables.push(raw)
+    }
+
+    indresultsContainer.innerHTML = ""
+    tables.forEach(generateTFTables)
+}
+
+function generateTFTables(single) {
+    console.log(single)
+    single = single.split("-")
+    var event = single[0]
+    var level = single[1]
+
+    let table = "<table class='table table-sm table-striped'>";
+    table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Result</th><th>Team</th></tr></thead>";
+    table += "<tbody>";
+
+    var relay, relaydistance;
+
+    if (event.includes("4x")) {
+        relay = true;
+        relaydistance = event.replace("4x", "")
+    } else {
+        relay = false;
+        relaydistance = null;
+    }
+
+    for (let x in results) {
+        if ((relay == false && results[x].level == level && results[x].event == event && results[x].type !== "R") || (
+                relay == true &&
+                results[x].level == level && (results[x].event == event || (results[x].event == relaydistance &&
+                    results[x].type == "R")))) {
+
+            var gbs;
+            if (results[x].school == "Glenbrook South" || results[x].school == "Glenbrook South*") {
+                gbs = true;
+            } else {
+                gbs = false;
+            }
+
+            if (gbs == true) {
+                if (INDVhighlightSwitch.checked == true) {
+                    table += "<tr class='row-highlight'>";
+                } else {
+                    table += "<tr class='row-nohighlight'>";
+                }
+            } else {
+                table += "<tr>";
+            }
+
+            if (results[x].place == null) {
+                table += "<th></th>";
+            } else {
+                table += "<th>" + results[x].place + "</th>";
+            }
+
+            if (results[x].name == "RELAY") {
+                table += "<th>Relay Team</th>";
+            } else if (results[x].profile !== null) {
+                table += "<th><a href='/athlete/" + results[x].profile + "'>" + results[x].name + "</a></th>";
+            } else {
+                table += "<th>" + results[x].name + "</th>";
+            }
+
+            if (results[x].grade == 12) {
+                table += "<td>Sr.</td>";
+            } else if (results[x].grade == 11) {
+                table += "<td>Jr.</td>";
+            } else if (results[x].grade == 10) {
+                table += "<td>So.</td>";
+            } else if (results[x].grade == 9) {
+                table += "<td>Fr.</td>";
+            } else if (results[x].grade !== null) {
+                table += "<td>" + results[x].grade + "</td>";
+            } else {
+                table += "<td></td>";
+            }
+            if (results[x].result.slice(-1) == "m") {
+                m = parseFloat(results[x].result.slice(0,-1))
+                var inches = (m*39.3700787).toFixed(0);
+                var feet = Math.floor(inches / 12);
+                inches %= 12;
+                table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"" + feet + "'-" + inches + "\">";
+            } else {
+                table += "<td>";
+            }
+            if (results[x].result.substring(0, 2) == "0:") {
+                table += results[x].result.substring(2);
+            } else if (results[x].result.substring(0, 1) == "0") {
+                table += results[x].result.substring(1);
+            } else {
+                table += results[x].result;
+            }
+            if (results[x].pr == 1) {
+                table +=
+                    "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+            } else if (results[x].sr == 1) {
+                table +=
+                    "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+            }
+            if (results[x].tags == "TQ") {
+                table +=
+                    "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+            } else if (results[x].tags == "IQ") {
+                table +=
+                    "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+            } else if (results[x].tags == "All-Conf") {
+                table +=
+                    "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+            } else if (results[x].tags !== null) {
+                table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
+            }
+            table += "</td>";
+
+            table += "<td>" + results[x].school + "</td>";
+            table += "</tr>"
+        }
+    }
+    table += "</tbody>";
+    table += "</table>";
+
+    indresultsContainer.innerHTML += "<h4>" + levels[level] + " " + events[event] + "</h4>" + table
+}
+
+function showXCResults(raw) {
+    var tables = [];
+
+    if (raw == "all") {
+        tables.push(<?php echo implode(",",$meetEvents);?>)
+    } else {
+        tables.push(raw)
+    }
+
+    indresultsContainer.innerHTML = ""
+    tables.forEach(generateXCTables)
+}
+
+function generateXCTables(level) {
+    let table = "<table class='table table-sm table-striped'>";
+    table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th></tr></thead>";
+    table += "<tbody>";
+    for (let x in results) {
+        if (results[x].level == level) {
+            var gbs;
+            if (results[x].school == "Glenbrook South" || results[x].school == "Glenbrook South*") {
+                gbs = true;
+            } else {
+                gbs = false;
+            }
+
+            if (gbs == true) {
+                if (INDVhighlightSwitch.checked == true) {
+                    table += "<tr class='row-highlight'>";
+                } else {
+                    table += "<tr class='row-nohighlight'>";
+                }
+            } else {
+                table += "<tr>";
+            }
+            
+            table += "<th>" + results[x].place + "</th>";
+            if (results[x].profile !== null) {
+                table += "<th><a href='/athlete/" + results[x].profile + "'>" + results[x].name + "</a></th>";
+            } else {
+                table += "<th>" + results[x].name + "</th>";
+            }
+
+            if (results[x].grade == 12) {
+                table += "<td>Sr.</td>";
+            } else if (results[x].grade == 11) {
+                table += "<td>Jr.</td>";
+            } else if (results[x].grade == 10) {
+                table += "<td>So.</td>";
+            } else if (results[x].grade == 9) {
+                table += "<td>Fr.</td>";
+            } else if (results[x].grade !== null) {
+                table += "<td>" + results[x].grade + "</td>";
+            } else {
+                table += "<td></td>";
+            }
+
+            table += "<td>";
+            table += results[x].time;
+            if (results[x].pr == 1) {
+                table +=
+                    "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+            } else if (results[x].sr == 1) {
+                table +=
+                    "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+            }
+            if (results[x].tags == "TQ") {
+                table +=
+                    "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+            } else if (results[x].tags == "IQ") {
+                table +=
+                    "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+            } else if (results[x].tags == "All-Conf") {
+                table +=
+                    "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+            } else if (results[x].tags !== null) {
+                table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
+            }
+            table += "</td>";
+
+            table += "<td>" + results[x].school + "</td>";
+            table += "</tr>"
+        }
+    }
+    table += "</tbody>";
+    table += "</table>";
+
+    distance = " (" + results[0].distance.replace("mi"," miles") + ")";
+    console.log(distance)
+
+    indresultsContainer.innerHTML += "<h2>" + levels[level] + " Results" + distance + "</h2>" + table
+}
+
 document.getElementById("selectTab").addEventListener("change", function() {
     selectTab();
 });
@@ -1048,7 +928,7 @@ document.getElementById("selectTab").addEventListener("change", function() {
 var tabEl = document.getElementById("v-pills-tab");
 tabEl.addEventListener('shown.bs.tab', function(event) {
     map.resize();
-    //window.location.hash = event.target.id.replace("-tab", "")
+    window.location.hash = event.target.id.replace("-tab", "")
 })
 window.onload = function() {
     if (window.location.hash) {
@@ -1056,6 +936,7 @@ window.onload = function() {
         var someTabTriggerEl = document.querySelector(tab)
         var tabt = new bootstrap.Tab(someTabTriggerEl)
         tabt.show()
+        document.getElementById("selectTab").value = window.location.hash.replace("#","");
     }
 };
 
@@ -1069,7 +950,6 @@ function selectTab(str) {
     } else {
         tab = tab.replace("-tab", "")
         var link = tab.substring(6);
-        console.log(link);
         if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) {
             window.location.assign(link);
         } else {

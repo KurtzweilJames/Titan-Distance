@@ -19,7 +19,7 @@ $meets[$row['id']]=$row['Name'];
     echo "<div class='row row-cols-2 row-cols-md-3 mb-5'>";
    while($row = mysqli_fetch_array($result)) {
        echo "<div class='col mb-4'>";
-       echo "<div class='card clickable hover-card' data-href='".$row['link']."'>";
+       echo "<a class='card hover-card text-reset' href='".$row['link']."' target='_blank'>";
        if (!empty($row['cover'])) {
         echo "<img src='/assets/images/meets/".$row['cover']."' class='card-img-top' loading='lazy'>";
        } else {
@@ -36,7 +36,7 @@ $meets[$row['id']]=$row['Name'];
        echo "<p class='card-text text-center'>Photographer(s): ".$row['credits']."</p>";
        echo "</div>";
        echo "</div>";
-       echo "</div>";
+       echo "</a>";
    }
    echo "</div>";
 }

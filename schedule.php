@@ -72,8 +72,8 @@ while($row = mysqli_fetch_array($result)) {
         echo "<td>" . $dow . "</td>";
         echo "<td>" . $d . "</td>";
         echo "<td><a href='".$url."'>" . $row['Name'] . $badge . "</a></td>";
-        if(strlen($row['Opponents']) > 50) {
-            echo "<td data-toggle='tooltip' data-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 100)."..." . "</td>";
+        if(strlen($row['Opponents']) > 100) {
+            echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 100)."..." . "</td>";
         } else {
             echo "<td>" . $row['Opponents'] . "</td>";
         }
