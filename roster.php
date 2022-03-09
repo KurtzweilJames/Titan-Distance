@@ -5,94 +5,187 @@ $id = htmlspecialchars($_GET["id"]);
 ?>
 
 <div class="container mt-3 h-100">
-    <div class="d-flex justify-content-between text-center text-md-start">
-        <p>Only results currently imported into our database are displayed. Individual Season rosters show the best
-            times for that season,
-            while the All-Time rosters show athletes' Personal Records.
-        </p>
-        <div class="ms-1 mx-auto mx-lg-0 mb-2 mb-lg-0">
-            <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
-                <option value="" selected disabled>Select a Season:</option>
-                <option value="xc21" name="xc21">2021 Cross Country</option>
-                <option value="tf21" name="tf21">2021 Track</option>
-                <option value="xc20" name="xc20">2020 Cross Country</option>
-                <option value="tf20" name="tf20">2020 Track</option>
-                <option value="xc19" name="xc19">2019 Cross Country</option>
-                <option value="tf19" name="tf19">2019 Track</option>
-                <option value="xc18" name="xc18">2018 Cross Country</option>
-                <option value="tf18" name="tf18">2018 Track</option>
-                <option value="xc17" name="xc17">2017 Cross Country</option>
-                <option value="tf17" name="tf17">2017 Track</option>
-                <option value="xc16" name="xc16">2016 Cross Country</option>
-                <option value="all" name="all">All Time</option>
-                <option value="picture" name="picture">All Time Picture</option>
-            </select>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 text-center text-md-start">
+                <p>Only results imported into our database are displayed, so some discrepancies will arise. Individual Season rosters show the best times for that season, while the All-Time rosters show Personal Records. At this time, only <span data-bs-toggle="tooltip" data-bs-placement="top" title="Athletes who competed in a 800m, 1600m, 3200m, 3mi, 2mi, or 5k"> Distance athletes</span> will be shown in our rosters.</p>
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
+                    <option value="" selected disabled>Select a Season:</option>
+                    <option value="tf22" name="tf22">2022 Track</option>
+                    <option value="xc21" name="xc21">2021 Cross Country</option>
+                    <option value="tf21" name="tf21">2021 Track</option>
+                    <option value="xc20" name="xc20">2020 Cross Country</option>
+                    <option value="tf20" name="tf20">2020 Track</option>
+                    <option value="xc19" name="xc19">2019 Cross Country</option>
+                    <option value="tf19" name="tf19">2019 Track</option>
+                    <option value="xc18" name="xc18">2018 Cross Country</option>
+                    <option value="tf18" name="tf18">2018 Track</option>
+                    <option value="xc17" name="xc17">2017 Cross Country</option>
+                    <option value="tf17" name="tf17">2017 Track</option>
+                    <option value="xc16" name="xc16">2016 Cross Country</option>
+                    <option value="all" name="all">All Time</option>
+                </select>
+            </div>
         </div>
+        <div id="rosterTableContainer" class="overflow-hidden"><strong>Please select a season from the dropdown above.</strong></div>
+
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAthlete" aria-labelledby="offcanvasAthleteLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="offcanvasAthleteLabel">Offcanvas</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <img src="" class="mx-auto d-block" alt="" height="200" id="athleteImage">
+                <hr>
+                <div class="text-center">
+                    <h3 id="athleteName"></h3>
+                    <div id="athleteButtons">
+                        <a class="btn btn-primary btn-sm" href="" role="button" id="athleteLink">Titan Distance Profile</a>
+                        <a href="#" class="btn btn-primary btn-sm" id="atNetTF" target="_blank">A.Net TF</a>
+                        <a href="#" class="btn btn-primary btn-sm" id="atNetXC" target="_blank">A.Net XC</a>
+                    </div>
+                </div>
+                <table class="table table-sm" id="athleteRecordTable">
+                </table>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            window.onload = function exampleFunction() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const view = window.location.pathname.split("/").pop();
+
+                if (view != null) {
+                    document.getElementById("SeasonSelect").value = view;
+                    showSeason(view);
+                }
+            }
+
+            tableContainer = document.getElementById("rosterTableContainer");
+            var roster;
+
+            function showSeason(str) {
+                var sport = str.substr(0, 2);
+                var year = str.substr(2, 4);
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        response = this.responseText;
+                        roster = JSON.parse(response);
+                        generateRosterTable(sport);
+                    }
+                };
+                var url = "/api/roster?s=" + str
+                xhttp.open("GET", url, true);
+                xhttp.send();
+
+                if (window.history.replaceState) {
+                    window.history.replaceState({}, null, "/roster/" + str)
+                }
+
+                if (sport == "tf") {
+                    sport = "Track";
+                } else if (sport == "xc") {
+                    sport = "Cross Country"
+                } else if (sport == "al") {
+                    sport = "All"
+                }
+                if (document.title) {
+                    if (str == "all") {
+                        document.title = "All Time Roster - Titan Distance";
+                    } else {
+                        document.title = sport + " 20" + year + " Roster - Titan Distance";
+                    }
+                }
+            }
+
+
+            function generateRosterTable(sport) {
+                console.log(roster)
+                tableContainer.innerHTML = "";
+                let table = "<div class='table-responsive'><table class='table' id='rosterTable'>";
+                if (sport == "Track") {
+                    table += "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th></tr></thead>";
+                    var events = ["3200m", "1600m", "800m", "400m"];
+                } else if (sport == "Cross Country") {
+                    table += "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3mi</th><th>2mi</th><th>5k</th></tr></thead>";
+                    var events = ["3mi", "2mi", "5k"];
+                } else if (sport == "All") {
+                    table += "<thead class='text-center'><tr><th>Name</th><th>Class</th><th>3mi</th><th>2mi</th><th>5k</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th></tr></thead>";
+                    var events = ["3mi", "2mi", "5k", "3200m", "1600m", "800m", "400m"];
+                }
+
+                for (let x in roster) {
+                    table += "<tr>";
+                    if (roster[x].captain == true) {
+                        captain = " (C)"
+                    } else {
+                        captain = ""
+                    }
+                    table += "<th><a onClick = \"athleteFlyout('" + roster[x].profile + "','" + x + "','" + sport + "')\">" + roster[x].name + captain + "</a></th>";
+                    table += "<th>" + roster[x].class + "</th>";
+                    for (let event in events) {
+                        if (roster[x].records[events[event]]) {
+                            table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" title=\"" + roster[x].records[events[event]].meetName + "\"><a href=\"/meet/" + roster[x].records[events[event]].meetID + "#results\">" + formatResult(roster[x].records[events[event]].result) + "</a></td>";
+                        } else {
+                            table += "<td>-</td>";
+                        }
+                    }
+                    table += "</tr>";
+                }
+                table += "<tbody>";
+                table += "</tbody>";
+                table += "</table></div>";
+
+                tableContainer.innerHTML += table
+
+                const dataTable = new simpleDatatables.DataTable("#rosterTable", {
+                    searchable: true,
+                    fixedHeight: true,
+                    "perPageSelect": false,
+                    "perPage": 1000
+                })
+            }
+
+            function athleteFlyout(profile, row, sport) {
+                var myOffcanvas = document.getElementById('offcanvasAthlete')
+                var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas)
+                bsOffcanvas.show()
+                console.log(roster[row]);
+                document.getElementById("offcanvasAthleteLabel").innerHTML = roster[row].name;
+                document.getElementById("athleteImage").src = roster[row].image;
+                document.getElementById("athleteImage").alt = roster[row].name;
+                document.getElementById("athleteName").innerHTML = roster[row].name;
+                document.getElementById("athleteLink").href = "/athlete/" + roster[row].profile;
+                athleteRecordTable = document.getElementById("athleteRecordTable");
+                athleteRecordTable.innerHTML = "";
+                // table = ""
+                for (i in roster[row].records) {
+                    console.log(roster[row].records[i])
+                    for (i in roster[row].records) {}
+                }
+                if (roster[row].athnet !== null) {
+                    document.getElementById("atNetTF").href = "https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" + roster[row].athnet;
+                    document.getElementById("atNetXC").href = "https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" + roster[row].athnet;
+                } else {
+                    document.getElementById("atNetTF").classList = "d-none"
+                    document.getElementById("atNetXC").classList = "d-none"
+                }
+            }
+
+            function formatResult(result) {
+                if (result.substring(0, 2) == "0:") {
+                    return result.substring(2);
+                } else if (result.substring(0, 1) == "0") {
+                    return result.substring(1);
+                } else {
+                    return result;
+                }
+            }
+        </script>
     </div>
-    <div id="table" class="overflow-hidden"><strong>Please select a season from the dropdown above.</strong></div>
-    <script type="text/javascript">
-    $(document).ready(function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const view = window.location.pathname.split("/").pop();
-
-        if (view != null) {
-            document.getElementById("SeasonSelect").value = view;
-            showSeason(view);
-            updateTable();
-        }
-    });
-
-    function showSeason(str) {
-        var sport = str.substr(0, 2);
-        var year = str.substr(2, 4);
-        var xhttp;
-        if (str == "" || str == null) {
-            document.getElementById("table").innerHTML =
-                "<strong>Please select a season from the dropdown above</strong>";
-            return;
-        }
-        xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-                document.getElementById("table").innerHTML = this.responseText;
-                updateTable();
-            }
-        };
-        if (sport == "tf") {
-            xhttp.open("GET", "/includes/rosterview/tfroster.php?y=" + year, true);
-        }
-        if (sport == "xc") {
-            xhttp.open("GET", "/includes/rosterview/xcroster.php?y=" + year, true);
-        }
-        if (str.includes("all")) {
-            xhttp.open("GET", "/includes/rosterview/allroster.php", true);
-        }
-        if (str.includes("picture")) {
-            xhttp.open("GET", "/includes/rosterview/picture.php", true);
-        }
-        xhttp.send();
-
-        if (window.history.replaceState) {
-            window.history.replaceState({}, null, "/roster/" + str)
-        }
-
-        if (sport == "tf") {
-            sport = "Track";
-        } else if (sport == "xc") {
-            sport = "Cross Country"
-        }
-        if (document.title) {
-            if (str == "all") {
-                document.title = "All Time Roster - Titan Distance";
-            } else if (str == "picture") {
-                document.title = "All Time Picture Roster - Titan Distance";
-            } else {
-                document.title = sport + " 20" + year + " Roster - Titan Distance";
-            }
-        }
-    }
-    </script>
-</div>
 
 
-<?php include("footer.php"); ?>
+    <?php include("footer.php"); ?>

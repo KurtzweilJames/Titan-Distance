@@ -41,45 +41,28 @@ while ($row = mysqli_fetch_array($result)) {
     $meets[$row['id']] = $row['Name'] . " (" . date("n/j/y", strtotime($row['Date'])) . ")";
 }
 
-//Personal Records
-$result = mysqli_query($con, "SELECT * FROM overalltf WHERE pr = 1 AND profile = '" . $profile . "'");
-while ($row = mysqli_fetch_array($result)) {
-    if ($row['event'] == "3200m") {
-        $pr3200m = $row['result'];
-        $meet3200m = $row['meet'];
-    } else if ($row['event'] == "1600m") {
-        $pr1600m = $row['result'];
-        $meet1600m = $row['meet'];
-    } else if ($row['event'] == "800m") {
-        $pr800m = $row['result'];
-        $meet800m = $row['meet'];
-    } else if ($row['event'] == "400m") {
-        $pr400m = $row['result'];
-        $meet400m = $row['meet'];
-    }
-}
-$result = mysqli_query($con, "SELECT * FROM overallxc WHERE pr = 1 AND profile = '" . $profile . "'");
-while ($row = mysqli_fetch_array($result)) {
-    if ($row['distance'] == "3mi") {
-        $pr3mi = $row['time'];
-        $meet3mi = $row['meet'];
-    } else if ($row['distance'] == "2mi") {
-        $pr2mi = $row['time'];
-        $meet2mi = $row['meet'];
-    } else if ($row['distance'] == "5k") {
-        $pr5k = $row['time'];
-        $meet5k = $row['meet'];
-    }
-}
-
-$file = $_SERVER['DOCUMENT_ROOT'] . "/assets/images/athletes/" . $profile . ".png";
+$file = $_SERVER['DOCUMENT_ROOT'] . "/assets/images/athletes/" . $profile . ".jpg";
 if (file_exists($file)) {
-    $image = "assets/images/athletes/" . $profile . ".png";
+    $image = "assets/images/athletes/" . $profile . ".jpg";
 } else {
-    $image = "assets/images/athletes/blank.png";
+    $image = "assets/images/athletes/blank.jpg";
 }
 
 include("header.php");
+
+//Personal Records
+$allprs = [];
+$prs = [];
+$result = mysqli_query($con, "SELECT distance,time,meet FROM overallxc WHERE pr = 1 AND profile = '" . $profile . "' AND distance IN ('3mi','2mi','5k')");
+while ($row = mysqli_fetch_array($result)) {
+    $allprs[$row['distance']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . $row['time'] . "</a></td>";
+    $prs[$row['distance']] = $row['time'];
+}
+$result = mysqli_query($con, "SELECT DISTINCT event,result,meet FROM overalltf WHERE pr = 1 AND profile = '" . $profile . "'");
+while ($row = mysqli_fetch_array($result)) {
+    $allprs[$row['event']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . formatTime($row['result']) . "</a></td>";
+    $prs[$row['event']] = $row['result'];
+}
 ?>
 
 <div class="container mt-4">
@@ -126,18 +109,18 @@ include("header.php");
             //     echo "<h5>Team Points: ".$teampoints."</h5>";
             // }
 
-            if ($pr3mi < "15:00:00" && !empty($pr3mi)) {
+            if ($prs["3mi"] < "15:00:00" && !empty($prs['3mi'])) {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
-            } else if ($pr3mi < "16:00:00" && !empty($pr3mi)) {
+            } else if ($prs["3mi"] < "16:00:00" && !empty($prs['3mi'])) {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
             }
-            if ($pr3200m < "10:00" && !empty($pr3200m)) {
+            if ($prs["3200m"] < "10:00" && !empty($prs["3200m"])) {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
             }
-            if ($pr1600m < "5:00" && !empty($pr1600m)) {
+            if ($prs["1600m"] < "5:00" && !empty($prs["1600m"])) {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
             }
-            if ($pr800m < "2:00" && !empty($pr800m)) {
+            if ($prs["800m"] < "2:00" && !empty($prs["800m"])) {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
             }
 
@@ -187,31 +170,16 @@ include("header.php");
                     <thead>
                         <tr>
                             <?php
-                            $xcprs = [];
-                            $result = mysqli_query($con, "SELECT distance,time,meet FROM overallxc WHERE pr = 1 AND profile = '" . $profile . "' AND distance IN ('3mi','2mi','5k')");
-                            while ($row = mysqli_fetch_array($result)) {
-                                $xcprs[$row['distance']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . $row['time'] . "</a></td>";
-                                echo "<th scope='col'>" . $row['distance'] . "</th>";
+                            foreach ($allprs as $event => $row) {
+                                echo "<th scope='col'>" . $event . "</th>";
                             }
-                            $tfprs = [];
-                            $result = mysqli_query($con, "SELECT DISTINCT event,result,meet FROM overalltf WHERE pr = 1 AND profile = '" . $profile . "'");
-                            while ($row = mysqli_fetch_array($result)) {
-                                $tfprs[$row['event']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . formatTime($row['result']) . "</a></td>";
-                                if (!in_array($row['event'], $tfprs)) {
-                                    echo "<th scope='col'>" . $row['event'] . "</th>";
-                                }
-                            }
-
                             ?>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <?php
-                            foreach ($xcprs as $row) {
-                                echo $row;
-                            }
-                            foreach ($tfprs as $row) {
+                            foreach ($allprs as $row) {
                                 echo $row;
                             }
                             ?>
@@ -309,6 +277,11 @@ include("header.php");
         </div>
     </div>
 </div>
+
+<script>
+    const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
+    const tfPersonal = new simpleDatatables.DataTable("#tfPersonal", {})
+</script>
 
 <?php $require = "charts"; ?>
 <?php include("footer.php"); ?>

@@ -1,10 +1,14 @@
 <?php $pgtitle = "Schedule"; ?>
-<?php include("header.php");?>
+<?php include("header.php"); ?>
 <?php
-    $season = htmlspecialchars($_GET["season"]);
-    if (empty($season)) {
-        $season = $currentseason;
-    }
+$season = htmlspecialchars($_GET["season"]);
+if (empty($season)) {
+    $season = $currentseason;
+}
+$result = mysqli_query($con, "SELECT UNIQUE Season FROM meets ORDER BY Date DESC");
+while ($row = mysqli_fetch_array($result)) {
+    $allSeasons[] = $row['Season'];
+}
 ?>
 
 <section id="content">
@@ -15,21 +19,20 @@
                 <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                     <option value="" disabled>Select a Season:</option>
                     <?php
-                    foreach($seasons as $s) {
-                        echo "<option value='".$s."' name='".$s."'";
+                    foreach ($allSeasons as $s) {
+                        echo "<option value='" . $s . "' name='" . $s . "'";
                         if ($s == $currentseason) {
                             echo "class='bg-info'";
                         }
                         if ($s == $season) {
                             echo "selected";
                         }
-                        echo ">".$s."</option>";
+                        echo ">" . $s . "</option>";
                     }
-                ?>
+                    ?>
                 </select>
             </div>
-            <button type="button" class="btn btn-primary btn-sm text-center" data-bs-toggle="modal"
-                data-bs-target="#addModal">
+            <button type="button" class="btn btn-primary btn-sm text-center" data-bs-toggle="modal" data-bs-target="#addModal">
                 <i class="bi bi-calendar-plus-fill"></i> Add to Calendar
             </button>
         </div>
@@ -48,56 +51,56 @@
                 <tbody>
 
                     <?php
-$result = mysqli_query($con,"SELECT * FROM meets WHERE Season = '".$season."' ORDER BY Date ASC");
+                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Season = '" . $season . "' ORDER BY Date ASC");
 
-while($row = mysqli_fetch_array($result)) {
-    if (empty($row['Slug'])) {
-        $url = "/meet/".$row['id'];
-    } else {
-        $url = "/meet/".$row["Slug"]."/".$d = date("Y",strtotime($row['Date']));
-    }
-    $dow = date("D",strtotime($row['Date']));
-    $d = date("n/j",strtotime($row['Date']));
+                    while ($row = mysqli_fetch_array($result)) {
+                        if (empty($row['Series'])) {
+                            $url = "/meet/" . $row['id'];
+                        } else {
+                            $url = "/meet/" . $row["Series"] . "/" . $d = date("Y", strtotime($row['Date']));
+                        }
+                        $dow = date("D", strtotime($row['Date']));
+                        $d = date("n/j", strtotime($row['Date']));
 
-    $dir = "<a href='".$url."#venue'>".$row['Location']."</a>";
+                        $dir = "<a href='" . $url . "#venue'>" . $row['Location'] . "</a>";
 
-        if (array_key_exists($row['Badge'], $badges)) {
-            $badge = "<span class='ms-1 badge ".$badges[$row['Badge']][0]."' data-bs-toggle='tooltip' data-bs-placement='top' title='".$badges[$row['Badge']][2]."'>".$badges[$row['Badge']][1]."</span>";
-        } else {
-            $badge = "";
-        }
+                        if (array_key_exists($row['Badge'], $badges)) {
+                            $badge = "<span class='ms-1 badge " . $badges[$row['Badge']][0] . "' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $badges[$row['Badge']][2] . "'>" . $badges[$row['Badge']][1] . "</span>";
+                        } else {
+                            $badge = "";
+                        }
 
-        
-        echo "<tr class='clickable-row' data-href='".$url."'>";
-        echo "<td>" . $dow . "</td>";
-        echo "<td>" . $d . "</td>";
-        echo "<td><a href='".$url."'>" . $row['Name'] . $badge . "</a></td>";
-        if(strlen($row['Opponents']) > 100) {
-            echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='".$row['Opponents']."'>" . substr($row['Opponents'],0, 100)."..." . "</td>";
-        } else {
-            echo "<td>" . $row['Opponents'] . "</td>";
-        }
-        echo "<td>" . $row['Levels'] . "</td>";
-        echo "<td>" . $dir . "</td>";
-        echo "</tr>";
 
-        if (!empty($row['Day2Time'])){
-            echo "<tr class='clickable-row' data-href='".$url."'>";
-            echo "<td>" . date("D",strtotime($row['Day2Time'])) . "</td>";
-            echo "<td>" . date("n/j",strtotime($row['Day2Time'])) . "</td>";
-            echo "<td><a href='/meet/" .$row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
-            echo "<td>" . $row['Opponents'] . "</td>";
-            echo "<td>" . $row['Day2Levels'] . "</td>";
-            echo "<td>" . $dir . "</td>";
-            echo "</tr>";   
-        }
-    }
-    if (mysqli_num_rows($result) == 0){
-        echo "<tr>";
-        echo "<td class='text-center' colspan='6'>No Meets Currently Scheduled.</td>";
-        echo "</tr>";
-    }
-?>
+                        echo "<tr onclick = window.location='" . $url . "'>";
+                        echo "<td>" . $dow . "</td>";
+                        echo "<td>" . $d . "</td>";
+                        echo "<td><a href='" . $url . "'>" . $row['Name'] . $badge . "</a></td>";
+                        if (strlen($row['Opponents']) > 100) {
+                            echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='" . $row['Opponents'] . "'>" . substr($row['Opponents'], 0, 100) . "..." . "</td>";
+                        } else {
+                            echo "<td>" . $row['Opponents'] . "</td>";
+                        }
+                        echo "<td>" . $row['Levels'] . "</td>";
+                        echo "<td>" . $dir . "</td>";
+                        echo "</tr>";
+
+                        if (!empty($row['Day2Time'])) {
+                            echo "<tr class='clickable-row' data-href='" . $url . "'>";
+                            echo "<td>" . date("D", strtotime($row['Day2Time'])) . "</td>";
+                            echo "<td>" . date("n/j", strtotime($row['Day2Time'])) . "</td>";
+                            echo "<td><a href='/meet/" . $row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
+                            echo "<td>" . $row['Opponents'] . "</td>";
+                            echo "<td>" . $row['Day2Levels'] . "</td>";
+                            echo "<td>" . $dir . "</td>";
+                            echo "</tr>";
+                        }
+                    }
+                    if (mysqli_num_rows($result) == 0) {
+                        echo "<tr>";
+                        echo "<td class='text-center' colspan='6'>No Meets Currently Scheduled.</td>";
+                        echo "</tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
         </div>
@@ -138,15 +141,13 @@ while($row = mysqli_fetch_array($result)) {
                 -->
                 <strong>Select Calendar Options:</strong>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()"
-                        checked>
+                    <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()" checked>
                     <label class="form-check-label" for="scheduleToggle">
                         Meet Schedule
                     </label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="practicesToggle" onChange="generateURL()"
-                        checked>
+                    <input class="form-check-input" type="checkbox" id="practicesToggle" onChange="generateURL()" checked>
                     <label class="form-check-label" for="practicesToggle">
                         Practices and Workouts
                     </label>
@@ -158,16 +159,13 @@ while($row = mysqli_fetch_array($result)) {
                     </label>
                 </div>
                 <div class="my-3 d-flex justify-content-center">
-                    <a class="btn btn-primary"
-                        href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton"
-                        role="button" target="_blank"><i class="bi bi-calendar-plus-fill" aria-hidden="true"></i> Add to
+                    <a class="btn btn-primary" href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton" role="button" target="_blank"><i class="bi bi-calendar-plus-fill" aria-hidden="true"></i> Add to
                         Calendar</a>
                 </div>
                 <hr>
                 <p>If the link above does not open in your calendar app, use the instructions below.</p>
                 <strong>To add to Google Calendar:</strong><br>
-                1) Navigate to <a
-                    href="https://calendar.google.com/calendar/r/settings/addbyurl">https://calendar.google.com/calendar/r/settings/addbyurl</a><br>
+                1) Navigate to <a href="https://calendar.google.com/calendar/r/settings/addbyurl">https://calendar.google.com/calendar/r/settings/addbyurl</a><br>
                 2) Paste the iCal link below into the text box.<br>
                 <br>
                 <strong>To add to iOS Calendar</strong><br>
@@ -177,8 +175,7 @@ while($row = mysqli_fetch_array($result)) {
                 <br>
                 <strong>To add to Outlook, Apple Calendar:</strong><br>
                 Paste the link below where you can add an external calendar.<br>
-                <code id="urlOutput"
-                    class="user-select-all">https://titandistance.com/exportcal?include=schedule,practices,events</code>
+                <code id="urlOutput" class="user-select-all">https://titandistance.com/exportcal?include=schedule,practices,events</code>
                 <hr>
                 <p>*Changes to the schedule may take upto 24 hours to appear.</p>
             </div>
@@ -186,42 +183,42 @@ while($row = mysqli_fetch_array($result)) {
     </div>
 </div>
 <script>
-function generateURL() {
-    var scheduleToggle = document.getElementById("scheduleToggle");
-    var practicesToggle = document.getElementById("practicesToggle");
-    var eventsToggle = document.getElementById("eventsToggle");
-    var urlOutput = document.getElementById("urlOutput");
-    var addCalButton = document.getElementById("addCalButton");
+    function generateURL() {
+        var scheduleToggle = document.getElementById("scheduleToggle");
+        var practicesToggle = document.getElementById("practicesToggle");
+        var eventsToggle = document.getElementById("eventsToggle");
+        var urlOutput = document.getElementById("urlOutput");
+        var addCalButton = document.getElementById("addCalButton");
 
-    var options = [];
+        var options = [];
 
-    if (scheduleToggle.checked) {
-        options.push("schedule");
+        if (scheduleToggle.checked) {
+            options.push("schedule");
+        }
+        if (practicesToggle.checked) {
+            options.push("practices");
+        }
+        if (eventsToggle.checked) {
+            options.push("events");
+        }
+
+        if (scheduleToggle.checked == false && practicesToggle.checked == false && eventsToggle.checked == false) {
+            alert("You must select at least one option");
+            var url = "PLEASE SELECT MULTIPLE CHECKBOXES";
+            urlOutput.innerHTML = url;
+            addCalButton.classList.add("disabled");
+        } else {
+            var url = "https://titandistance.com/exportcal?include=" + options.join(",");
+            var webcal = "webcal://titandistance.com/exportcal?include=" + options.join(",");
+
+            urlOutput.innerHTML = url;
+            addCalButton.href = webcal;
+            addCalButton.classList.remove("disabled");
+        }
     }
-    if (practicesToggle.checked) {
-        options.push("practices");
-    }
-    if (eventsToggle.checked) {
-        options.push("events");
-    }
 
-    if (scheduleToggle.checked == false && practicesToggle.checked == false && eventsToggle.checked == false) {
-        alert("You must select at least one option");
-        var url = "PLEASE SELECT MULTIPLE CHECKBOXES";
-        urlOutput.innerHTML = url;
-        addCalButton.classList.add("disabled");
-    } else {
-        var url = "https://titandistance.com/exportcal?include=" + options.join(",");
-        var webcal = "webcal://titandistance.com/exportcal?include=" + options.join(",");
-
-        urlOutput.innerHTML = url;
-        addCalButton.href = webcal;
-        addCalButton.classList.remove("disabled");
+    function showSeason(s) {
+        window.location = "/schedule?season=" + s;
     }
-}
-
-function showSeason(s) {
-    window.location = "/schedule?season=" + s;
-}
 </script>
-<?php include("footer.php");?>
+<?php include("footer.php"); ?>

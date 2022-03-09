@@ -632,6 +632,7 @@ include "header.php";
         "800m": "800m Run",
         "400m": "400m Dash",
         "300mIH": "300m Intermediate Hurdles",
+        "300m": "300m Dash",
         "200m": "200m Dash",
         "160m": "160m Dash",
         "110mHH": "110m High Hurdles",
@@ -641,6 +642,8 @@ include "header.php";
         "60mHH": "60m High Hurdles",
         "50mLH": "50m Low Hurdles",
         "55mIH": "55m Intermediate Hurdles",
+        "55mHH": "55m High Hurdles",
+        "55mLH": "55m Low Hurdles",
         "50m": "50m Dash",
         "SP": "Shot Put",
         "DS": "Discus",
@@ -682,6 +685,7 @@ include "header.php";
                 echo "document.getElementById(\"selectEvent\").classList.add(\"d-none\");\n";
             }
             ?>
+
         }
     };
     var url = "/api/results.php?id=<?php echo $id; ?>"
