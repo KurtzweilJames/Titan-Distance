@@ -40,7 +40,9 @@ $id = htmlspecialchars($_GET["id"]);
                 <img src="" class="mx-auto d-block" alt="" height="200" id="athleteImage">
                 <hr>
                 <div class="text-center">
-                    <h3 id="athleteName"></h3>
+                    <h3 id="athleteName" class="mb-0"></h3>
+                    <h4 id="athleteClass" class="my-0"></h4>
+                    <h5 id="athleteCollege" class="mt-0"></h5>
                     <div id="athleteButtons">
                         <a class="btn btn-primary btn-sm" href="" role="button" id="athleteLink">Titan Distance Profile</a>
                         <a href="#" class="btn btn-primary btn-sm" id="atNetTF" target="_blank">A.Net TF</a>
@@ -54,10 +56,13 @@ $id = htmlspecialchars($_GET["id"]);
 
         <script type="text/javascript">
             window.onload = function exampleFunction() {
-                const urlParams = new URLSearchParams(window.location.search);
                 const view = window.location.pathname.split("/").pop();
+                console.log(view);
 
-                if (view != null) {
+                if (view == "roster") {
+                    showSeason("<?php echo $currentshort; ?>")
+                    document.getElementById("SeasonSelect").value = "<?php echo $currentshort; ?>";
+                } else {
                     document.getElementById("SeasonSelect").value = view;
                     showSeason(view);
                 }
@@ -74,7 +79,7 @@ $id = htmlspecialchars($_GET["id"]);
                     if (this.readyState == 4 && this.status == 200) {
                         response = this.responseText;
                         roster = JSON.parse(response);
-                        generateRosterTable(sport);
+                        generateRosterTable(sport, year);
                     }
                 };
                 var url = "/api/roster?s=" + str
@@ -102,9 +107,15 @@ $id = htmlspecialchars($_GET["id"]);
             }
 
 
-            function generateRosterTable(sport) {
-                console.log(roster)
+            function generateRosterTable(sport, year) {
+                if (sport == "All") {
+                    season = "All Time"
+                } else {
+                    season = sport + " 20" + year
+                }
+
                 tableContainer.innerHTML = "";
+                tableContainer.innerHTML += "<h3 class='position-absolute d-none d-md-inline'>" + season + " Roster</h3>";
                 let table = "<div class='table-responsive'><table class='table' id='rosterTable'>";
                 if (sport == "Track") {
                     table += "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th></tr></thead>";
@@ -124,8 +135,14 @@ $id = htmlspecialchars($_GET["id"]);
                     } else {
                         captain = ""
                     }
-                    table += "<th><a onClick = \"athleteFlyout('" + roster[x].profile + "','" + x + "','" + sport + "')\">" + roster[x].name + captain + "</a></th>";
-                    table += "<th>" + roster[x].class + "</th>";
+                    table += "<th><a class='link-primary' onClick = \"athleteFlyout('" + roster[x].profile + "','" + x + "','" + sport + "')\">" + roster[x].name + captain + "</a></th>";
+
+                    if (sport == "All") {
+                        table += "<th>" + roster[x].class + "</th>";
+                    } else {
+                        table += "<th>" + roster[x].grade + "</th>";
+                    }
+
                     for (let event in events) {
                         if (roster[x].records[events[event]]) {
                             table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" title=\"" + roster[x].records[events[event]].meetName + "\"><a href=\"/meet/" + roster[x].records[events[event]].meetID + "#results\">" + formatResult(roster[x].records[events[event]].result) + "</a></td>";
@@ -140,6 +157,7 @@ $id = htmlspecialchars($_GET["id"]);
                 table += "</table></div>";
 
                 tableContainer.innerHTML += table
+                tableContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printRoster()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Roster</button>"
 
                 const dataTable = new simpleDatatables.DataTable("#rosterTable", {
                     searchable: true,
@@ -158,6 +176,12 @@ $id = htmlspecialchars($_GET["id"]);
                 document.getElementById("athleteImage").src = roster[row].image;
                 document.getElementById("athleteImage").alt = roster[row].name;
                 document.getElementById("athleteName").innerHTML = roster[row].name;
+                document.getElementById("athleteClass").innerHTML = "Class of " + roster[row].class;
+                if (roster[row].college) {
+                    document.getElementById("athleteCollege").innerHTML = roster[row].college;
+                } else {
+                    document.getElementById("athleteCollege").innerHTML = "";
+                }
                 document.getElementById("athleteLink").href = "/athlete/" + roster[row].profile;
                 athleteRecordTable = document.getElementById("athleteRecordTable");
                 athleteRecordTable.innerHTML = "";
@@ -184,6 +208,23 @@ $id = htmlspecialchars($_GET["id"]);
                     return result;
                 }
             }
+
+            function printRoster() {
+                var divContents = document.getElementById("rosterTableContainer").innerHTML;
+                var a = window.open('', '', 'height=2100, width=800');
+                a.document.write('<html>');
+                a.document.write('<head><title>' + season + ' Roster</title><style>.badge {display:none;} button {display:none;} .dataTable-bottom {display:none;} a {text-decoration: none; color: inherit;} .dataTable-top {display:none;} table {width:100%;text-align: center;} h3 {text-align: center; font-size: 18px;}</style></head>');
+                a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
+                a.document.write(divContents.replace("style=", "data-td-style="));
+                a.document.write('</pre></body></html>');
+                a.document.close();
+            }
+
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'p' && event.ctrlKey) {
+                    printRoster();
+                }
+            });
         </script>
     </div>
 

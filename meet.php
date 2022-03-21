@@ -120,9 +120,11 @@ include "header.php";
                             echo "</div>";
                         } ?>
                     </div>
-                    <h4><?php echo $name; ?></h4>
-                    <h5 class="mb-0"><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
-                    <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
+                    <div id="meetInfo">
+                        <h4 id="meetName"><?php echo $name; ?></h4>
+                        <h5 class="mb-0"><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
+                        <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
+                    </div>
                     <?php
                     if (!empty($weather)) {
                         echo "<h5 class='mb-0'><i class='bi bi-cloud-sun-fill me-1'></i>" . $weather . "</h5>";
@@ -168,7 +170,7 @@ include "header.php";
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
                         if ($series == "titan") {
-                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-award-fill me-1'></i>Titan Invite Records</a>";
+                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
                             $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
                         }
                         if (!empty($live)) {
@@ -329,35 +331,38 @@ include "header.php";
                                 echo "<p><strong>Team scores for all events, including sprints, hurdles, field, etc.</strong></p>";
                             }
                             ?>
-                            <?php
-                            $quad = 0;
-                            foreach ($meetLevels as $l) {
-                                $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "' AND level = '" . $l . "'");
-                                echo "<h3>" . $teams[$l] . "</h3>";
-                                echo "<table class='table table-sm'>";
-                                while ($row = mysqli_fetch_array($result)) {
-                                    if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)") {
-                                        echo "<tr class='row-highlight'>";
-                                    } else {
-                                        echo "<tr>";
+                            <div id="scoresContainer">
+                                <?php
+                                $quad = 0;
+                                foreach ($meetLevels as $l) {
+                                    $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "' AND level = '" . $l . "'");
+                                    echo "<h4>" . $teams[$l] . "</h4>";
+                                    echo "<table class='table table-sm'>";
+                                    echo "<thead><tr><th>Place</th><th>School</th><th>Score</th></tr></thead>";
+                                    while ($row = mysqli_fetch_array($result)) {
+                                        if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)") {
+                                            echo "<tr class='row-highlight'>";
+                                        } else {
+                                            echo "<tr>";
+                                        }
+                                        echo "<td>" . $row['place'] . "</td>";
+                                        echo "<td>" . $row['school'] . "</td>";
+                                        echo "<td>" . $row['score'] . "</td>";
+                                        echo "</tr>";
                                     }
-                                    echo "<td>" . $row['place'] . "</td>";
-                                    echo "<td>" . $row['school'] . "</td>";
-                                    echo "<td>" . $row['score'] . "</td>";
-                                    echo "</tr>";
+                                    echo "</table>";
+                                    if (mysqli_num_rows($result) <= 0) {
+                                        echo "<p class='card-text'><strong>This is either an unscored meet, or team results are missing from our database. If you believe this is an error, please reach out.</strong></p>";
+                                    }
+                                    if (strpos($row['score'], '-') !== false) {
+                                        $quad = 1;
+                                    }
                                 }
-                                echo "</table>";
-                                if (mysqli_num_rows($result) <= 0) {
-                                    echo "<p class='card-text'><strong>This is either an unscored meet, or team results are missing from our database. If you believe this is an error, please reach out.</strong></p>";
+                                if ($quad == 1) {
+                                    echo "<p>This meet is a scored team meet, where each team is scored against each other. This is why you see a record instead of a score.</p>";
                                 }
-                                if (strpos($row['score'], '-') !== false) {
-                                    $quad = 1;
-                                }
-                            }
-                            if ($quad == 1) {
-                                echo "<p>This meet is a scored team meet, where each team is scored against each other. This is why you see a record instead of a score.</p>";
-                            }
-                            ?>
+                                ?>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">
                             <?php
@@ -402,8 +407,9 @@ include "header.php";
                                     }
                                 }
                                 arsort($scores);
-                                echo "<h3>" . $teams[$l] . "</h3>";
+                                echo "<h4>" . $teams[$l] . "</h4>";
                                 echo "<table class='table table-sm'>";
+                                echo "<thead><tr><th>Place</th><th>School</th><th>Score</th></tr></thead>";
                                 $n = 1;
                                 foreach ($scores as $s => $p) {
                                     if ($s == "Glenbrook South" or $s == "Glenview (Glenbrook South)") {
@@ -422,8 +428,8 @@ include "header.php";
                         </div>
                         <div class="tab-pane fade" id="venue" role="tabpanel" aria-labelledby="venue-tab">
                             <?php
-                            $result = mysqli_query($con, "SELECT * FROM locations WHERE name='" . addslashes($location) . "'");
-                            if (mysqli_num_rows($result) > 0) {
+                            $result = mysqli_query($con, "SELECT * FROM locations WHERE name='" . $location . "'");
+                            if (mysqli_num_rows($result) !== 0) {
                                 while ($row = mysqli_fetch_array($result)) {
                                     if ($location == "John Davis Titan Stadium") {
                                         include $_SERVER['DOCUMENT_ROOT'] . "/includes/venues/stadium.php";
@@ -434,11 +440,8 @@ include "header.php";
                                     } else {
                                         $geojson = $row['geojson'];
 
-                                        if ($sport == "xc") {
-                                            echo "<h2>Course Information & Directions</h2>";
-                                        } else {
-                                            echo "<h2>Map & Directions</h2>";
-                                        }
+                                        echo "<h2>" . $location . "</h2>";
+
                                         if (!empty($row['xccourse']) && $sport == "xc") {
                                             echo "<img class='img-fluid' src='/assets/images/course-maps/" . $row['xccourse'] . "'>";
                                             echo "<hr>";
@@ -579,11 +582,7 @@ include "header.php";
                                     }
                                 }
                             } else {
-                                if ($sport == "xc") {
-                                    echo "<h2>Course Information</h2>";
-                                } else {
-                                    echo "<h2>Map & Directions</h2>";
-                                }
+                                echo "<h2>" . $location . "</h2>";
                                 echo "<div class='embed-responsive embed-responsive-4by3'>";
                                 echo "<iframe class='embed-responsive-item' width='600' height='450' src='https://www.google.com/maps/embed/v1/search?key=" . $gmapapikey . "&q=" . $location . "' allowfullscreen></iframe>";
                                 echo "</div>";
@@ -665,8 +664,8 @@ include "header.php";
     var levels = {
         1: "Varsity",
         2: "Junior Varsity",
-        3: "Freshmen",
-        4: "Sophomore",
+        3: "Sophomore",
+        4: "Freshmen",
         5: "Frosh/Soph",
         6: "Open",
         7: "Junior Varsity 2"
@@ -706,34 +705,35 @@ include "header.php";
 
         indresultsContainer.innerHTML = ""
         tables.forEach(generateTFTables)
+        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button>"
     }
 
     function generateTFTables(single) {
-        console.log(single)
+        // console.log(single)
         single = single.split("-")
         var event = single[0]
         var level = single[1]
 
-        let table = "<table class='table table-sm table-striped'>";
+        let table = "<table class='table table-sm table-striped' id='" + single + "'>";
         table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Result</th><th>Team</th></tr></thead>";
         table += "<tbody>";
 
-        var relay, relaydistance;
+        // var relay, relaydistance;
 
-        if (event.includes("4x")) {
-            relay = true;
-            relaydistance = event.replace("4x", "")
-        } else {
-            relay = false;
-            relaydistance = null;
-        }
+        // if (event.includes("4x")) {
+        //     relay = true;
+        //     relaydistance = event.replace("4x", "")
+        // } else {
+        //     relay = false;
+        //     relaydistance = null;
+        // }
 
         for (let x in results) {
-            if ((relay == false && results[x].level == level && results[x].event == event && results[x].type !== "R") || (
-                    relay == true &&
-                    results[x].level == level && (results[x].event == event || (results[x].event == relaydistance &&
-                        results[x].type == "R")))) {
-
+            // if ((relay == false && results[x].level == level && results[x].event == event && results[x].type !== "R") || (
+            //         relay == true &&
+            //         results[x].level == level && (results[x].event == event || (results[x].event == relaydistance &&
+            //             results[x].type == "R")))) {
+            if (results[x].level == level && results[x].event == event && (results[x].relay == null || results[x].name == "RELAY")) {
                 var gbs;
                 if (results[x].school == "Glenbrook South" || results[x].school == "Glenbrook South*") {
                     gbs = true;
@@ -743,12 +743,12 @@ include "header.php";
 
                 if (gbs == true) {
                     if (INDVhighlightSwitch.checked == true) {
-                        table += "<tr class='row-highlight'>";
+                        table += "<tr class='row-highlight' data-td-resultid='" + results[x].id + "'>";
                     } else {
-                        table += "<tr class='row-nohighlight'>";
+                        table += "<tr class='row-nohighlight' data-td-resultid='" + results[x].id + "'>";
                     }
                 } else {
-                    table += "<tr>";
+                    table += "<tr data-td-resultid='" + results[x].id + "'>";
                 }
 
                 if (results[x].place == null) {
@@ -817,12 +817,86 @@ include "header.php";
 
                 table += "<td>" + results[x].school + "</td>";
                 table += "</tr>"
+                if (results[x].relay !== null) {
+                    table += addRelayRows(results[x].relay)
+                }
             }
         }
         table += "</tbody>";
         table += "</table>";
 
         indresultsContainer.innerHTML += "<h4>" + levels[level] + " " + events[event] + "</h4>" + table
+    }
+
+    function addRelayRows(relayNo) {
+        table = "";
+
+        for (let x in results) {
+            if (results[x].relay == relayNo && results[x].name !== "RELAY") {
+
+                if (INDVhighlightSwitch.checked == true) {
+                    table += "<tr class='row-highlight'>";
+                } else {
+                    table += "<tr class='row-nohighlight'>";
+                }
+
+                table += "<th></th>";
+
+                if (results[x].profile !== null) {
+                    table += "<td><a href='/athlete/" + results[x].profile + "'>" + results[x].name + "</a></td>";
+                } else {
+                    table += "<td>" + results[x].name + "</td>";
+                }
+
+                if (results[x].grade == 12) {
+                    table += "<td>Sr.</td>";
+                } else if (results[x].grade == 11) {
+                    table += "<td>Jr.</td>";
+                } else if (results[x].grade == 10) {
+                    table += "<td>So.</td>";
+                } else if (results[x].grade == 9) {
+                    table += "<td>Fr.</td>";
+                } else if (results[x].grade !== null) {
+                    table += "<td>" + results[x].grade + "</td>";
+                } else {
+                    table += "<td></td>";
+                }
+
+                table += "<td>";
+
+                if (results[x].result.substring(0, 2) == "0:") {
+                    table += results[x].result.substring(2);
+                } else if (results[x].result.substring(0, 1) == "0") {
+                    table += results[x].result.substring(1);
+                } else {
+                    table += results[x].result;
+                }
+                if (results[x].pr == 1) {
+                    table +=
+                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                } else if (results[x].sr == 1) {
+                    table +=
+                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                }
+                if (results[x].tags == "TQ") {
+                    table +=
+                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                } else if (results[x].tags == "IQ") {
+                    table +=
+                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                } else if (results[x].tags == "All-Conf") {
+                    table +=
+                        "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+                } else if (results[x].tags !== null) {
+                    table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
+                }
+                table += "</td>";
+
+                table += "<td>" + results[x].school + "</td>";
+                table += "</tr>"
+            }
+        }
+        return (table)
     }
 
     function showXCResults(raw) {
@@ -836,13 +910,15 @@ include "header.php";
 
         indresultsContainer.innerHTML = ""
         tables.forEach(generateXCTables)
+        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button>"
     }
 
     function generateXCTables(level) {
-        let table = "<table class='table table-sm table-striped'>";
+        let table = "<table class='table table-sm table-striped' id='" + levels[level].toLowerCase().replace(" ", "_") + "Table'>";
         table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th></tr></thead>";
         table += "<tbody>";
         for (let x in results) {
+            var distance;
             if (results[x].level == level) {
                 var gbs;
                 if (results[x].school == "Glenbrook South" || results[x].school == "Glenbrook South*") {
@@ -907,26 +983,72 @@ include "header.php";
 
                 table += "<td>" + results[x].school + "</td>";
                 table += "</tr>"
+                distance = " (" + results[x].distance.replace("mi", " miles") + ")";
             }
         }
         table += "</tbody>";
         table += "</table>";
 
-        distance = " (" + results[0].distance.replace("mi", " miles") + ")";
-        console.log(distance)
-
         indresultsContainer.innerHTML += "<h4>" + levels[level] + " Results" + distance + "</h4>" + table
+        // new simpleDatatables.DataTable("#" + levels[level].toLowerCase().replace(" ", "_") + "Table", {
+        //     searchable: true,
+        //     fixedHeight: true,
+        //     "perPageSelect": false,
+        //     "perPage": 1000
+        // })
+    }
+
+    function printindResults() {
+        var divContents = document.getElementById("indresultsContainer").innerHTML;
+        var meetInfo = document.getElementById("meetInfo").innerHTML;
+        var meetName = document.getElementById("meetName").innerHTML;
+        var a = window.open('', '', 'height=2100, width=800');
+        a.document.write('<html>');
+        a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;}</style></head>');
+        a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
+        a.document.write('<h2 style="text-align: center;">' + meetName + '</h2>')
+        a.document.write(divContents);
+        a.document.write('<p style="text-align:center; margin-top: 15px;">View Results Online: ' + document.location.href + '</p>')
+        a.document.write('</pre></body></html>');
+        a.document.close();
+    }
+
+    function printScores() {
+        var divContents = document.getElementById("scoresContainer").innerHTML;
+        var meetName = document.getElementById("meetName").innerHTML;
+        var a = window.open('', '', 'height=2100, width=800');
+        a.document.write('<html>');
+        a.document.write('<head><title>' + meetName + ' Team Scores</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;}</style></head>');
+        a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
+        a.document.write('<h2 style="text-align: center;">' + meetName + ' Team Scores</h2>')
+        a.document.write(divContents);
+        a.document.write('</pre></body></html>');
+        a.document.close();
     }
 
     document.getElementById("selectTab").addEventListener("change", function() {
         selectTab();
     });
 
+    var activetab;
     var tabEl = document.getElementById("v-pills-tab");
     tabEl.addEventListener('shown.bs.tab', function(event) {
-        map.resize();
+        // if (map) {
+        //     map.resize();
+        // }
         window.location.hash = event.target.id.replace("-tab", "")
+        activetab = event.target.id;
     })
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'p' && event.ctrlKey && activetab == "results-tab") {
+            printindResults();
+        }
+        if (event.key === 'p' && event.ctrlKey && activetab == "scores-tab") {
+            printScores();
+        }
+    });
+
     window.onload = function() {
         if (window.location.hash) {
             tab = window.location.hash + "-tab"
@@ -951,17 +1073,6 @@ include "header.php";
                 window.location.assign(link);
             } else {
                 window.open(link, "_blank")
-            }
-        }
-    }
-
-    function showSplits(c) {
-        var cells = document.getElementsByClassName('splits-col');
-        for (var i = 0; i < cells.length; i++) {
-            if (c == true) {
-                cells[i].style.display = "table-cell"
-            } else if (c == false) {
-                cells[i].style.display = "none"
             }
         }
     }

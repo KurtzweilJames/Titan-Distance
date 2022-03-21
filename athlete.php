@@ -53,6 +53,7 @@ include("header.php");
 //Personal Records
 $allprs = [];
 $prs = [];
+$trackevents = [];
 $result = mysqli_query($con, "SELECT distance,time,meet FROM overallxc WHERE pr = 1 AND profile = '" . $profile . "' AND distance IN ('3mi','2mi','5k')");
 while ($row = mysqli_fetch_array($result)) {
     $allprs[$row['distance']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . $row['time'] . "</a></td>";
@@ -62,6 +63,7 @@ $result = mysqli_query($con, "SELECT DISTINCT event,result,meet FROM overalltf W
 while ($row = mysqli_fetch_array($result)) {
     $allprs[$row['event']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . formatTime($row['result']) . "</a></td>";
     $prs[$row['event']] = $row['result'];
+    $trackevents[] = $row['event'];
 }
 ?>
 
@@ -274,13 +276,81 @@ while ($row = mysqli_fetch_array($result)) {
                 }
                 ?>
             </div>
+            <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
+                <option value="" selected disabled>Select a Chart</option>
+                <?php
+                foreach ($trackevents as $event) {
+                    echo "<option value='" . $event . "'>" . $event . "</option>";
+                }
+                ?>
+            </select>
+            <canvas id="chartContainer" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
     const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
     const tfPersonal = new simpleDatatables.DataTable("#tfPersonal", {})
+    var data;
+
+    function getChartData(event) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                response = this.responseText;
+                data = JSON.parse(response);
+                generateChart(event);
+            }
+        };
+        var url = "/api/charts?profile=<?php echo $profile; ?>&event=" + event
+        xhttp.open("GET", url, true);
+        xhttp.send();
+    }
+
+    var athleteChart;
+
+    function generateChart(event) {
+        const ctx = document.getElementById('chartContainer').getContext('2d');
+        console.log(data)
+        var labels = [];
+        var secs = [];
+        for (i in data) {
+            labels.push(data[i]["date"])
+            secs.push(data[i]["secs"])
+        }
+        athleteChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Time (secs)",
+                    data: secs,
+                    borderDash: [5, 5],
+                    backgroundColor: [
+                        'rgba(7, 55, 99, 0.1)',
+                    ],
+                    borderColor: [
+                        'rgba(7, 55, 99, 1)',
+                    ],
+                    borderWidth: 2,
+                    lineTension: 0.4,
+                    pointBackgroundColor: '#ffd700',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: event + " Time in Seconds"
+                },
+                legend: {
+                    display: false,
+                }
+            }
+        });
+    }
 </script>
 
 <?php $require = "charts"; ?>

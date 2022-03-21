@@ -33,10 +33,10 @@ while ($row = mysqli_fetch_array($result)) {
                 </select>
             </div>
             <button type="button" class="btn btn-primary btn-sm text-center" data-bs-toggle="modal" data-bs-target="#addModal">
-                <i class="bi bi-calendar-plus-fill"></i> Add to Calendar
+                <i class="bi bi-calendar-plus-fill me-1"></i>Add to Your Calendar
             </button>
         </div>
-        <div class="table-responsive">
+        <div class="table-responsive" id="scheduleContainer">
             <table class="table table-condensed table-hover table-sm" id="scheduleTable">
                 <thead>
                     <tr>
@@ -111,7 +111,7 @@ while ($row = mysqli_fetch_array($result)) {
 <div class="container mt-4">
     <div id='calendar'></div>
     <div class="my-3 d-flex justify-content-center">
-        <a class="btn btn-primary" href="
+        <a class="btn btn-primary mx-2" href="
         <?php
         if (strpos($season, 'Track') !== false) {
             echo "https://gbsathletics.glenbrook225.org/page/3050";
@@ -121,6 +121,7 @@ while ($row = mysqli_fetch_array($result)) {
         ?>
         " role="button" target="_blank">GBS Athletics
             Schedule</a>
+        <button type="button" class="btn btn-secondary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Schedule</button>
     </div>
 </div>
 
@@ -133,12 +134,6 @@ while ($row = mysqli_fetch_array($result)) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!--
-                <div class="alert alert-warning" role="alert">
-                    If you've added the calendar prior to February 1, 2021, you must delete
-                    that calendar and use the new process below.
-                </div>
-                -->
                 <strong>Select Calendar Options:</strong>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="scheduleToggle" onChange="generateURL()" checked>
@@ -159,19 +154,18 @@ while ($row = mysqli_fetch_array($result)) {
                     </label>
                 </div>
                 <div class="my-3 d-flex justify-content-center">
-                    <a class="btn btn-primary" href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton" role="button" target="_blank"><i class="bi bi-calendar-plus-fill" aria-hidden="true"></i> Add to
-                        Calendar</a>
+                    <a class="btn btn-primary" href="webcal://titandistance.com/exportcal?include=schedule,practices,events" id="addCalButton" role="button" target="_blank"><i class="bi bi-calendar-plus-fill me-1"></i>Add to Personal Calendar</a>
                 </div>
                 <hr>
-                <p>If the link above does not open in your calendar app, use the instructions below.</p>
+                <p>Try to use the button above to add to your personal clanedar. If the link above does not open in your calendar app, use the instructions below.</p>
                 <strong>To add to Google Calendar:</strong><br>
                 1) Navigate to <a href="https://calendar.google.com/calendar/r/settings/addbyurl">https://calendar.google.com/calendar/r/settings/addbyurl</a><br>
-                2) Paste the iCal link below into the text box.<br>
+                2) Paste the red iCal link below into the text box.<br>
                 <br>
                 <strong>To add to iOS Calendar</strong><br>
                 1) Open the Settings application, and click "Mail, Contacts, Calendars"<br>
                 2) Click "Add Account" then "Other" then "Add Subscribed Calendar"<br>
-                3) Paste in the link to the iCal File found below.<br>
+                3) Paste in the link to the red iCal File found below.<br>
                 <br>
                 <strong>To add to Outlook, Apple Calendar:</strong><br>
                 Paste the link below where you can add an external calendar.<br>
@@ -220,5 +214,23 @@ while ($row = mysqli_fetch_array($result)) {
     function showSeason(s) {
         window.location = "/schedule?season=" + s;
     }
+
+    function printSchedule() {
+        var season = document.getElementById("SeasonSelect").value;
+        var divContents = document.getElementById("scheduleContainer").innerHTML;
+        var a = window.open('', '', 'height=2100, width=800');
+        a.document.write('<html>');
+        a.document.write('<head><title>' + season + ' Schedule</title><style>.badge {display:none;} button {display:none;} .dataTable-bottom {display:none;} a {text-decoration: none; color: inherit;} .dataTable-top {display:none;} table {width:100%;text-align: center;} h3 {text-align: center; font-size: 18px;}</style></head>');
+        a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
+        a.document.write(divContents.replace("style=", "data-td-style="));
+        a.document.write('</pre></body></html>');
+        a.document.close();
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'p' && event.ctrlKey) {
+            printSchedule();
+        }
+    });
 </script>
 <?php include("footer.php"); ?>

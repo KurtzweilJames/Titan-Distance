@@ -25,7 +25,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date<'" . $todaydate . "' OR (Date <= '" . $todaydate . "' AND Official != 0) ORDER BY Date DESC");
+                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Official != 0 ORDER BY Date DESC");
                     while ($row = mysqli_fetch_array($result)) {
                         if (empty($row['Series'])) {
                             $url = "/meet/" . $row['id'];
