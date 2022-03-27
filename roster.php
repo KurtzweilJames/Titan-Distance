@@ -29,7 +29,12 @@ $id = htmlspecialchars($_GET["id"]);
                 </select>
             </div>
         </div>
-        <div id="rosterTableContainer" class="overflow-hidden"><strong>Please select a season from the dropdown above.</strong></div>
+        <div id="rosterTableContainer" class="overflow-hidden">
+            <strong>Please select a season from the dropdown above.</strong>
+            <p class="placeholder-glow">
+                <span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span>
+            </p>
+        </div>
 
         <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAthlete" aria-labelledby="offcanvasAthleteLabel">
             <div class="offcanvas-header">
@@ -156,8 +161,14 @@ $id = htmlspecialchars($_GET["id"]);
                 table += "</tbody>";
                 table += "</table></div>";
 
+                let currentDate = new Date();
+                let cDay = currentDate.getDate();
+                let cMonth = currentDate.getMonth() + 1;
+                let cYear = currentDate.getFullYear();
+
                 tableContainer.innerHTML += table
-                tableContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printRoster()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Roster</button>"
+                tableContainer.innerHTML += "<div class=\"text-center my-2\">Information is current as of " + cMonth + "/" + cDay + "/" + cYear + " based on results in our database.</div>"
+                tableContainer.innerHTML += "<div class=\"text-center my-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printRoster()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Roster</button></div>"
 
                 const dataTable = new simpleDatatables.DataTable("#rosterTable", {
                     searchable: true,
@@ -165,6 +176,7 @@ $id = htmlspecialchars($_GET["id"]);
                     "perPageSelect": false,
                     "perPage": 1000
                 })
+                activateTooltips()
             }
 
             function athleteFlyout(profile, row, sport) {
@@ -213,7 +225,7 @@ $id = htmlspecialchars($_GET["id"]);
                 var divContents = document.getElementById("rosterTableContainer").innerHTML;
                 var a = window.open('', '', 'height=2100, width=800');
                 a.document.write('<html>');
-                a.document.write('<head><title>' + season + ' Roster</title><style>.badge {display:none;} button {display:none;} .dataTable-bottom {display:none;} a {text-decoration: none; color: inherit;} .dataTable-top {display:none;} table {width:100%;text-align: center;} h3 {text-align: center; font-size: 18px;}</style></head>');
+                a.document.write('<head><title>' + season + ' Roster</title><style>.badge {display:none;} button {display:none;} .dataTable-bottom {display:none;} a {text-decoration: none; color: inherit;} .dataTable-top {display:none;} table {width:100%;text-align: center;} h3 {text-align: center; font-size: 18px;} .text-center {text-align: center!important;} .my-2 {margin-top: .5rem!important;margin-bottom: .5rem!important;}</style></head>');
                 a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
                 a.document.write(divContents.replace("style=", "data-td-style="));
                 a.document.write('</pre></body></html>');

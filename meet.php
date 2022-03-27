@@ -44,6 +44,8 @@ while ($row = mysqli_fetch_array($result)) {
     $series = $row['Series'];
     $website = $row['Website'];
     $weather = $row['Weather'];
+    $levels = $row['Levels'];
+    $opponentsArray = explode(", ", $row['Opponents']);
     $official = $row['Official']; //Two Day
     if (!empty($row['Day2Time'])) {
         $date = $date . " -<br>" . date("l, F d, Y", strtotime($row['Day2Time']));
@@ -96,11 +98,30 @@ if (empty($image)) {
     }
 }
 include "header.php";
+echo '<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  "name": "' . $name . '",
+  "description": "' . $name . ' results and news from Titan Distance",
+  "startDate": "' . date("c", strtotime($unformatteddate)) . '",
+  "competitor": [
+      {
+        "@type": "SportsTeam",
+        "name": "Glenbrook South High School"
+      }
+    ],
+    "location": "' . $location . '",
+    "sport": "Track And Field",
+    "eventStatus":"EventScheduled",
+    "eventAttendanceMode":"OfflineEventAttendanceMode"
+}
+</script>';
 ?>
 <div class="container mt-4 mb-4">
     <div class="row">
         <div class="col-md-3">
-            <div class="card" style="height: 100%;">
+            <div class="card h-100">
                 <div class="card-body text-center text-md-start">
                     <div class="series-navigation d-flex justify-content-between">
                         <?php if (!empty($series)) {
@@ -133,11 +154,14 @@ include "header.php";
                     <hr class="mt-2">
                     <div class="nav flex-column nav-pills d-none d-md-block" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <?php
-                        if ($prepost == "pre") {
-                            echo "<a class='nav-link active' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'><i class='bi bi-newspaper me-1'></i>Meet Information</a>";
+                        echo "<a class='nav-link active' id='home-tab' data-bs-toggle='pill' data-bs-target='#home' role='tab' aria-controls='home-tab' aria-selected='false'><i class='bi bi-house-fill me-1'></i>Home</a>";
+                        $dropdown[] = "<option value='home' name='home'>Home</option>";
+
+                        if ($prepost == "pre" && !empty($content)) {
+                            echo "<a class='nav-link' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'><i class='bi bi-newspaper me-1'></i>Meet Information</a>";
                             $dropdown[] = "<option value='news' name='news'>Meet Information</option>";
-                        } elseif ($prepost == "post") {
-                            echo "<a class='nav-link active' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'><i class='bi bi-newspaper me-1'></i>Meet Recap</a>";
+                        } elseif ($prepost == "post" && !empty($content)) {
+                            echo "<a class='nav-link' id='news-tab' data-bs-toggle='pill' data-bs-target='#news' role='tab' aria-controls='news-tab' aria-selected='true'><i class='bi bi-newspaper me-1'></i>Meet Recap</a>";
                             $dropdown[] = "<option value='news' name='news'>Meet Recap</option>";
                         }
 
@@ -231,10 +255,29 @@ include "header.php";
                 echo "<div class='alert alert-danger' role='alert'>These results have been marked Unofficial for a variety of reasons. The results may be incomplete or incorrect. Please use caution when viewing these results, as the times and date may be inaccurate.</div>";
             }
             ?>
-            <div class="card">
+            <div class="card h-100">
                 <div class="card-body p-2 p-md-3">
                     <div class="tab-content" id="v-pills-tabContent">
-                        <div class="tab-pane fade show active" id="news" role="tabpanel" aria-labelledby="news-tab">
+                        <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                            <h2><?php echo $name; ?></h2>
+                            <?php
+                            // echo '<a class="btn btn-primary" data-bs-toggle="pill" data-bs-target="#news" role="button">News</a>';
+                            ?>
+                            <div class="card w-75 mt-3">
+                                <div class="card-header">
+                                    Meet Information
+                                </div>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Meet Name: <?php echo $name; ?></li>
+                                    <li class="list-group-item">Meet Date: <?php echo $date; ?></li>
+                                    <li class="list-group-item">Location : <?php echo $location; ?></li>
+                                    <li class="list-group-item">Opponents: <?php echo join(", ", $opponentsArray); ?></li>
+                                    <li class="list-group-item">Levels : <?php echo $levels; ?></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="news" role="tabpanel" aria-labelledby="news-tab">
                             <?php
                             if ($prepost == "pre") {
                                 echo "<h2>Meet Information</h2>";
@@ -643,6 +686,7 @@ include "header.php";
         "55mIH": "55m Intermediate Hurdles",
         "55mHH": "55m High Hurdles",
         "55mLH": "55m Low Hurdles",
+        "55m": "55m Dash",
         "50m": "50m Dash",
         "SP": "Shot Put",
         "DS": "Discus",
@@ -706,6 +750,7 @@ include "header.php";
         indresultsContainer.innerHTML = ""
         tables.forEach(generateTFTables)
         indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button>"
+        activateTooltips()
     }
 
     function generateTFTables(single) {
@@ -825,7 +870,11 @@ include "header.php";
         table += "</tbody>";
         table += "</table>";
 
-        indresultsContainer.innerHTML += "<h4>" + levels[level] + " " + events[event] + "</h4>" + table
+        if (events[event]) {
+            indresultsContainer.innerHTML += "<h4>" + levels[level] + " " + events[event] + "</h4>" + table
+        } else {
+            indresultsContainer.innerHTML += "<h4>" + levels[level] + " " + event + "</h4>" + table
+        }
     }
 
     function addRelayRows(relayNo) {
@@ -937,7 +986,12 @@ include "header.php";
                     table += "<tr>";
                 }
 
-                table += "<th>" + results[x].place + "</th>";
+                if (results[x].place == null) {
+                    table += "<th></th>";
+                } else {
+                    table += "<th>" + results[x].place + "</th>";
+                }
+
                 if (results[x].profile !== null) {
                     table += "<th><a href='/athlete/" + results[x].profile + "'>" + results[x].name + "</a></th>";
                 } else {
@@ -996,6 +1050,7 @@ include "header.php";
         //     "perPageSelect": false,
         //     "perPage": 1000
         // })
+        activateTooltips()
     }
 
     function printindResults() {

@@ -48,63 +48,28 @@ while ($row = mysqli_fetch_array($result)) {
                         <th>Location</th>
                     </tr>
                 </thead>
-                <tbody>
-
-                    <?php
-                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Season = '" . $season . "' ORDER BY Date ASC");
-
-                    while ($row = mysqli_fetch_array($result)) {
-                        if (empty($row['Series'])) {
-                            $url = "/meet/" . $row['id'];
-                        } else {
-                            $url = "/meet/" . $row["Series"] . "/" . $d = date("Y", strtotime($row['Date']));
-                        }
-                        $dow = date("D", strtotime($row['Date']));
-                        $d = date("n/j", strtotime($row['Date']));
-
-                        $dir = "<a href='" . $url . "#venue'>" . $row['Location'] . "</a>";
-
-                        if (array_key_exists($row['Badge'], $badges)) {
-                            $badge = "<span class='ms-1 badge " . $badges[$row['Badge']][0] . "' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $badges[$row['Badge']][2] . "'>" . $badges[$row['Badge']][1] . "</span>";
-                        } else {
-                            $badge = "";
-                        }
-
-
-                        echo "<tr onclick = window.location='" . $url . "'>";
-                        echo "<td>" . $dow . "</td>";
-                        echo "<td>" . $d . "</td>";
-                        echo "<td><a href='" . $url . "'>" . $row['Name'] . $badge . "</a></td>";
-                        if (strlen($row['Opponents']) > 100) {
-                            echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='" . $row['Opponents'] . "'>" . substr($row['Opponents'], 0, 100) . "..." . "</td>";
-                        } else {
-                            echo "<td>" . $row['Opponents'] . "</td>";
-                        }
-                        echo "<td>" . $row['Levels'] . "</td>";
-                        echo "<td>" . $dir . "</td>";
-                        echo "</tr>";
-
-                        if (!empty($row['Day2Time'])) {
-                            echo "<tr class='clickable-row' data-href='" . $url . "'>";
-                            echo "<td>" . date("D", strtotime($row['Day2Time'])) . "</td>";
-                            echo "<td>" . date("n/j", strtotime($row['Day2Time'])) . "</td>";
-                            echo "<td><a href='/meet/" . $row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
-                            echo "<td>" . $row['Opponents'] . "</td>";
-                            echo "<td>" . $row['Day2Levels'] . "</td>";
-                            echo "<td>" . $dir . "</td>";
-                            echo "</tr>";
-                        }
-                    }
-                    if (mysqli_num_rows($result) == 0) {
-                        echo "<tr>";
-                        echo "<td class='text-center' colspan='6'>No Meets Currently Scheduled.</td>";
-                        echo "</tr>";
-                    }
-                    ?>
+                <tbody class="placeholder-glow">
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><span class="placeholder w-100"></span></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
-    </div>
     </div>
 </section>
 
@@ -212,7 +177,9 @@ while ($row = mysqli_fetch_array($result)) {
     }
 
     function showSeason(s) {
-        window.location = "/schedule?season=" + s;
+        //window.location = "/schedule?season=" + s;
+        fetchSchedule(s)
+        document.title = s + " Schedule - Titan Distance";
     }
 
     function printSchedule() {
@@ -227,10 +194,70 @@ while ($row = mysqli_fetch_array($result)) {
         a.document.close();
     }
 
+    var schedule;
+
+    function fetchSchedule(s) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                response = this.responseText;
+                schedule = JSON.parse(response);
+                generateSchedule(schedule)
+            }
+        };
+        var url = "/api/schedule?season=" + s
+        xhttp.open("GET", url, true);
+        xhttp.send();
+    }
+
+    function generateSchedule(schedule) {
+        var scheduleContainer = document.getElementById("scheduleContainer");
+        var table;
+        table = '<table class="table table-condensed table-hover table-sm" id="scheduleTable"><thead><tr><th></th><th>Date</th><th>Name</th><th>Opponents</th><th>Levels</th><th>Location</th></tr></thead><tbody>'
+
+        for (let x in schedule) {
+            url = schedule[x].url
+            table += "<tr onclick = window.location='" + url + "'>";
+            table += "<td>" + schedule[x].dow + "</td>";
+            table += "<td>" + schedule[x].md + "</td>";
+            table += "<td><a href='" + url + "'>" + schedule[x].title + "</a></td>";
+
+            if (schedule[x]["opponents"] == null) {
+                table += "<td class='col-6'></td>";
+            } else {
+                opponents = schedule[x]["opponents"].toString().split(", ")
+                console.log(opponents)
+                console.log(opponents.length)
+                if (opponents.length > 7) {
+                    table += "<td class='col-6' data-bs-toggle='tooltip' data-bs-placement='top' title='" + opponents.join(", ") + "'>" + opponents.slice(0, 7).join(", ") + ", + " + (opponents.length - 7) + " more</td>";
+                } else {
+                    table += "<td class='col-6'>" + opponents.join(", ") + "</td>";
+                }
+
+            }
+
+            if (schedule[x]["levels"] == null) {
+                table += "<td></td>";
+            } else {
+                table += "<td>" + schedule[x].levels + "</td>";
+            }
+            table += "<td><a href='" + url + "#venue'>" + schedule[x].location + "</a></td>";
+            table += "</tr>";
+        }
+
+        table += '</tbody></table>'
+        scheduleContainer.innerHTML = table
+        activateTooltips()
+    }
+
     document.addEventListener('keydown', function(event) {
         if (event.key === 'p' && event.ctrlKey) {
             printSchedule();
         }
     });
+
+    window.onload = function exampleFunction() {
+        showSeason("Track 2022")
+    }
 </script>
 <?php include("footer.php"); ?>
