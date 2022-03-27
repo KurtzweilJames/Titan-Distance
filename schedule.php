@@ -1,10 +1,6 @@
 <?php $pgtitle = "Schedule"; ?>
 <?php include("header.php"); ?>
 <?php
-$season = htmlspecialchars($_GET["season"]);
-if (empty($season)) {
-    $season = $currentseason;
-}
 $result = mysqli_query($con, "SELECT UNIQUE Season FROM meets ORDER BY Date DESC");
 while ($row = mysqli_fetch_array($result)) {
     $allSeasons[] = $row['Season'];
@@ -22,10 +18,7 @@ while ($row = mysqli_fetch_array($result)) {
                     foreach ($allSeasons as $s) {
                         echo "<option value='" . $s . "' name='" . $s . "'";
                         if ($s == $currentseason) {
-                            echo "class='bg-info'";
-                        }
-                        if ($s == $season) {
-                            echo "selected";
+                            echo "class='row-highlight'";
                         }
                         echo ">" . $s . "</option>";
                     }
@@ -76,16 +69,7 @@ while ($row = mysqli_fetch_array($result)) {
 <div class="container mt-4">
     <div id='calendar'></div>
     <div class="my-3 d-flex justify-content-center">
-        <a class="btn btn-primary mx-2" href="
-        <?php
-        if (strpos($season, 'Track') !== false) {
-            echo "https://gbsathletics.glenbrook225.org/page/3050";
-        } else {
-            echo "https://gbsathletics.glenbrook225.org/page/2937";
-        }
-        ?>
-        " role="button" target="_blank">GBS Athletics
-            Schedule</a>
+        <a class="btn btn-primary mx-2" href="https://www.rschoolillinois.org/public/genie/1258/school/2564/" role="button" target="_blank" id="gbsButton">GBS Athletics Schedule</a>
         <button type="button" class="btn btn-secondary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Schedule</button>
     </div>
 </div>
@@ -203,6 +187,13 @@ while ($row = mysqli_fetch_array($result)) {
                 response = this.responseText;
                 schedule = JSON.parse(response);
                 generateSchedule(schedule)
+                if (s.includes("Track")) {
+                    document.getElementById("gbsButton").href = "https://www.rschoolillinois.org/g5-bin/client.cgi?cwellOnly=1&G5statusflag=view&schoolname=&school_id=2564&G5button=13&G5genie=1258&vw_schoolyear=1&vw_agl=1134-2-2371,1134-2-120,1134-2-2377,1134-2-125,&manual_access=1"
+                } else if (s.includes("Cross Country")) {
+                    document.getElementById("gbsButton").href = "https://www.rschoolillinois.org/g5-bin/client.cgi?cwellOnly=1&G5statusflag=view&schoolname=&school_id=2564&G5button=13&G5genie=1258&vw_schoolyear=1&vw_agl=78-2-2371,78-2-120,78-2-125,&manual_access=1"
+                } else {
+                    document.getElementById("gbsButton").href = "https://www.rschoolillinois.org/public/genie/1258/school/2564/"
+                }
             }
         };
         var url = "/api/schedule?season=" + s
@@ -226,8 +217,6 @@ while ($row = mysqli_fetch_array($result)) {
                 table += "<td class='col-6'></td>";
             } else {
                 opponents = schedule[x]["opponents"].toString().split(", ")
-                console.log(opponents)
-                console.log(opponents.length)
                 if (opponents.length > 7) {
                     table += "<td class='col-6' data-bs-toggle='tooltip' data-bs-placement='top' title='" + opponents.join(", ") + "'>" + opponents.slice(0, 7).join(", ") + ", + " + (opponents.length - 7) + " more</td>";
                 } else {
