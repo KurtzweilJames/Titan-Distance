@@ -32,7 +32,7 @@ if (in_array('practices', $include)) {
 }
 
 if (in_array('schedule', $include)) {
-      $result = mysqli_query($con, "SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Series FROM meets");
+      $result = mysqli_query($con, "SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Series FROM meets WHERE NOT(`Status` <=> 'C')");
       while ($row = mysqli_fetch_array($result)) {
             $location = $row['Location'];
             $start = $row['Date'] . " " . $row['Time'];

@@ -19,6 +19,7 @@ while ($row = mysqli_fetch_array($result)) {
                         echo "<option value='" . $s . "' name='" . $s . "'";
                         if ($s == $currentseason) {
                             echo "class='row-highlight'";
+                            echo "selected";
                         }
                         echo ">" . $s . "</option>";
                     }
@@ -208,19 +209,34 @@ while ($row = mysqli_fetch_array($result)) {
 
         for (let x in schedule) {
             url = schedule[x].url
-            table += "<tr onclick = window.location='" + url + "'>";
+            table += "<tr onclick = window.location='" + url + "'";
+            if (schedule[x].status == "C") {
+                table += " style='text-decoration:line-through;' class='text-danger' data-bs-toggle='tooltip' data-bs-placement='top' title='" + schedule[x].message + "'";
+            } else if (schedule[x].status == "R" || schedule[x].status == "P") {
+                table += " class='text-danger' data-bs-toggle='tooltip' data-bs-placement='top' title='" + schedule[x].message + "'";
+            }
+            table += ">";
             table += "<td>" + schedule[x].dow + "</td>";
             table += "<td>" + schedule[x].md + "</td>";
-            table += "<td><a href='" + url + "'>" + schedule[x].title + "</a></td>";
+
+            table += "<td><a href='" + url + "'>" + schedule[x].title;
+            if (schedule[x].badge == "1") {
+                table += '<span class="ms-1 badge bg-csl" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Central Suburban League Conference">CSL</span>'
+            } else if (schedule[x].badge == "2") {
+                table += '<span class="ms-1 badge bg-ihsa" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="IHSA State Series Competition" aria-label="IHSA State Series Competition"><img src="/assets/icons/ihsa.svg" height="11px" alt="IHSA"></span>'
+            } else if (schedule[x].badge == "3") {
+                table += '<span class="ms-1 badge bg-info" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Time Trial">TT</span>'
+            }
+            table += "</a></td>";
 
             if (schedule[x]["opponents"] == null) {
-                table += "<td class='col-6'></td>";
+                table += "<td class='col-5'></td>";
             } else {
                 opponents = schedule[x]["opponents"].toString().split(", ")
                 if (opponents.length > 7) {
-                    table += "<td class='col-6' data-bs-toggle='tooltip' data-bs-placement='top' title='" + opponents.join(", ") + "'>" + opponents.slice(0, 7).join(", ") + ", + " + (opponents.length - 7) + " more</td>";
+                    table += "<td class='col-5' data-bs-toggle='tooltip' data-bs-placement='top' title='" + opponents.join(", ") + "'>" + opponents.slice(0, 7).join(", ") + ", + " + (opponents.length - 7) + " more</td>";
                 } else {
-                    table += "<td class='col-6'>" + opponents.join(", ") + "</td>";
+                    table += "<td class='col-5'>" + opponents.join(", ") + "</td>";
                 }
 
             }
@@ -230,7 +246,13 @@ while ($row = mysqli_fetch_array($result)) {
             } else {
                 table += "<td>" + schedule[x].levels + "</td>";
             }
-            table += "<td><a href='" + url + "#venue'>" + schedule[x].location + "</a></td>";
+
+            table += "<td><a href='" + url + "#venue'>";
+            if (schedule[x].location !== "David Pasquini Fieldhouse" && schedule[x].location !== "John Davis Titan Stadium" && schedule[x].location !== "Glenbrook South High School") {
+                table += "@ ";
+            }
+            table += schedule[x].location + "</a></td>";
+
             table += "</tr>";
         }
 
@@ -246,7 +268,7 @@ while ($row = mysqli_fetch_array($result)) {
     });
 
     window.onload = function exampleFunction() {
-        showSeason("Track 2022")
+        showSeason(document.getElementById("SeasonSelect").value)
     }
 </script>
 <?php include("footer.php"); ?>

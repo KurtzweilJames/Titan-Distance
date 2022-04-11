@@ -73,7 +73,7 @@ while ($row = mysqli_fetch_array($result)) {
 
             <?php
             echo "<div class='athlete-image mx-auto mx-md-0'>";
-            echo "<img src='/" . $image . "' class='img-thumbnail'>";
+            echo "<img src='/" . $image . "' class='img-thumbnail' alt='" . $name . "'>";
             echo "</div>";
 
             $y = substr($currentyear, -2);
@@ -290,8 +290,13 @@ while ($row = mysqli_fetch_array($result)) {
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
 <script>
-    const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
-    const tfPersonal = new simpleDatatables.DataTable("#tfPersonal", {})
+    if (document.getElementById("xcPersonal")) {
+        const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
+    }
+    if (document.getElementById("tfPersonal")) {
+        const tfPersonal = new simpleDatatables.DataTable("#tfPersonal", {})
+    }
+
     var data;
 
     function getChartData(event) {
@@ -310,9 +315,17 @@ while ($row = mysqli_fetch_array($result)) {
 
     var athleteChart;
 
+    const footer = (tooltipItems) => {
+        // let sum = 0;
+
+        // tooltipItems.forEach(function(tooltipItem) {
+        //     sum += tooltipItem.parsed.y;
+        // });
+        return 'Time';
+    };
+
     function generateChart(event) {
         const ctx = document.getElementById('chartContainer').getContext('2d');
-        console.log(data)
         var labels = [];
         var secs = [];
         for (i in data) {
@@ -347,6 +360,11 @@ while ($row = mysqli_fetch_array($result)) {
                 },
                 legend: {
                     display: false,
+                },
+                tooltip: {
+                    callbacks: {
+                        footer: footer,
+                    }
                 }
             }
         });

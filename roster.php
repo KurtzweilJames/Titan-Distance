@@ -35,6 +35,10 @@ $id = htmlspecialchars($_GET["id"]);
                 <span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span>
             </p>
         </div>
+        <div class="container">
+            <p>*Have missing results or notice an issue? <a href="https://forms.gle/WBJbebPNkvjz3XQB9" target="_blank">Please fill out this form for manual review.</a></p>
+            <a class="btn btn-primary" href="https://forms.gle/WBJbebPNkvjz3XQB9" role="button" target="_blank">Request Correction</a>
+        </div>
 
         <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAthlete" aria-labelledby="offcanvasAthleteLabel">
             <div class="offcanvas-header">
@@ -54,7 +58,15 @@ $id = htmlspecialchars($_GET["id"]);
                         <a href="#" class="btn btn-primary btn-sm" id="atNetXC" target="_blank">A.Net XC</a>
                     </div>
                 </div>
-                <table class="table table-sm" id="athleteRecordTable">
+                <table class="table table-sm mt-4">
+                    <thead>
+                        <th>Event</th>
+                        <th>Meet</th>
+                        <th>Result</th>
+                    </thead>
+                    <tbody id="athleteRecordTable">
+
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -134,13 +146,13 @@ $id = htmlspecialchars($_GET["id"]);
                 }
 
                 for (let x in roster) {
-                    table += "<tr>";
+                    table += "<tr onClick = \"athleteFlyout('" + roster[x].profile + "','" + x + "','" + sport + "')\">";
                     if (roster[x].captain == true) {
                         captain = " (C)"
                     } else {
                         captain = ""
                     }
-                    table += "<th><a class='link-primary' onClick = \"athleteFlyout('" + roster[x].profile + "','" + x + "','" + sport + "')\">" + roster[x].name + captain + "</a></th>";
+                    table += "<th><a class='link-primary'>" + roster[x].name + captain + "</a></th>";
 
                     if (sport == "All") {
                         table += "<th>" + roster[x].class + "</th>";
@@ -183,7 +195,7 @@ $id = htmlspecialchars($_GET["id"]);
                 var myOffcanvas = document.getElementById('offcanvasAthlete')
                 var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas)
                 bsOffcanvas.show()
-                console.log(roster[row]);
+
                 document.getElementById("offcanvasAthleteLabel").innerHTML = roster[row].name;
                 document.getElementById("athleteImage").src = roster[row].image;
                 document.getElementById("athleteImage").alt = roster[row].name;
@@ -197,10 +209,14 @@ $id = htmlspecialchars($_GET["id"]);
                 document.getElementById("athleteLink").href = "/athlete/" + roster[row].profile;
                 athleteRecordTable = document.getElementById("athleteRecordTable");
                 athleteRecordTable.innerHTML = "";
-                // table = ""
+                table = ""
                 for (i in roster[row].records) {
-                    console.log(roster[row].records[i])
-                    for (i in roster[row].records) {}
+                    table += "<tr>"
+                    table += "<th>" + i + "</th>"
+                    table += "<td>" + roster[row].records[i].meetName + "</td>"
+                    table += "<th>" + formatResult(roster[row].records[i].result) + "</th>"
+                    table += "</tr>"
+                    athleteRecordTable.innerHTML = table;
                 }
                 if (roster[row].athnet !== null) {
                     document.getElementById("atNetTF").href = "https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" + roster[row].athnet;

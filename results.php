@@ -6,7 +6,7 @@
         <?php
         $result = mysqli_query($con, "SELECT * FROM meets WHERE date = '" . $todaydate . "'");
         while ($row = mysqli_fetch_array($result)) {
-            if (!empty($row['Live']) && $row['Official'] == 0) {
+            if (!empty($row['Live']) && $row['Official'] == 0 && $row['Status'] !== "C") {
                 echo "<div class='alert alert-info' role='alert'>";
                 echo "<a href='" . $row['Live'] . "' target='_blank'>Live Results for " . $row['Name'] . " are available at " . $row['Live'] . ".</a>";
                 echo "</div>";
@@ -65,10 +65,8 @@
 
 
     <div class="container">
-        <p>*While we do our best to input accurate results, inconsistencies may unfortunately arise. <a href="https://forms.gle/WBJbebPNkvjz3XQB9" target="_blank">If you believe there's a mistake, please fill
-                out this form.</a></p>
-        <a class="btn btn-info" href="https://forms.gle/WBJbebPNkvjz3XQB9" role="button" target="_blank">Request
-            Correction</a>
+        <p>*Have missing results or notice an issue? <a href="https://forms.gle/WBJbebPNkvjz3XQB9" target="_blank">Please fill out this form for manual review.</a></p>
+        <a class="btn btn-primary" href="https://forms.gle/WBJbebPNkvjz3XQB9" role="button" target="_blank">Request Correction</a>
         <a href="https://docs.google.com/document/d/e/2PACX-1vTYaYKeX2zvWhx0BhUB6r2cV1serdWvaovwq81u51l05Sz55IunMbwQDkCFwiLzQl0uwZUdb5kwY4LP/pub">
             <p>Wondering where we find these results? Check here for our sources.</p>
         </a>

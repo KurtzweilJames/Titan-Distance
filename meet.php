@@ -45,6 +45,7 @@ while ($row = mysqli_fetch_array($result)) {
     $website = $row['Website'];
     $weather = $row['Weather'];
     $levels = $row['Levels'];
+    $status = $row['Status'];
     $opponentsArray = explode(", ", $row['Opponents']);
     $official = $row['Official']; //Two Day
     if (!empty($row['Day2Time'])) {
@@ -143,8 +144,16 @@ echo '<script type="application/ld+json">
                     </div>
                     <div id="meetInfo">
                         <h4 id="meetName"><?php echo $name; ?></h4>
-                        <h5 class="mb-0"><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
-                        <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
+                        <h5 class="mb-0" <?php if ($status == "C") {
+                                                echo 'style="text-decoration:line-through; color:#dc3545;"';
+                                            } else if ($status == "P") {
+                                                echo 'style="color:#dc3545;"';
+                                            } ?>><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
+                        <h5 class="mb-0" <?php if ($status == "C") {
+                                                echo 'style="text-decoration:line-through; color:#dc3545;"';
+                                            } else if ($status == "R") {
+                                                echo 'style="color:#dc3545;"';
+                                            } ?>><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
                     </div>
                     <?php
                     if (!empty($weather)) {
@@ -240,7 +249,7 @@ echo '<script type="application/ld+json">
                 </div>
             </div>
         </div>
-        <div class="col-md-9 mt-2 mt-md-0">
+        <div class="col-md-9 mt-2 mt-md-0 h-100">
             <?php
             if ($season == "Community") {
                 echo "<div class='alert alert-primary' role='alert'>This event is not school-sponsored, in accordance with IHSA By-law 3.101. Athletes compete Unattached at these events, and are only listed as Glenbrook South* for technical purposes.</div>";
@@ -261,9 +270,22 @@ echo '<script type="application/ld+json">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <h2><?php echo $name; ?></h2>
                             <?php
-                            // echo '<a class="btn btn-primary" data-bs-toggle="pill" data-bs-target="#news" role="button">News</a>';
+                            // if (!empty($content) && $prepost == "post") {
+                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Recap</a>';
+                            // } else if (!empty($content) && $prepost == "pre") {
+                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Information</a>';
+                            // }
+                            if (!empty($live)) {
+                                echo '<a class="btn btn-primary mx-2" href="' . $live . '" role="button" target="_blank"><i class="bi bi-bar-chart-fill me-1"></i>LIVE Results</a>';
+                            }
+                            if (!empty($athnet)) {
+                                echo '<a class="btn btn-primary mx-2" href="' . $athnet . '" role="button" target="_blank">Athletic.net Link</a>';
+                            }
+                            // if ($prepost == "post") {
+                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#results-tab" data-bs-toggle="pill" role="button">Individual Results</a>';
+                            // }
                             ?>
-                            <div class="card w-75 mt-3">
+                            <div class="card mt-3">
                                 <div class="card-header">
                                     Meet Information
                                 </div>
@@ -271,7 +293,9 @@ echo '<script type="application/ld+json">
                                     <li class="list-group-item">Meet Name: <?php echo $name; ?></li>
                                     <li class="list-group-item">Meet Date: <?php echo $date; ?></li>
                                     <li class="list-group-item">Location : <?php echo $location; ?></li>
-                                    <li class="list-group-item">Opponents: <?php echo join(", ", $opponentsArray); ?></li>
+                                    <li class="list-group-item">Opponents: <?php if ($opponentsArray) {
+                                                                                echo join(", ", $opponentsArray);
+                                                                            } ?></li>
                                     <li class="list-group-item">Levels : <?php echo $levels; ?></li>
                                 </ul>
                             </div>
@@ -486,7 +510,7 @@ echo '<script type="application/ld+json">
                                         echo "<h2>" . $location . "</h2>";
 
                                         if (!empty($row['xccourse']) && $sport == "xc") {
-                                            echo "<img class='img-fluid' src='/assets/images/course-maps/" . $row['xccourse'] . "'>";
+                                            echo "<img class='img-fluid' src='/assets/images/course-maps/" . $row['xccourse'] . "' loading='lazy'>";
                                             echo "<hr>";
                                         }
                                         if (!empty($row['coordinates'])) {
@@ -648,7 +672,7 @@ echo '<script type="application/ld+json">
                             while ($row = mysqli_fetch_array($result)) {
                                 echo "<div class='col mb-2'>";
                                 echo "<a class='card text-center hover-card text-reset' href='" . $row['link'] . "'>";
-                                echo "<img src='/assets/images/meets/" . $row['cover'] . "' class='card-img-top'>";
+                                echo "<img src='/assets/images/meets/" . $row['cover'] . "' class='card-img-top' loading='lazy'>";
                                 echo "<div class='card-body'>";
                                 echo "<p class='card-text'>Photographer(s): " . $row['credits'] . "</p>";
                                 echo "</div>";
@@ -799,7 +823,12 @@ echo '<script type="application/ld+json">
                 if (results[x].place == null) {
                     table += "<th></th>";
                 } else {
-                    table += "<th>" + results[x].place + "</th>";
+                    if (gbs == true && results[x].place == 1) {
+                        table += "<th onClick='launchConfetti()'>" + results[x].place + "</th>";
+                    } else {
+                        table += "<th>" + results[x].place + "</th>";
+                    }
+
                 }
 
                 if (results[x].name == "RELAY") {
@@ -1088,9 +1117,9 @@ echo '<script type="application/ld+json">
     var activetab;
     var tabEl = document.getElementById("v-pills-tab");
     tabEl.addEventListener('shown.bs.tab', function(event) {
-        // if (map) {
-        //     map.resize();
-        // }
+        if (document.getElementById("coursemap")) {
+            map.resize();
+        }
         window.location.hash = event.target.id.replace("-tab", "")
         activetab = event.target.id;
     })

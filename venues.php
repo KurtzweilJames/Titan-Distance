@@ -13,11 +13,9 @@
         <div class="col-12 col-md-3">
             <div class="nav flex-column nav-pills d-none d-md-block" id="list" aria-orientation="vertical">
                 <a class="nav-link" id="stadium-toggle" onclick="showVenue(this.id)">John Davis Titan
-                    Stadium<br>(Outdoor
-                    TF)</a>
+                    Stadium<br>(Outdoor Track)</a>
                 <a class="nav-link" id="fieldhouse-toggle" onclick="showVenue(this.id)">David Pasquini
-                    Fieldhouse<br>(Indoor
-                    TF)</a>
+                    Fieldhouse<br>(Indoor Track)</a>
                 <a class="nav-link" id="xccourse-toggle" onclick="showVenue(this.id)">Cross Country Course</a>
                 <a class="nav-link" id="campus-toggle" onclick="showVenue(this.id)">Campus Map</a>
             </div>
@@ -28,45 +26,45 @@
     </div>
 </div>
 <script>
-function showVenue(v) {
-    t = v;
-    v = v.replace("-toggle", "");
-    var xhttp;
-    xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            document.getElementById("venue").innerHTML = this.responseText;
+    function showVenue(v) {
+        t = v;
+        v = v.replace("-toggle", "");
+        var xhttp;
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("venue").innerHTML = this.responseText;
+            }
+        };
+        xhttp.open("GET", "/includes/venues/" + v, true);
+        xhttp.send();
+
+        var btnContainer = document.getElementById("list");
+
+        // Get all buttons with class="btn" inside the container
+        var btns = btnContainer.getElementsByClassName("nav-link");
+
+        // Loop through the buttons and add the active class to the current/clicked button
+        for (var i = 0; i < btns.length; i++) {
+            if (t == btns[i].id) {
+                btns[i].classList.add("active");
+            } else {
+                btns[i].classList.remove("active");
+            }
+        }
+        window.location.hash = v;
+    }
+
+    window.onload = function() {
+        if (window.location.hash) {
+            hash = window.location.hash;
+            if (hash.substring(0, 1) == '#') {
+                hash = hash.substring(1, hash.length);
+            }
+            showVenue(hash + "-toggle");
+        } else {
+            showVenue("stadium-toggle");
         }
     };
-    xhttp.open("GET", "/includes/venues/" + v, true);
-    xhttp.send();
-
-    var btnContainer = document.getElementById("list");
-
-    // Get all buttons with class="btn" inside the container
-    var btns = btnContainer.getElementsByClassName("nav-link");
-
-    // Loop through the buttons and add the active class to the current/clicked button
-    for (var i = 0; i < btns.length; i++) {
-        if (t == btns[i].id) {
-            btns[i].classList.add("active");
-        } else {
-            btns[i].classList.remove("active");
-        }
-    }
-    window.location.hash = v;
-}
-
-window.onload = function() {
-    if (window.location.hash) {
-        hash = window.location.hash;
-        if (hash.substring(0, 1) == '#') {
-            hash = hash.substring(1, hash.length);
-        }
-        showVenue(hash + "-toggle");
-    } else {
-        showVenue("stadium-toggle");
-    }
-};
 </script>
 <?php include("footer.php"); ?>
