@@ -10,7 +10,7 @@ if (strpos($_GET["id"], '/') !== false) {
     $result = mysqli_query($con, "SELECT * FROM meets WHERE id='" . $_GET["id"] . "'");
 }
 if (mysqli_num_rows($result) == 0) {
-    header('Location: https://titandistance.com/notfound?from=meets&year=' . $year . "'&slug='" . $urlslug . "'&id='" . $id);
+    header('Location: https://titandistance.com/notfound?from=meets&id=' . $id);
     exit();
 }
 while ($row = mysqli_fetch_array($result)) {
@@ -119,7 +119,7 @@ echo '<script type="application/ld+json">
 }
 </script>';
 ?>
-<div class="container mt-4 mb-4">
+<div class="container mt-2 mb-2">
     <div class="row">
         <div class="col-md-3">
             <div class="card h-100">
@@ -205,6 +205,10 @@ echo '<script type="application/ld+json">
                         if ($series == "titan") {
                             echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
                             $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
+                        }
+                        if ($series == "tfsectionals" && $season == "Track 2022") {
+                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Qualifying Standards</a>";
+                            $dropdown[] = "<option value='special' name='special'>Qualifying Standards</option>";
                         }
                         if (!empty($live)) {
                             echo "<a class='nav-link' id='live' href='" . $live . "' role='tab' target='_blank'><i class='bi bi-bar-chart-fill me-1'></i>LIVE Results</a>";
@@ -658,9 +662,14 @@ echo '<script type="application/ld+json">
                         </div>
 
                         <div class="tab-pane fade" id="special" role="tabpanel" aria-labelledby="special-tab">
-                            <?php if ($series == "titan") {
+                            <?php
+                            if ($series == "titan") {
                                 include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
-                            } ?>
+                            }
+                            if ($series == "tfsectionals" && $season == "Track 2022") {
+                                include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsqualifying.php";
+                            }
+                            ?>
                         </div>
 
 

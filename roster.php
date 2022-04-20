@@ -4,7 +4,7 @@
 $id = htmlspecialchars($_GET["id"]);
 ?>
 
-<div class="container mt-3 h-100">
+<div class="container h-100">
     <div class="container">
         <div class="row">
             <div class="col-md-10 text-center text-md-start">
@@ -35,7 +35,7 @@ $id = htmlspecialchars($_GET["id"]);
                 <span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span><span class="placeholder col-12"></span>
             </p>
         </div>
-        <div class="container">
+        <div class="container text-center mt-1">
             <p>*Have missing results or notice an issue? <a href="https://forms.gle/WBJbebPNkvjz3XQB9" target="_blank">Please fill out this form for manual review.</a></p>
             <a class="btn btn-primary" href="https://forms.gle/WBJbebPNkvjz3XQB9" role="button" target="_blank">Request Correction</a>
         </div>
@@ -96,7 +96,11 @@ $id = htmlspecialchars($_GET["id"]);
                     if (this.readyState == 4 && this.status == 200) {
                         response = this.responseText;
                         roster = JSON.parse(response);
-                        generateRosterTable(sport, year);
+                        if (year > (new Date().getFullYear() - 2000)) {
+                            tableContainer.innerHTML = "<p class='lead my-5 py-5'>Hello from the Future! We are still in " + new Date().getFullYear() + ", so this information won't be available for a few more years. Check back in 20" + year + "!</p>";
+                        } else {
+                            generateRosterTable(sport, year);
+                        }
                     }
                 };
                 var url = "/api/roster?s=" + str
@@ -213,7 +217,7 @@ $id = htmlspecialchars($_GET["id"]);
                 for (i in roster[row].records) {
                     table += "<tr>"
                     table += "<th>" + i + "</th>"
-                    table += "<td>" + roster[row].records[i].meetName + "</td>"
+                    table += "<td><a href='/meet/" + roster[row].records[i].meetID + "#results'>" + roster[row].records[i].meetName + "</a></td>"
                     table += "<th>" + formatResult(roster[row].records[i].result) + "</th>"
                     table += "</tr>"
                     athleteRecordTable.innerHTML = table;

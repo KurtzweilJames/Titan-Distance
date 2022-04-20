@@ -67,7 +67,7 @@ while ($row = mysqli_fetch_array($result)) {
 }
 ?>
 
-<div class="container mt-4">
+<div class="container">
     <div class="row">
         <div class="col-md-3 p-md-0 text-center text-md-start">
 
@@ -278,11 +278,6 @@ while ($row = mysqli_fetch_array($result)) {
             </div>
             <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
                 <option value="" selected disabled>Select a Chart</option>
-                <?php
-                foreach ($trackevents as $event) {
-                    echo "<option value='" . $event . "'>" . $event . "</option>";
-                }
-                ?>
             </select>
             <canvas id="chartContainer" width="400" height="200"></canvas>
         </div>
@@ -313,19 +308,53 @@ while ($row = mysqli_fetch_array($result)) {
         xhttp.send();
     }
 
+    var events;
+    var athleteProfile = "<?php echo $profile; ?>";
+    var athleteName = "<?php echo $name; ?>";
+    getEvents();
+
+    function getEvents() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                response = this.responseText;
+                events = JSON.parse(response);
+                var select = document.getElementById("chartSelect");
+                for (i in events) {
+                    if (events[i]["count"] > 1) {
+                        var option = document.createElement('option');
+                        option.text = option.value = events[i]["event"];
+                        select.add(option);
+                    }
+                }
+                return events;
+            }
+        };
+        var url = "/api/charts?profile=<?php echo $profile; ?>"
+        xhttp.open("GET", url, true);
+        xhttp.send();
+    }
+
     var athleteChart;
 
-    const footer = (tooltipItems) => {
-        // let sum = 0;
+    const ctx = document.getElementById('chartContainer').getContext('2d');
+    athleteChart = new Chart(ctx, {
+        type: 'line',
+        options: {
+            title: {
+                display: true,
+                text: athleteName + "'s Progression"
+            },
+            legend: {
+                display: false,
+            }
+        }
+    });
 
-        // tooltipItems.forEach(function(tooltipItem) {
-        //     sum += tooltipItem.parsed.y;
-        // });
-        return 'Time';
-    };
 
     function generateChart(event) {
-        const ctx = document.getElementById('chartContainer').getContext('2d');
+        athleteChart.destroy()
+        document.getElementById('chartContainer').classList.remove("d-none")
         var labels = [];
         var secs = [];
         for (i in data) {
@@ -356,14 +385,17 @@ while ($row = mysqli_fetch_array($result)) {
             options: {
                 title: {
                     display: true,
-                    text: event + " Time in Seconds"
+                    text: athleteName + "'s " + event + " Progression"
                 },
                 legend: {
                     display: false,
                 },
                 tooltip: {
+                    mode: 'index',
                     callbacks: {
-                        footer: footer,
+                        title: (data) => {
+                            return "Hey"
+                        }
                     }
                 }
             }

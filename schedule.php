@@ -8,7 +8,7 @@ while ($row = mysqli_fetch_array($result)) {
 ?>
 
 <section id="content">
-    <div class="container mt-4">
+    <div class="container">
         <div class="d-flex justify-content-between mb-2">
             <i class="my-auto">*Schedule is subject to change.</i>
             <div class="form-group d-none d-md-block">
@@ -219,7 +219,11 @@ while ($row = mysqli_fetch_array($result)) {
             table += "<td>" + schedule[x].dow + "</td>";
             table += "<td>" + schedule[x].md + "</td>";
 
-            table += "<td><a href='" + url + "'>" + schedule[x].title;
+            table += "<td><a href='" + url + "'"
+            if (schedule[x].status == "C" || schedule[x].status == "R" || schedule[x].status == "P") {
+                table += " class='link-danger'";
+            }
+            table += ">" + schedule[x].title;
             if (schedule[x].badge == "1") {
                 table += '<span class="ms-1 badge bg-csl" data-bs-toggle="tooltip" data-bs-placement="top" title="" data-bs-original-title="Central Suburban League Conference">CSL</span>'
             } else if (schedule[x].badge == "2") {
@@ -247,7 +251,11 @@ while ($row = mysqli_fetch_array($result)) {
                 table += "<td>" + schedule[x].levels + "</td>";
             }
 
-            table += "<td><a href='" + url + "#venue'>";
+            table += "<td><a href='" + url + "#venue'"
+            if (schedule[x].status == "C" || schedule[x].status == "R" || schedule[x].status == "P") {
+                table += " class='link-danger'";
+            }
+            table += ">";
             if (schedule[x].location !== "David Pasquini Fieldhouse" && schedule[x].location !== "John Davis Titan Stadium" && schedule[x].location !== "Glenbrook South High School") {
                 table += "@ ";
             }

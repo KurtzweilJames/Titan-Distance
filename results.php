@@ -2,17 +2,7 @@
 <?php include("header.php"); ?>
 
 <section id="content">
-    <div class="container mt-4">
-        <?php
-        $result = mysqli_query($con, "SELECT * FROM meets WHERE date = '" . $todaydate . "'");
-        while ($row = mysqli_fetch_array($result)) {
-            if (!empty($row['Live']) && $row['Official'] == 0 && $row['Status'] !== "C") {
-                echo "<div class='alert alert-info' role='alert'>";
-                echo "<a href='" . $row['Live'] . "' target='_blank'>Live Results for " . $row['Name'] . " are available at " . $row['Live'] . ".</a>";
-                echo "</div>";
-            }
-        }
-        ?>
+    <div class="container">
         <div class="table-responsive">
             <table class="table table-condensed table-sm table-hover" id="resultsTable">
                 <thead>
@@ -25,9 +15,11 @@
                 </thead>
                 <tbody>
                     <?php
-                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Official != 0 ORDER BY Date DESC");
+                    $result = mysqli_query($con, "SELECT * FROM meets WHERE (Official != 0 OR (`Official` = 0 && `Live` != '' && `Date` = '" . $todaydate . "')) ORDER BY Date DESC");
                     while ($row = mysqli_fetch_array($result)) {
-                        if (empty($row['Series'])) {
+                        if ($row['Date'] == $todaydate) {
+                            $url = $row['Live'];
+                        } else if (empty($row['Series'])) {
                             $url = "/meet/" . $row['id'];
                         } else {
                             $url = "/meet/" . $row['Series'] . "/" . $d = date("Y", strtotime($row['Date']));
@@ -44,13 +36,18 @@
                         }
 
                         $d = date("n/j/Y", strtotime($row['Date']));
-                        echo "<tr onclick = window.location='" . $url . "#results'>";
+                        echo "<tr onclick = (window.location='" . $url . "#results')";
+                        if ($row['Date'] == $todaydate) {
+                            echo " class='row-highlight'";
+                        }
+                        echo ">";
                         echo "<td>" . $d . "</td>";
                         echo "<td><a href='" . $url . "#results'>" . $row['Name'] . $badge . "</a></td>";
-                        if (strlen($row['Opponents']) > 100) {
-                            echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='" . $row['Opponents'] . "'>" . substr($row['Opponents'], 0, 100) . "..." . "</td>";
+                        $opponents = explode(",", $row['Opponents']);
+                        if (count($opponents) > 7) {
+                            echo "<td class='col-5' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $row['Opponents'] . "'>" . join(", ", array_slice($opponents, 0, 7)) . ", +" . (count($opponents) - 7) . " more</td>";
                         } else {
-                            echo "<td>" . $row['Opponents'] . "</td>";
+                            echo "<td class='col-5'>" . $row['Opponents'] . "</td>";
                         }
                         echo "<td><a href='" . $url . "#venue'>" . $row['Location'] . "</a></td>";
                         echo "<td>" . $row['Season'] . "</td>";

@@ -17,7 +17,7 @@ if (empty($_GET["show"])) {
 ?>
 <?php include("header.php"); ?>
 
-<div class="container mt-4">
+<div class="container">
     <?php
     echo "<div class='row row-cols-1 row-cols-sm-2 row-cols-lg-3'>";
     $no_of_records_per_page = 12;
@@ -58,7 +58,13 @@ if (empty($_GET["show"])) {
             echo "<img src='assets/images/blog/blank.png' class='card-img-top' alt='" . $row['title'] . "'>";
         }
         echo "<div class='card-body'>";
-        echo "<h3 class='card-title text-center'>" . $row['title'] . "</h3>";
+
+        echo "<h3 class='card-title text-center'>" . $row['title'];
+        if (!empty($row['link'])) {
+            echo '<i class="bi bi-box-arrow-up-right ms-1"></i>';
+        }
+        echo "</h3>";
+
         if (!empty($content)) {
             echo "<p class='card-text text-center'>" . substr($content, 0, 150) . "...</p>";
         } else {
