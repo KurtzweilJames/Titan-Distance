@@ -277,13 +277,15 @@ while ($row = mysqli_fetch_array($result)) {
                 ?>
             </div>
             <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
-                <option value="" selected disabled>Select a Chart</option>
+                <option value="" selected disabled>Select a Chart to Display</option>
             </select>
             <canvas id="chartContainer" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 <script>
     if (document.getElementById("xcPersonal")) {
         const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
@@ -364,44 +366,63 @@ while ($row = mysqli_fetch_array($result)) {
         athleteChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                // labels: labels,
                 datasets: [{
                     label: "Time (secs)",
-                    data: secs,
-                    borderDash: [5, 5],
-                    backgroundColor: [
-                        'rgba(7, 55, 99, 0.1)',
-                    ],
-                    borderColor: [
-                        'rgba(7, 55, 99, 1)',
-                    ],
-                    borderWidth: 2,
-                    lineTension: 0.4,
-                    pointBackgroundColor: '#ffd700',
-                    pointRadius: 5,
-                    pointHoverRadius: 7
+                    // data: secs,
+                    data: data,
                 }]
             },
             options: {
-                title: {
-                    display: true,
-                    text: athleteName + "'s " + event + " Progression"
-                },
-                legend: {
-                    display: false,
-                },
-                tooltip: {
-                    mode: 'index',
-                    callbacks: {
-                        title: (data) => {
-                            return "Hey"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: athleteName + "'s " + event + " Progression"
+                    },
+                    legend: {
+                        display: false,
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        callbacks: {
+                            title: (context) => {
+                                return context[0].raw.meetName;
+                            },
+                            label: (context) => {
+                                return context.raw.result;
+                            },
                         }
-                    }
+                    },
+                },
+                parsing: {
+                    xAxisKey: 'date',
+                    yAxisKey: 'secs',
+                    // yAxisKey: 'result'
+                },
+                borderDash: [5, 5],
+                backgroundColor: [
+                    'rgba(7, 55, 99, 0.1)',
+                ],
+                borderColor: [
+                    'rgba(7, 55, 99, 1)',
+                ],
+                borderWidth: 2,
+                lineTension: 0.4,
+                pointBackgroundColor: '#ffd700',
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                scales: {
+                    // y: {
+                    //     type: 'time',
+                    //     time: {
+                    //         parser: 'mm:s.ss'
+                    //     }
+                    // }
                 }
             }
         });
     }
 </script>
 
-<?php $require = "charts"; ?>
+<!-- <?php $require = "charts"; ?> -->
 <?php include("footer.php"); ?>

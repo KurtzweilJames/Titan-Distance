@@ -237,7 +237,7 @@ while ($row = mysqli_fetch_array($result)) {
                 table += "<td class='col-5'></td>";
             } else {
                 opponents = schedule[x]["opponents"].toString().split(", ")
-                if (opponents.length > 7) {
+                if (opponents.length > 7 && (schedule[x].status !== "C" && schedule[x].status !== "P" && schedule[x].status !== "R")) {
                     table += "<td class='col-5' data-bs-toggle='tooltip' data-bs-placement='top' title='" + opponents.join(", ") + "'>" + opponents.slice(0, 7).join(", ") + ", + " + (opponents.length - 7) + " more</td>";
                 } else {
                     table += "<td class='col-5'>" + opponents.join(", ") + "</td>";

@@ -7,7 +7,7 @@
             <table class="table table-condensed table-sm table-hover" id="resultsTable">
                 <thead>
                     <tr>
-                        <th data-type="date" data-format="DD/MM/YYYY">Date</th>
+                        <th data-type="date" data-format="M/D/YYYY">Date</th>
                         <th>Name</th>
                         <th>Opponents</th>
                         <th>Location</th>
@@ -15,9 +15,9 @@
                 </thead>
                 <tbody>
                     <?php
-                    $result = mysqli_query($con, "SELECT * FROM meets WHERE (Official != 0 OR (`Official` = 0 && `Live` != '' && `Date` = '" . $todaydate . "')) ORDER BY Date DESC");
+                    $result = mysqli_query($con, "SELECT * FROM meets WHERE (Official != 0 OR (`Official` = 0 && `Live` != '' && `Date` = '" . $todaydate . "' && NOT(`Status` <=> 'C'))) ORDER BY Date DESC");
                     while ($row = mysqli_fetch_array($result)) {
-                        if ($row['Date'] == $todaydate) {
+                        if ($row['Date'] == $todaydate && $row['Official'] == 0) {
                             $url = $row['Live'];
                         } else if (empty($row['Series'])) {
                             $url = "/meet/" . $row['id'];

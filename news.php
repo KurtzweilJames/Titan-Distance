@@ -5,13 +5,12 @@ if (empty($page)) {
     $page = 1;
 }
 
-$show = htmlspecialchars($_GET["show"]);
 if (empty($_GET["show"])) {
     $show = "public = 1";
 } else if ($_GET["show"] == "all") {
     $show = "public = 1 OR public = 0";
 } else {
-    $show = "public = 1 AND catergory = " . $show;
+    $show = "public = 1 AND catergory = " . htmlspecialchars($_GET["show"]);
 }
 
 ?>

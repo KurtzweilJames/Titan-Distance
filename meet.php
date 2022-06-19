@@ -46,6 +46,7 @@ while ($row = mysqli_fetch_array($result)) {
     $weather = $row['Weather'];
     $levels = $row['Levels'];
     $status = $row['Status'];
+    $heat = $row['Heats'];
     $opponentsArray = explode(", ", $row['Opponents']);
     $official = $row['Official']; //Two Day
     if (!empty($row['Day2Time'])) {
@@ -203,12 +204,30 @@ echo '<script type="application/ld+json">
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
                         if ($series == "titan") {
-                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
-                            $dropdown[] = "<option value='special' name='special'>Meet Records</option>";
+                            if ($season == "Track 2022") {
+                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
+                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
+                            }
+                            echo "<a class='nav-link' id='meetrecords-tab' data-bs-toggle='pill' data-bs-target='#meetrecords' role='tab' aria-controls='meetrecords-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
+                            $dropdown[] = "<option value='meetrecords' name='meetrecords'>Meet Records</option>";
                         }
-                        if ($series == "tfsectionals" && $season == "Track 2022") {
-                            echo "<a class='nav-link' id='special-tab' data-bs-toggle='pill' data-bs-target='#special' role='tab' aria-controls='special-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Qualifying Standards</a>";
-                            $dropdown[] = "<option value='special' name='special'>Qualifying Standards</option>";
+                        if ($series == "tfsectionals" && ($season == "Track 2022" || $season == "Track 2021")) {
+                            if ($season == "Track 2022") {
+                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
+                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
+                                echo "<a class='nav-link' id='tickets' href='https://gofan.co/app/events/606809?schoolId=IL15491' role='tab' target='_blank'><i class='bi bi-ticket-fill me-1'></i>Tickets ($7)</a>";
+                                $dropdown[] = "<option value='link-https://gofan.co/app/events/606809?schoolId=IL15491' name='tickets'>Tickets ($7)</option>";
+                            }
+                            if ($season == "Track 2021") {
+                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
+                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
+                            }
+                            echo "<a class='nav-link' id='standards-tab' data-bs-toggle='pill' data-bs-target='#standards' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Qualifying Standards</a>";
+                            $dropdown[] = "<option value='standards' name='standards'>Qualifying Standards</option>";
+                        }
+                        if (!empty($heat)) {
+                            echo "<a class='nav-link' id='heat' href='" . $heat . "' role='tab' target='_blank'><i class='bi bi-clipboard-check-fill me-1'></i>Heat Sheet</a>";
+                            $dropdown[] = "<option value='link-" . $heat . "' name='heat'>Heat Sheet</option>";
                         }
                         if (!empty($live)) {
                             echo "<a class='nav-link' id='live' href='" . $live . "' role='tab' target='_blank'><i class='bi bi-bar-chart-fill me-1'></i>LIVE Results</a>";
@@ -411,7 +430,9 @@ echo '<script type="application/ld+json">
                                     echo "<table class='table table-sm'>";
                                     echo "<thead><tr><th>Place</th><th>School</th><th>Score</th></tr></thead>";
                                     while ($row = mysqli_fetch_array($result)) {
-                                        if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)") {
+                                        if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)" && $row['place'] == 1) {
+                                            echo "<tr class='row-highlight' onclick='launchConfetti()'>";
+                                        } else if ($row['school'] == "Glenbrook South" or $row['school'] == "Glenview (Glenbrook South)") {
                                             echo "<tr class='row-highlight'>";
                                         } else {
                                             echo "<tr>";
@@ -661,17 +682,34 @@ echo '<script type="application/ld+json">
                             ?>
                         </div>
 
-                        <div class="tab-pane fade" id="special" role="tabpanel" aria-labelledby="special-tab">
-                            <?php
-                            if ($series == "titan") {
-                                include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
+                        <?php
+                        if ($series == "titan") {
+                            if ($season == "Track 2022") {
+                                echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                                include $_SERVER['DOCUMENT_ROOT'] . "/includes/22titanschedule.php";
+                                echo "</div>";
                             }
-                            if ($series == "tfsectionals" && $season == "Track 2022") {
-                                include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsqualifying.php";
-                            }
-                            ?>
-                        </div>
-
+                            echo '<div class="tab-pane fade" id="meetrecords" role="tabpanel" aria-labelledby="meetrecords-tab">';
+                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
+                            echo "</div>";
+                        }
+                        if ($series == "tfsectionals" && $season == "Track 2022") {
+                            echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsschedule.php";
+                            echo "</div>";
+                            echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
+                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsqualifying.php";
+                            echo "</div>";
+                        }
+                        if ($series == "tfsectionals" && $season == "Track 2021") {
+                            echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsschedule.php";
+                            echo "</div>";
+                            echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
+                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsqualifying.php";
+                            echo "</div>";
+                        }
+                        ?>
 
                         <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                             <h2>Photos</h2>
@@ -735,7 +773,12 @@ echo '<script type="application/ld+json">
         "4x160m": "4x1 Lap Relay",
         "4x100m": "4x100m Relay",
         "DMR": "Distance Medley Relay",
-        "SMR": "Sprint Medley Relay"
+        "SMR": "Sprint Medley Relay",
+        "Throwers": "Throwers Relay",
+        "800mSMR": "800m Sprint Medley Relay",
+        "1600mSMR": "1600m Spring Medley Relay",
+        "LHR": "Low Hurdle Relay",
+        "HHR": "High Hurdle Relay"
     };
 
     var levels = {
@@ -787,30 +830,15 @@ echo '<script type="application/ld+json">
     }
 
     function generateTFTables(single) {
-        // console.log(single)
         single = single.split("-")
         var event = single[0]
         var level = single[1]
 
-        let table = "<table class='table table-sm table-striped' id='" + single + "'>";
+        let table = "<table class='table table-sm table-striped resultsTable' id='" + levels[level].toLowerCase().replace(" ", "_") + event + "Table" + "'>";
         table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Result</th><th>Team</th></tr></thead>";
         table += "<tbody>";
 
-        // var relay, relaydistance;
-
-        // if (event.includes("4x")) {
-        //     relay = true;
-        //     relaydistance = event.replace("4x", "")
-        // } else {
-        //     relay = false;
-        //     relaydistance = null;
-        // }
-
         for (let x in results) {
-            // if ((relay == false && results[x].level == level && results[x].event == event && results[x].type !== "R") || (
-            //         relay == true &&
-            //         results[x].level == level && (results[x].event == event || (results[x].event == relaydistance &&
-            //             results[x].type == "R")))) {
             if (results[x].level == level && results[x].event == event && (results[x].relay == null || results[x].name == "RELAY")) {
                 var gbs;
                 if (results[x].school == "Glenbrook South" || results[x].school == "Glenbrook South*") {
@@ -899,6 +927,16 @@ echo '<script type="application/ld+json">
                 table += "</td>";
 
                 table += "<td>" + results[x].school + "</td>";
+
+                table += "<td class='d-none splits-cell'>" + results[x].split1 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split2 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split3 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split4 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split5 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split6 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split7 + "</td>";
+                table += "<td class='d-none splits-cell'>" + results[x].split8 + "</td>";
+
                 table += "</tr>"
                 if (results[x].relay !== null) {
                     table += addRelayRows(results[x].relay)
@@ -1082,6 +1120,8 @@ echo '<script type="application/ld+json">
         table += "</table>";
 
         indresultsContainer.innerHTML += "<h4>" + levels[level] + " Results" + distance + "</h4>" + table
+
+        // indresultsContainer.innerHTML += "<h4 class='position-absolute d-none d-md-inline'>" + levels[level] + " Results" + distance + "</h4>" + table
         // new simpleDatatables.DataTable("#" + levels[level].toLowerCase().replace(" ", "_") + "Table", {
         //     searchable: true,
         //     fixedHeight: true,
@@ -1097,7 +1137,7 @@ echo '<script type="application/ld+json">
         var meetName = document.getElementById("meetName").innerHTML;
         var a = window.open('', '', 'height=2100, width=800');
         a.document.write('<html>');
-        a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;}</style></head>');
+        a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;} .d-none {display:none;}</style></head>');
         a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
         a.document.write('<h2 style="text-align: center;">' + meetName + '</h2>')
         a.document.write(divContents);
@@ -1152,7 +1192,7 @@ echo '<script type="application/ld+json">
         }
     };
 
-    function selectTab(str) {
+    function selectTab() {
         var dropdown = document.getElementById('selectTab');
         tab = "#" + dropdown.options[dropdown.selectedIndex].value + "-tab";
         if (tab.includes("link-") == false) {
