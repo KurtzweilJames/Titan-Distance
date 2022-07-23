@@ -24,50 +24,27 @@ function formatTime($time)
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
     <!-- Google Tag Manager -->
-    <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', '<?php echo $googletapmanagerkey; ?>');
-    </script>
-    <!-- End Google Tag Manager -->
 
-    <!-- Clarity tracking code for http://titandistance.com/ -->
-    <script>
-        (function(c, l, a, r, i, t, y) {
-            c[a] = c[a] || function() {
-                (c[a].q = c[a].q || []).push(arguments)
-            };
-            t = l.createElement(r);
-            t.async = 1;
-            t.src = "https://www.clarity.ms/tag/" + i + "?ref=bwt";
-            y = l.getElementsByTagName(r)[0];
-            y.parentNode.insertBefore(t, y);
-        })(window, document, "clarity", "script", "asgqo0vwc9");
-    </script>
+    <!-- Clarity tracking code -->
 
     <!-- Stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700%7CRoboto:400,500,700" rel="stylesheet" type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script> -->
 
     <!-- Simple Data Tables -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
+    <?php
+    if ($pgtitle == "Roster" || $pgtitle == "Results") {
+        echo '<script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.min.js"></script>';
+    }
+    ?>
 
     <!-- Meta Tags -->
     <title><?php if (isset($pgtitle)) {
@@ -138,8 +115,8 @@ function formatTime($time)
     <?php
     if (isset($require)) {
         if ($require == "meet") {
-            echo "<script src='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js'></script>";
-            echo "<link href='https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css' rel='stylesheet' />";
+            echo "<script src='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js'></script>";
+            echo "<link href='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css' rel='stylesheet' />";
         }
     }
     ?>
@@ -153,19 +130,19 @@ function formatTime($time)
 
         @media (min-width: 768px) {
             .tdmastheadbkg {
-                height: 400px;
+                min-height: 400px;
                 padding-right: 15%;
                 padding-left: 15%;
-                padding-top: 100px;
+                /* padding-top: 100px; */
             }
         }
 
         @media (max-width: 768px) {
             .tdmastheadbkg {
-                height: 200px;
+                min-height: 200px;
                 padding-right: 0%;
                 padding-left: 0%;
-                padding-top: 25px;
+                /* padding-top: 25px; */
             }
         }
 
@@ -179,12 +156,12 @@ function formatTime($time)
 
         .tdas {
             width: 100%;
-            padding-right: 15%;
+            /* padding-right: 15%;
             padding-left: 15%;
             padding-top: 5px;
             padding-bottom: 5px;
             margin-right: auto;
-            margin-left: auto;
+            margin-left: auto; */
         }
 
         .hover-card:hover {
@@ -395,7 +372,7 @@ function formatTime($time)
         }
 
         /* Data Tables */
-        .dataTable-table {
+        /* .dataTable-table {
             border-collapse: collapse;
         }
 
@@ -479,7 +456,7 @@ function formatTime($time)
             width: 20px !important;
             font-size: 0.75rem;
             border-radius: 0.25rem !important;
-        }
+        } */
 
         /* @media (prefers-color-scheme: dark) {
 body {
@@ -538,70 +515,23 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
             $type = $type . " clickable-row";
         }
         if (!empty($row['web'])) {
-            echo "<div class='tdas alert-" . $type . " clickable text-center pt-3 pb-3' role='alert' data-href='" . $row['link'] . "'><strong style='text-transform: uppercase;'>" . $row['title'] . ": </strong>" . $row['web'] . "</div>";
+            echo "<div id='tdas-topbar' class='tdas alert alert-" . $type . " text-center py-2 px-5' role='alert' onclick = window.location='" . $row['link'] . "'><strong style='text-transform: uppercase;'>" . $row['title'] . ": </strong>" . $row['web'] . "</div>";
         }
     }
     ?>
 
     <!-- <div class="position-fixed d-none d-md-block end-0" style="z-index: 100" onclick="launchConfetti()">
-        <img src="/assets/images/specials/champs/indoorcsl22.png" height="200" alt="CSL Conference Indoor Champions">
-    </div>
-    <div class="position-fixed d-block d-md-none" style="z-index: 100" onclick="launchConfetti()">
-        <img src="/assets/images/specials/champs/indoorcsl22.png" height="100" alt="CSL Conference Indoor Champions">
+        <img src="/assets/images/specials/champs/outdoorcsl22.png" height="200" alt="CSL Conference Champions">
+        <img src="/assets/images/specials/champs/tfsectional22.png" height="200" alt="IHSA Sectional Champions">
     </div> -->
 
     <header>
-        <div class="bg-light" id="top-bar">
-            <div class="container d-flex justify-content-between">
-                <div class="mr-auto p-2 m-0">
-                    <?php
-                    $result = mysqli_query($con, "SELECT * FROM meets WHERE Date = '" . $todaydate . "' AND Official != 1 AND Official != 2");
-                    if (isset($_SESSION["loggedin"])) {
-                        if ($template == "meet") {
-                            echo "<a href='/admin/meet?id=" . $id . "'><i class='bi bi-pencil-fill'></i> Edit Meet (ID = " . $id . ")</a><a href='/admin/results?id=" . $id . "'><i class='bi bi-list-ul ms-2'></i> Results Manager</a>";
-                        } else if ($template == "news") {
-                            echo "<a href='/admin/news?id=" . $id . "'><i class='bi bi-pencil-fill'></i> Edit News Article</a>";
-                        } else {
-                            echo "Welcome, " . $_SESSION["username"] . " <a class='ml-2' href='/admin'><i class='bi bi-gear-wide-connected'></i> Return to Admin</a>";
-                        }
-                    } else if (mysqli_num_rows($result) > 0) {
-                        while ($row = mysqli_fetch_array($result)) {
-                            if (!empty($row['Live'])) {
-                                echo "<a href='" . $row['Live'] . "'><strong>Live Results for " . $row['Name'] . " are available here.</strong></a>";
-                            } else {
-                                if ($currenttime < date("g:i a", strtotime($row['Time']))) {
-                                    echo "<a href='/meet/" . $row['id'] . "'><strong>" . $row['Name'] . " starts at " . date("g:i a", strtotime($row['Time'])) . ".</strong></a>";
-                                } else {
-                                    echo "<a href='/meet/" . $row['id'] . "'><strong>" . $row['Name'] . "</strong></a>";
-                                }
-                            }
-                            if (mysqli_num_rows($result) > 1) {
-                                echo "<br>";
-                            }
-                        }
-                    } else {
-                        echo "<div class='text-muted d-none d-md-block'>Home of Glenbrook South Cross Country and Distance Track</div>";
-                        // echo "<div class='text-muted d-none d-md-block'>Track is Back!</div>";
-                    }
-                    ?>
-                </div>
-                <?php
-                $weatherfile = file_get_contents("https://titandistance.com/api/weather.php");
-                $jsonweather = json_decode($weatherfile);
-                ?>
-                <a class="p-2 m-0 clickable-row my-auto text-reset" id="weather-widget" href="/weather" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="bottom" title="Weather: <?php echo $jsonweather->current->description; ?>
-                   <br>Feels Like: <?php echo $jsonweather->current->feelslike; ?>°F<br>Wind: <?php echo $jsonweather->current->wind; ?>mph<br>Temperature:
-                    <?php echo $jsonweather->current->temp; ?>°F">
-                    <?php
-                    echo "<span id='temp'>" . $jsonweather->current->temp . "°F</span>";
-                    echo "<i class='mb-0 mx-1 " . $jsonweather->current->icon . "'></i>";
-                    if ($jsonweather->current->wind > 10) {
-                        echo "<i class='mb-0 mx-1 bi bi-wind'></i>";
-                    }
-                    ?>
-                </a>
-            </div>
-        </div>
+        <?php
+        $result = mysqli_query($con, "SELECT * FROM meets WHERE Date = '" . $todaydate . "' AND Official = 0 AND NOT(`Status` <=> 'C')");
+        if (isset($_SESSION["loggedin"]) || mysqli_num_rows($result) > 0) {
+            include($_SERVER['DOCUMENT_ROOT'] . "/includes/topbar.php");
+        }
+        ?>
         <div class="container p-4 d-none d-md-block">
             <div class="row">
                 <div class="col-sm-4 text-center my-auto">
@@ -610,10 +540,10 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
                     <a href="https://instagram.com/TitanDistance" target="_blank"><img src="/assets/icons/instagram.svg" class="social-icons" alt="Instagram" width="32" height="32" title="Instagram"></a>
                 </div>
                 <div class="col-sm-4">
-                    <a href="/"><img src="/assets/logos/dotcom.svg" class="mx-auto img-fluid" alt="Titan Distance"></a>
+                    <a href="/home"><img src="/assets/logos/color.svg" class="mx-auto img-fluid" alt="Titan Distance"></a>
                 </div>
                 <div class="col-sm-4 text-center my-auto">
-                    <a href="https://www.athletic.net/TrackAndField/School.aspx?SchoolID=16382" target="_blank"><img src="/assets/icons/athnet.svg" class="social-icons" alt="Athletic.net" width="32" height="32" title="Athletic.net"></a>
+                    <a href="https://www.athletic.net/CrossCountry/School.aspx?SchoolID=16382" target="_blank"><img src="/assets/icons/athnet.svg" class="social-icons" alt="Athletic.net" width="32" height="32" title="Athletic.net"></a>
                     <a href="https://www.strava.com/clubs/titandistance" target="_blank"><img src="/assets/icons/strava.svg" class="social-icons" alt="Strava" width="32" height="32" title="Strava"></a>
                 </div>
             </div>
@@ -621,30 +551,43 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
         <div class="pb-1" id="top-navbar">
             <nav class="navbar navbar-expand-lg navbar-light p-md-0">
                 <div class="container">
-                    <a href="/" id="header-logo"><img src="https://titandistance.com/assets/logos/dotcom.svg" class="d-block d-md-none" height="30" alt="Titan Distance"></a>
+                    <a href="/home" id="header-logo"><img src="https://titandistance.com/assets/logos/color.svg" class="d-block d-md-none mx-auto" height="30" alt="Titan Distance"></a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
+                    <!-- <div class="position-fixed d-block d-md-none" style="z-index: 100; right:75px;"
+                        onclick="launchConfetti()">
+                        <img src="/assets/images/specials/champs/tfsectional22.png" height="100"
+                            alt="CSL Conference Champions">
+                    </div> -->
+
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav mx-auto" id="navbar_nav">
                             <li class="nav-item">
-                                <a class="nav-link" href="/">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/about">About</a>
+                                <a class="nav-link" href="/home">Home</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="/history" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="/about" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    About
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                                    <a class="dropdown-item" href="/about">Welcome</a>
+                                    <a class="dropdown-item" href="/about#coaches">Coaching Staff</a>
+                                    <a class="dropdown-item" href="/venues">Home Venues</a>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="/history" id="historyDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     History
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu" aria-labelledby="historyDropdown">
                                     <a class="dropdown-item" href="/routes">Running Routes</a>
                                     <a class="dropdown-item" href="/state">State Qualifers</a>
-                                    <a class="dropdown-item" href="/innews">In the News</a>
+                                    <!-- <a class="dropdown-item" href="/innews">In the News</a> -->
                                     <a class="dropdown-item" href="/venues">Home Venues</a>
-                                    <a class="dropdown-item" href="/roster/all">All-Time
-                                        Roster</a>
+                                    <a class="dropdown-item" href="/roster/all">All-Time Roster</a>
+                                    <a class="dropdown-item" href="/records">All Records</a>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -661,7 +604,8 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
                                     </li>
                                     <a class="dropdown-item" href="/records/outdoor10">Outdoor Top 10</a>
                                     <a class="dropdown-item" href="/records/indoor10">Indoor Top 10</a>
-                                    <a class="dropdown-item" href="/records/distance">Distance by Class</a>
+                                    <a class="dropdown-item" href="/records/class">Class Records</a>
+                                    <!-- <a class="dropdown-item" href="/records/distance">Distance by Class</a> -->
                                 </ul>
                             </li>
                             <li class="nav-item">
