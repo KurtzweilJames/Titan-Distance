@@ -9,9 +9,9 @@ while ($row = mysqli_fetch_array($result)) {
 
 <section id="content">
     <div class="container">
-        <div class="d-flex justify-content-between mb-2">
-            <i class="my-auto">*Schedule is subject to change.</i>
-            <div class="form-group d-none d-md-block">
+        <div class="d-flex justify-content-between mb-2 flex-wrap">
+            <i class="my-auto order-2 order-md-1">*Schedule is subject to change.</i>
+            <div class="form-group order-1 order-md-2 mx-auto">
                 <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                     <option value="" disabled>Select a Season:</option>
                     <?php
@@ -26,7 +26,7 @@ while ($row = mysqli_fetch_array($result)) {
                     ?>
                 </select>
             </div>
-            <button type="button" class="btn btn-primary btn-sm text-center" data-bs-toggle="modal" data-bs-target="#addModal">
+            <button type="button" class="btn btn-primary btn-sm text-center order-3" data-bs-toggle="modal" data-bs-target="#addModal">
                 <i class="bi bi-calendar-plus-fill me-1"></i>Add to Your Calendar
             </button>
         </div>
@@ -71,7 +71,7 @@ while ($row = mysqli_fetch_array($result)) {
     <div id='calendar'></div>
     <div class="my-3 d-flex justify-content-center">
         <a class="btn btn-primary mx-2" href="https://www.rschoolillinois.org/public/genie/1258/school/2564/" role="button" target="_blank" id="gbsButton">GBS Athletics Schedule</a>
-        <button type="button" class="btn btn-secondary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Schedule</button>
+        <button type="button" class="btn btn-secondary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Meet Schedule</button>
     </div>
 </div>
 
@@ -174,6 +174,7 @@ while ($row = mysqli_fetch_array($result)) {
         a.document.write('<html>');
         a.document.write('<head><title>' + season + ' Schedule</title><style>.badge {display:none;} button {display:none;} .dataTable-bottom {display:none;} a {text-decoration: none; color: inherit;} .dataTable-top {display:none;} table {width:100%;text-align: center;} h3 {text-align: center; font-size: 18px;}</style></head>');
         a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
+        a.document.write('<h3>' + season + ' Schedule</h3>')
         a.document.write(divContents.replace("style=", "data-td-style="));
         a.document.write('</pre></body></html>');
         a.document.close();

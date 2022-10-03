@@ -22,7 +22,7 @@ while ($row = mysqli_fetch_array($result)) {
                 } else {
                     $title = $row['title'];
                 }
-                echo "<div class='col mb-4'>";
+                echo "<div class='col mb-4 p-1 p-md-2'>";
                 echo "<a class='card hover-card text-reset' href='" . $row['link'] . "' target='_blank'>";
                 echo "<div class='badge bg-award-inv position-absolute' style='top: 0.5rem; right: 0.5rem'>" . date("F j, Y", strtotime($row['date'])) . "</div>";
                 if (!empty($row['cover'])) {

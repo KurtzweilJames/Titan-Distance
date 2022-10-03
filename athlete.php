@@ -25,6 +25,7 @@ while ($row = mysqli_fetch_array($result)) {
     $athnet = $row['athnet'];
     $captain = $row['captain'];
     $awards = $row['awards'];
+    $tfrrs = $row['tfrrs'];
 }
 
 if ($redir == 1) {
@@ -128,6 +129,7 @@ while ($row = mysqli_fetch_array($result)) {
 
             echo "<hr class='mr-md-4'>";
 
+            $displayedAwards = false;
             $possible = ["xc_allconf" => "XC All-Conference", "tf_allconf" => "TF All-Conference", "xc_mvp" => "XC MVP", "tf_mvp" => "TF MVP", "xc_allstate" => "XC All-State", "tf_allstate" => "TF All-State", "xc_allsectional" => "XC All-Sectional", "tf_allsectional" => "TF All-Sectional", "xc_allregional" => "XC All-Regional", "xc_improved" => "XC Most Improved", "xc_spirited" => "XC Most Spirited", "xc_ironman" => "XC Dave Pasquini \"Mr. Ironman\"", "xc_sportsmanship" => "CSL Sportsmanship", "xc_goldbrick" => "Goldbrick"];
             $result = mysqli_query($con, "SELECT * FROM athletes WHERE profile='" . $profile . "'");
             while ($row = mysqli_fetch_array($result)) {
@@ -152,16 +154,25 @@ while ($row = mysqli_fetch_array($result)) {
                             echo $a . " (" . $y . ")";
                             echo "</span>";
                         }
+                        $displayedAwards = true;
                     }
                 }
             }
 
-            if (!empty($athnet)) {
+            if ($displayedAwards == true) {
                 echo "<hr class='mr-md-4'>";
+            }
+
+            if (!empty($athnet)) {
                 echo "<a class='btn btn-primary btn-sm mx-1' href='https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net XC</a>";
                 echo "<a class='btn btn-primary btn-sm mx-1' href='https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net TF</a>";
             }
+
+            if (!empty($tfrrs)) {
+                echo "<a class='btn btn-primary btn-sm mx-1' href='" . $tfrrs . "' role='button' target='_null' data-bs-toggle='tooltip' data-bs-title='Collegiate Results'>TFRRS</a>";
+            }
             ?>
+            <a class="btn btn-link btn-sm my-2" href="https://forms.gle/EByhzQ8kp2baHcBm9" role="button" target="_blank">Update Profile Info</a>
             <hr class="d-block d-md-none">
         </div>
         <div class="col-md-9 p-md-1">

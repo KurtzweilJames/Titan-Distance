@@ -66,11 +66,11 @@ if (!empty($meet)) {
 
 <div class="container my-4">
     <div class="post-head text-center text-md-start">
-        <h1><?php echo $title; ?></h1>
+        <h1 id="title"><?php echo $title; ?></h1>
         <hr>
         <nav aria-label="meta">
             <ol class="meta">
-                <li class="meta-item"><i class="bi bi-calendar-fill"></i> <?php echo $date; ?></li>
+                <li class="meta-item" id="date"><i class="bi bi-calendar-fill"></i> <?php echo $date; ?></li>
                 <?php
                 if (!empty($author)) {
                     echo "<li class='meta-item'><i class='bi bi-person-circle'></i>" . $author . "</li>";
@@ -132,13 +132,15 @@ if (!empty($meet)) {
 </div>
 <script>
     function printRelease() {
-        var divContents = document.getElementById("articleContainer").innerHTML;
         var a = window.open('', '', 'height=2100, width=800');
         a.document.write('<html>');
-        a.document.write('<head><title></title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;}</style></head>');
-        a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
-        a.document.write(divContents);
-        a.document.write('</pre></body></html>');
+        a.document.write('<head><link href="https://fonts.googleapis.com/css2?family=Balthazar&amp;display=swap" rel="stylesheet"><style>    body {        font-family: "Balthazar", serif;        color: #073763;    }    .header {        padding-top: 10px;        padding-bottom: 10px;        display: block;        height: 60px;    }    @media print {        html {            width: 100%;        }    }    @media screen {        .paper {            width: 800px;        }    }    .logo {        width: 50%;        float: left;        display: block;        margin-left: auto;        margin-right: auto;    }    .contact {        width: 50%;        float: right;        text-align: center;        font-size: 18px;        font-weight: bold;    }    .title {        font-size: 32px;        font-weight: bold;        text-align: center;    }    .meta {        font-size: 18px;        font-weight: bold;        text-align: center;        margin-top: -20px;    }    .release {        display: block;        font-size: 18px;    }    .end,    .btn {        text-align: center;    }    span {        font-weight: normal;    }    </style></head>');
+        a.document.write('<body onafterprint="window.close()"><div class="paper"><div class="header"><a href="https://titandistance.com"><img class="logo" alt="Titan Distance" src="/assets/logos/color.svg"></a><div class="contact">Titan Distance PR Committee<br>Glenbrook South H.S.<br><span>Cross Country and Distance Track</span></div></div><div class="release">');
+        a.document.write('<h1 class="title">' + document.getElementById('title').innerHTML + '</h1>')
+        a.document.write('<h2 class="meta">For Immediate Release: ' + document.getElementById('date').innerHTML + '</h2>')
+        a.document.write('<div class="text">' + document.getElementById("articleContainer").innerHTML + '</div>');
+        a.document.write('<br><br><div class="end">###</div><br><br><div class="about"><strong>TitanDistance.com</strong> is a website made by the runners dedicated to publishing information about Glenbrook South High School\'s (Glenview, ILL.) Cross Country and Distance Track teams. All articles, posts, multimedia, and other forms of content do not necessarily represent the viewpoints of Glenbrook South High School, Northfield Township High School District 225, or the coaching staff.</div>')
+        a.document.write('</div></div></body></html>');
         a.document.close();
     }
 </script>

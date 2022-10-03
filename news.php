@@ -56,12 +56,16 @@ if (empty($_GET["show"])) {
         } else {
             echo "<img src='assets/images/blog/blank.png' class='card-img-top' alt='" . $row['title'] . "'>";
         }
+        if (!empty($row['link'])) {
+            echo '<div class="badge bg-award-inv position-absolute" style="top: 0.5rem; right: 0.5rem" data-bs-toggle="tooltip" data-bs-title="External Link"><i class="bi bi-box-arrow-up-right h6"></i></div>';
+        }
+
         echo "<div class='card-body'>";
 
         echo "<h3 class='card-title text-center'>" . $row['title'];
-        if (!empty($row['link'])) {
-            echo '<i class="bi bi-box-arrow-up-right ms-1"></i>';
-        }
+        // if (!empty($row['link'])) {
+        //     echo '<i class="bi bi-box-arrow-up-right ms-1"></i>';
+        // }
         echo "</h3>";
 
         if (!empty($content)) {

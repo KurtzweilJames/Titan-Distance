@@ -47,6 +47,7 @@ while ($row = mysqli_fetch_array($result)) {
     $levels = $row['Levels'];
     $status = $row['Status'];
     $heat = $row['Heats'];
+    $schedule = $row['Schedule'];
     $opponentsArray = explode(", ", $row['Opponents']);
     $official = $row['Official']; //Two Day
     if (!empty($row['Day2Time'])) {
@@ -192,7 +193,10 @@ echo '<script type="application/ld+json">
                             echo "<a class='nav-link' id='dscores-tab' data-bs-toggle='pill' data-bs-target='#dscores' role='tab' aria-controls='dscores-tab' aria-selected='false'><i class='bi bi-list-stars me-1'></i>Distance Scores</a>";
                             $dropdown[] = "<option value='dscores' name='dscores'>Distance Scores</option>";
                         }
-
+                        if (!empty($schedule)) {
+                            echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Meet Schedule</a>";
+                            $dropdown[] = "<option value='schedule' name='schedule'>Meet Schedule</option>";
+                        }
                         if ($location == "David Pasquini Fieldhouse" or $location == "John Davis Titan Stadium" or $location == "Glenbrook South High School") {
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>" . $location . "</a>";
                             $dropdown[] = "<option value='venue' name='venue'>" . $location . "</option>";
@@ -246,8 +250,8 @@ echo '<script type="application/ld+json">
                             $dropdown[] = "<option value='link-" . $results . "' name='results'>Download Results</option>";
                         }
                         if (!empty($athnet)) {
-                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'>Athletic.net Page<i class='bi bi-box-arrow-in-up-right ms-1'></i></a>";
-                            $dropdown[] = "<option value='link-" . $athnet . "' name='athnet'>Athletic.net</option>";
+                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'><img src='https://s3.amazonaws.com/media.athletic.net/athletic-logos/square/logo-gradient.svg' class='me-1 my-auto' width='14px'>AthleticNET Page</a>";
+                            $dropdown[] = "<option value='link-" . $athnet . "' name='athnet'>AthleticNET</option>";
                         }
                         if (!empty($website)) {
                             echo "<a class='nav-link' id='homepage' href='" . $website . "' role='tab' target='_blank'>Meet Website<i class='bi bi-box-arrow-in-up-right ms-1'></i></a>";
@@ -401,7 +405,7 @@ echo '<script type="application/ld+json">
                             ?>
 
                             <div class="mt-3" id="indresultsContainer">
-                                <p>Please select an event from the dropdown above.</p>
+                                <p>Please select an event/division from the dropdown above.</p>
                             </div>
                         </div>
 
@@ -520,7 +524,7 @@ echo '<script type="application/ld+json">
                         </div>
                         <div class="tab-pane fade" id="venue" role="tabpanel" aria-labelledby="venue-tab">
                             <?php
-                            $result = mysqli_query($con, "SELECT * FROM locations WHERE name='" . $location . "'");
+                            $result = mysqli_query($con, 'SELECT * FROM locations WHERE name="' . $location . '"');
                             if (mysqli_num_rows($result) !== 0) {
                                 while ($row = mysqli_fetch_array($result)) {
                                     if ($location == "John Davis Titan Stadium") {
@@ -647,22 +651,19 @@ echo '<script type="application/ld+json">
                                             </thead>
                                             <tbody>";
 
-                                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' ORDER BY Date DESC");
+                                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' AND Date <= '" . $todaydate . "'ORDER BY Date DESC");
                                         while ($row = mysqli_fetch_array($result)) {
                                             //Badge
-                                            if (!empty($row['Badge'])) {
-                                                if ($row['Badge'] == 1) {
-                                                    $badge = " <span class='badge bg-csl' data-bs-toggle='tooltip' data-bs-placement='top' title='Central Suburban League'>CSL</span>";
-                                                } else if ($row['Badge'] == 2) {
-                                                    $badge = " <span class='badge bg-ihsa' data-bs-toggle='tooltip' data-bs-placement='top' title='Illinois High School Association'>IHSA</span>";
-                                                } else if ($row['Badge'] == 3) {
-                                                    $badge = " <span class='badge bg-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Time Trial'>TT</span>";
-                                                }
+                                            if (array_key_exists($row['Badge'], $badges)) {
+                                                $badge = "<span class='ms-1 badge " . $badges[$row['Badge']][0] . "' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $badges[$row['Badge']][2] . "'>" . $badges[$row['Badge']][1] . "</span>";
                                             } else {
                                                 $badge = "";
                                             }
+                                            if ($row['Official'] == "3") {
+                                                $badge = $badge . "<span class='badge bg-danger ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Results marked as Unofficial, and may not be complete.'>U</span>";
+                                            }
                                             echo "<tr>";
-                                            echo "<td>" . $row["Date"] . "</td>";
+                                            echo "<td>" . date("n/j/y", strtotime($row['Date'])) . "</td>";
                                             echo "<td><a href='/meet/" . $row['id'] . "'>" . $row['Name'] . $badge . "</a></td>";
                                             echo "<td>" . $row["Season"] . "</td>";
                                             echo "</tr>";
@@ -707,6 +708,49 @@ echo '<script type="application/ld+json">
                             echo "</div>";
                             echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
                             include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsqualifying.php";
+                            echo "</div>";
+                        }
+                        if (!empty($schedule)) {
+                            echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                            echo '<h2>Meet Schedule</h2>';
+                            $scheduleArray = json_decode($schedule);
+                            $scheduleEvents = $scheduleArray->events;
+                            $scheduleSetup = $scheduleArray->setup;
+                            echo "<table class='table'>";
+                            if ($scheduleSetup->caption) {
+                                echo "<caption>" . $scheduleSetup->caption . "</caption>";
+                            }
+                            echo "<thead><tr>";
+                            if ($scheduleSetup->time == true) {
+                                echo "<th>Time</th>";
+                            }
+                            echo "<th>Event</th>";
+                            if ($scheduleSetup->heats == true) {
+                                echo "<th>Heats</th>";
+                            }
+                            if ($scheduleSetup->automark == true) {
+                                echo "<th>Auto Qualifying Mark</th>";
+                            }
+                            echo "</tr></thead>";
+                            foreach ($scheduleEvents as $d) {
+                                if ($d->highlight && $d->highlight == true) {
+                                    echo "<tr class='row-highlight'>";
+                                } else {
+                                    echo "<tr>";
+                                }
+                                if ($scheduleSetup->time && $scheduleSetup->time == true) {
+                                    echo "<td>" . $d->time . "</td>";
+                                }
+                                echo "<td>" . $d->event . "</td>";
+                                if ($scheduleSetup->heats && $scheduleSetup->heats == true) {
+                                    echo "<td>" . $d->heats . "</td>";
+                                }
+                                if ($scheduleSetup->automark && $scheduleSetup->automark == true) {
+                                    echo "<td>" . $d->automark . "</td>";
+                                }
+                                echo "</tr>";
+                            }
+                            echo "</table>";
                             echo "</div>";
                         }
                         ?>
@@ -906,21 +950,16 @@ echo '<script type="application/ld+json">
                     table += results[x].result;
                 }
                 if (results[x].pr == 1) {
-                    table +=
-                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                    table += "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
-                    table +=
-                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                    table += "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
-                    table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                    table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
                 } else if (results[x].tags == "IQ") {
-                    table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                    table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                 } else if (results[x].tags == "All-Conf") {
-                    table +=
-                        "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+                    table += "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
                 } else if (results[x].tags !== null) {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
@@ -960,9 +999,9 @@ echo '<script type="application/ld+json">
             if (results[x].relay == relayNo && results[x].name !== "RELAY") {
 
                 if (INDVhighlightSwitch.checked == true) {
-                    table += "<tr class='row-highlight'>";
+                    table += "<tr class='row-highlight' data-td-resultid='" + results[x].id + "'>";
                 } else {
-                    table += "<tr class='row-nohighlight'>";
+                    table += "<tr class='row-nohighlight' data-td-resultid='" + results[x].id + "'>";
                 }
 
                 table += "<th></th>";
@@ -998,20 +1037,20 @@ echo '<script type="application/ld+json">
                 }
                 if (results[x].pr == 1) {
                     table +=
-                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
                     table +=
-                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
                     table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Team Qualifier'>TQ</span>";
                 } else if (results[x].tags == "IQ") {
                     table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Individual Qualifier'>IQ</span>";
                 } else if (results[x].tags == "All-Conf") {
                     table +=
-                        "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+                        "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='All Conference'>All-Conf</span>";
                 } else if (results[x].tags !== null) {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
@@ -1054,12 +1093,12 @@ echo '<script type="application/ld+json">
 
                 if (gbs == true) {
                     if (INDVhighlightSwitch.checked == true) {
-                        table += "<tr class='row-highlight'>";
+                        table += "<tr class='row-highlight' data-td-resultid='" + results[x].id + "'>";
                     } else {
-                        table += "<tr class='row-nohighlight'>";
+                        table += "<tr class='row-nohighlight' data-td-resultid='" + results[x].id + "'>";
                     }
                 } else {
-                    table += "<tr>";
+                    table += "<tr data-td-resultid='" + results[x].id + "'>";
                 }
 
                 if (results[x].place == null) {
@@ -1091,21 +1130,16 @@ echo '<script type="application/ld+json">
                 table += "<td>";
                 table += results[x].time;
                 if (results[x].pr == 1) {
-                    table +=
-                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                    table += "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
-                    table +=
-                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                    table += "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
-                    table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
+                    table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Team Qualifier'>TQ</span>";
                 } else if (results[x].tags == "IQ") {
-                    table +=
-                        "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
+                    table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Individual Qualifier'>IQ</span>";
                 } else if (results[x].tags == "All-Conf") {
-                    table +=
-                        "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
+                    table += "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='All Conference'>All-Conf</span>";
                 } else if (results[x].tags !== null) {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
@@ -1228,21 +1262,22 @@ echo '<script type="application/ld+json">
         <?php
         if (!empty($geojson)) {
             echo "map.addSource(\"course\", {
-        type: 'geojson',
-        data: '/assets/geojson/" . $geojson . ".geojson'
-    });
+                 type: 'geojson',
+                 data: '/assets/geojson/" . $geojson . ".geojson'
+             });
 
-    map.addLayer({
-        id: \"course\",
-        source: \"course\",
-        type: 'line',
-        'paint': {
-            'line-width': 5,
-            'line-color': '#073763',
-            'line-opacity': 0.9
+             map.addLayer({
+                 id: \"course\",
+                 source: \"course\",
+                 type: 'line',
+                 'paint': {
+                     'line-width': 5,
+                     'line-color': '#073763',
+                     'line-opacity': 0.9
+                 }
+             });";
         }
-    });";
-        }
+
         ?>
     })
 </script>
