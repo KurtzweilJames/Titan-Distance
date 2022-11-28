@@ -1,8 +1,12 @@
 <?php
 $pgtitle = "Page not Found";
 http_response_code(404);
-$from = htmlspecialchars($_GET["from"]);
-$id = htmlspecialchars($_GET["id"]);
+if (!empty($_GET["from"])) {
+    $from = htmlspecialchars($_GET["from"]);
+}
+if (!empty($_GET["id"])) {
+    $id = htmlspecialchars($_GET["id"]);
+}
 ?>
 <?php include("header.php"); ?>
 <div class="container my-4">

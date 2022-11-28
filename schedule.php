@@ -1,7 +1,7 @@
 <?php $pgtitle = "Schedule"; ?>
 <?php include("header.php"); ?>
 <?php
-$result = mysqli_query($con, "SELECT UNIQUE Season FROM meets ORDER BY Date DESC");
+$result = mysqli_query($con, "SELECT DISTINCT(Season) FROM meets ORDER BY Date DESC");
 while ($row = mysqli_fetch_array($result)) {
     $allSeasons[] = $row['Season'];
 }
@@ -12,7 +12,7 @@ while ($row = mysqli_fetch_array($result)) {
         <div class="d-flex justify-content-between mb-2 flex-wrap">
             <i class="my-auto order-2 order-md-1">*Schedule is subject to change.</i>
             <div class="form-group order-1 order-md-2 mx-auto">
-                <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
+                <select class="form-select mb-2 m-md-0" id="SeasonSelect" onchange="showSeason(this.value)">
                     <option value="" disabled>Select a Season:</option>
                     <?php
                     foreach ($allSeasons as $s) {
@@ -71,7 +71,7 @@ while ($row = mysqli_fetch_array($result)) {
     <div id='calendar'></div>
     <div class="my-3 d-flex justify-content-center">
         <a class="btn btn-primary mx-2" href="https://www.rschoolillinois.org/public/genie/1258/school/2564/" role="button" target="_blank" id="gbsButton">GBS Athletics Schedule</a>
-        <button type="button" class="btn btn-secondary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Meet Schedule</button>
+        <button type="button" class="btn btn-primary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Meet Schedule</button>
     </div>
 </div>
 

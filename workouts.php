@@ -16,8 +16,9 @@ if (!empty($_GET["date"])) {
     }
     $saturdaydate = date('Y-m-d', strtotime('next sunday'));
 }
-
-$strava = $_GET["strava"];
+if (isset($_GET["strava"])) {
+    $strava = $_GET["strava"];
+}
 ?>
 <section id="content">
     <div class="container mt-4">
@@ -103,17 +104,19 @@ $strava = $_GET["strava"];
                             echo " <span class='badge bg-primary'>" . $row['strides'] . " strides</span>";
                         }
                         if (empty($row['weights']) && empty($row['strides']) && !empty($row['notes'])) {
-                            echo "<br>";
+                            // echo "<br>";
                         }
                         if (!empty($row['notes'])) {
                             echo "*" . $row['notes'];
                         }
 
                         //STRAVA
-                        $metric = $row['1mileage'] * 1;
-                        $start = $row['date'] . " " . $row['practicetime'];
-                        $start = date('Y-m-d', strtotime($row['date'])) . 'T' . date("H:i:s", strtotime($row['practicetime']));
-                        $elapsed = $row['1mileage'] * 420;
+                        if (is_int($row['1mileage'])) {
+                            $metric = $row['1mileage'] * 1;
+                            $start = $row['date'] . " " . $row['practicetime'];
+                            $start = date('Y-m-d', strtotime($row['date'])) . 'T' . date("H:i:s", strtotime($row['practicetime']));
+                            $elapsed = $row['1mileage'] * 420;
+                        }
                         echo "</td>";
                         if (!empty($_SESSION["strava"])) {
                             echo "<th><button type='button' class='btn btn-strava btn-sm' data-bs-toggle='modal' data-bs-target='#stravaModal' onClick='showStrava(\"" . $row['workout'] . "\",\"" . $row['1mileage'] . "\",\"" . $start . "\")'><i class='bi bi-strava'></i></button></th>";

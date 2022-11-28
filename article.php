@@ -1,17 +1,19 @@
-<?php include("db.php"); ?>
 <?php
-$template = "news";
-$id = htmlspecialchars($_GET["id"]);
-$slug = htmlspecialchars($_GET["slug"]);
+include("db.php");
 
-if (!empty($id)) {
-    $result = mysqli_query($con, "SELECT * FROM news WHERE id='" . $id . "'");
-} else if (!empty($slug)) {
-    $result = mysqli_query($con, "SELECT * FROM news WHERE slug='" . $slug . "'");
+$template = "news";
+
+if (!empty($_GET["id"])) {
+    $result = mysqli_query($con, "SELECT * FROM news WHERE id='" . $_GET["id"] . "'");
+} else if (!empty($_GET["slug"])) {
+    $result = mysqli_query($con, "SELECT * FROM news WHERE slug='" . $_GET["slug"] . "'");
+} else {
+    header('Location: https://titandistance.com/notfound?from=news');
+    exit;
 }
 
 if (mysqli_num_rows($result) == 0) {
-    header('Location: https://titandistance.com/notfound?from=news&slug=' . $slug);
+    header('Location: https://titandistance.com/notfound?from=news&slug=' . $_GET["slug"]);
     exit;
 }
 
@@ -32,6 +34,10 @@ while ($row = mysqli_fetch_array($result)) {
 
     if (empty($id)) {
         $id = $row['id'];
+    }
+
+    if (empty($slug)) {
+        $slug = $row['slug'];
     }
 
     if (!empty($row['link'])) {

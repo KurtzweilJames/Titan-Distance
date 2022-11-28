@@ -1,32 +1,29 @@
 <?php $pgtitle = "Roster"; ?>
 <?php include("header.php"); ?>
-<?php
-$id = htmlspecialchars($_GET["id"]);
-?>
 
 <div class="container h-100">
     <div class="row">
-        <div class="col-md-10 text-center text-md-start">
+        <div class="col-md-9 text-center text-md-start">
             <p>Only results imported into our database are displayed, so some discrepancies will arise. Individual
                 Season rosters show the best times for that season, while the All-Time rosters show Personal
                 Records. At this time, only <span data-bs-toggle="tooltip" data-bs-placement="top" title="Athletes who competed in a 800m, 1600m, 3200m, 3mi, 2mi, or 5k"> Distance athletes</span>
                 will be shown in our rosters.</p>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
                 <option value="xc22" name="xc22">2022 Cross Country</option>
-                <option value="tf22" name="tf22">2022 Track</option>
+                <option value="tf22" name="tf22">2022 Distance Track</option>
                 <option value="xc21" name="xc21">2021 Cross Country</option>
-                <option value="tf21" name="tf21">2021 Track</option>
+                <option value="tf21" name="tf21">2021 Distance Track</option>
                 <option value="xc20" name="xc20">2020 Cross Country</option>
-                <option value="tf20" name="tf20">2020 Track</option>
+                <option value="tf20" name="tf20">2020 Distance Track</option>
                 <option value="xc19" name="xc19">2019 Cross Country</option>
-                <option value="tf19" name="tf19">2019 Track</option>
+                <option value="tf19" name="tf19">2019 Distance Track</option>
                 <option value="xc18" name="xc18">2018 Cross Country</option>
-                <option value="tf18" name="tf18">2018 Track</option>
+                <option value="tf18" name="tf18">2018 Distance Track</option>
                 <option value="xc17" name="xc17">2017 Cross Country</option>
-                <option value="tf17" name="tf17">2017 Track</option>
+                <option value="tf17" name="tf17">2017 Distance Track</option>
                 <option value="xc16" name="xc16">2016 Cross Country</option>
                 <option value="all" name="all">All Time</option>
             </select>
@@ -39,9 +36,8 @@ $id = htmlspecialchars($_GET["id"]);
         </p>
     </div>
     <div class="container text-center mt-1">
-        <p>*Have missing results or notice an issue? <a href="https://forms.gle/WBJbebPNkvjz3XQB9" target="_blank">Please fill out this form for manual review.</a></p>
-        <a class="btn btn-primary" href="https://forms.gle/WBJbebPNkvjz3XQB9" role="button" target="_blank">Request
-            Correction</a>
+        <p>*Have missing results or notice an issue? <a href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction" target="_blank">Please fill out this form for manual review.</a></p>
+        <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction" role="button" target="_blank">Request Correction</a>
     </div>
 
     <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasAthlete" aria-labelledby="offcanvasAthleteLabel">
@@ -136,7 +132,6 @@ $id = htmlspecialchars($_GET["id"]);
             }
         }
 
-
         function generateRosterTable(sport, year) {
             if (sport == "All") {
                 season = "All Time"
@@ -213,6 +208,24 @@ $id = htmlspecialchars($_GET["id"]);
             activateTooltips()
         }
 
+        function generateRosterCards(sport, year) {
+            if (sport == "All") {
+                season = "All Time"
+            } else {
+                season = sport + " 20" + year
+            }
+
+            tableContainer.innerHTML = "";
+            tableContainer.innerHTML += "<h3>" + season + " Roster</h3>";
+            let cards = "<div class='row row-cols-2 row-cols-md-3 row-cols-lg-4'>";
+            for (let x in roster) {
+                cards += '<div class="col mb-4 p-1 p-md-2" onClick = "athleteFlyout(\'' + roster[x].profile + '\',\'' + x + '\',\'' + sport + '\')"><div class="card hover-card"><img src="' + roster[x].image + '" class="card-img-top">';
+                cards += '</div></div>';
+            }
+            cards += "</div>";
+            tableContainer.innerHTML += cards
+        }
+
         function athleteFlyout(profile, row, sport) {
             var myOffcanvas = document.getElementById('offcanvasAthlete')
             var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas)
@@ -224,7 +237,7 @@ $id = htmlspecialchars($_GET["id"]);
             document.getElementById("athleteName").innerHTML = roster[row].name;
             document.getElementById("athleteClass").innerHTML = "Class of " + roster[row].class;
             if (roster[row].college) {
-                document.getElementById("athleteCollege").innerHTML = roster[row].college;
+                document.getElementById("athleteCollege").innerHTML = roster[row].college.replace(";", ", ");
             } else {
                 document.getElementById("athleteCollege").innerHTML = "";
             }

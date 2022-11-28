@@ -1,11 +1,27 @@
-<?php include("db.php"); ?>
 <?php
-$id = htmlspecialchars($_GET["id"]);
-$name = htmlspecialchars($_GET["name"]);
-$profile = htmlspecialchars($_GET["profile"]);
+
+include("db.php");
+
+if (!empty($_GET["id"])) {
+    $id = htmlspecialchars($_GET["id"]);
+} else {
+    $id = null;
+}
+if (!empty($_GET["name"])) {
+    $name = htmlspecialchars($_GET["name"]);
+} else {
+    $name = null;
+}
+if (!empty($_GET["profile"])) {
+    $profile = htmlspecialchars($_GET["profile"]);
+} else {
+    $profile = null;
+}
 
 if (!empty($name) or !empty($id)) {
     $redir = 1;
+} else {
+    $redir = 0;
 }
 
 $result = mysqli_query($con, "SELECT * FROM athletes WHERE id='" . $id . "' OR name='" . $name . "' OR profile='" . $profile . "'");
@@ -90,19 +106,21 @@ while ($row = mysqli_fetch_array($result)) {
                 $grade = " (So.)";
             } else if ($class == $y + 2003) {
                 $grade = " (Fr.)";
+            } else {
+                $grade = null;
             }
 
             echo "<h3>" . $name . "</h3>";
             echo "<h4>Class of " . $class . $grade . "</h4>";
             if (!empty($college)) {
                 $json = json_decode(file_get_contents("api/collegelogos.json"), true);
-                $colleges = explode(",", $college);
+                $colleges = explode(";", $college);
                 foreach ($colleges as $c) {
                     echo "<h5>";
                     echo $c;
                     $c = str_replace(" (DI)", "", $c);
                     $c = str_replace(" (DIII)", "", $c);
-                    if ($json[$c]) {
+                    if (!empty($json[$c])) {
                         echo "<img class='ms-1' src='/assets/logos/colleges/" . $json[$c]["logo"] . "' height='14px'>";
                     }
                     echo "</h5>";
@@ -112,18 +130,18 @@ while ($row = mysqli_fetch_array($result)) {
             //     echo "<h5>Team Points: ".$teampoints."</h5>";
             // }
 
-            if ($prs["3mi"] < "15:00:00" && !empty($prs['3mi'])) {
+            if (!empty($prs['3mi']) && $prs["3mi"] < "15:00:00") {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
-            } else if ($prs["3mi"] < "16:00:00" && !empty($prs['3mi'])) {
+            } else if (!empty($prs['3mi']) && $prs["3mi"] < "16:00:00") {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
             }
-            if ($prs["3200m"] < "10:00" && !empty($prs["3200m"])) {
+            if (!empty($prs["3200m"]) && $prs["3200m"] < "10:00") {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
             }
-            if ($prs["1600m"] < "5:00" && !empty($prs["1600m"])) {
+            if (!empty($prs["1600m"]) && $prs["1600m"] < "5:00") {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
             }
-            if ($prs["800m"] < "2:00" && !empty($prs["800m"])) {
+            if (!empty($prs["800m"]) && $prs["800m"] < "2:00") {
                 echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
             }
 
@@ -164,15 +182,15 @@ while ($row = mysqli_fetch_array($result)) {
             }
 
             if (!empty($athnet)) {
-                echo "<a class='btn btn-primary btn-sm mx-1' href='https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net XC</a>";
-                echo "<a class='btn btn-primary btn-sm mx-1' href='https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net TF</a>";
+                echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net XC</a>";
+                echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net TF</a>";
             }
 
             if (!empty($tfrrs)) {
-                echo "<a class='btn btn-primary btn-sm mx-1' href='" . $tfrrs . "' role='button' target='_null' data-bs-toggle='tooltip' data-bs-title='Collegiate Results'>TFRRS</a>";
+                echo "<a class='btn btn-td btn-sm mx-1' href='" . $tfrrs . "' role='button' target='_null' data-bs-toggle='tooltip' data-bs-title='Collegiate Results'>TFRRS</a>";
             }
             ?>
-            <a class="btn btn-link btn-sm my-2" href="https://forms.gle/EByhzQ8kp2baHcBm9" role="button" target="_blank">Update Profile Info</a>
+            <a class="btn btn-link btn-sm my-2" href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Profile+Update" role="button" target="_blank">Update Profile Info</a>
             <hr class="d-block d-md-none">
         </div>
         <div class="col-md-9 p-md-1">
@@ -294,9 +312,10 @@ while ($row = mysqli_fetch_array($result)) {
         </div>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script>
     if (document.getElementById("xcPersonal")) {
         const xcPersonal = new simpleDatatables.DataTable("#xcPersonal", {})
@@ -404,6 +423,17 @@ while ($row = mysqli_fetch_array($result)) {
                             },
                         }
                     },
+                    zoom: {
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                            },
+                            pinch: {
+                                enabled: true
+                            },
+                            mode: 'xy',
+                        }
+                    }
                 },
                 parsing: {
                     xAxisKey: 'date',
@@ -423,12 +453,15 @@ while ($row = mysqli_fetch_array($result)) {
                 pointRadius: 5,
                 pointHoverRadius: 7,
                 scales: {
-                    // y: {
-                    //     type: 'time',
-                    //     time: {
-                    //         parser: 'mm:s.ss'
-                    //     }
-                    // }
+                    x: {
+                        type: 'time',
+                    },
+                    y: {
+                        type: 'time',
+                        time: {
+                            unit: 'second',
+                        }
+                    }
                 }
             }
         });

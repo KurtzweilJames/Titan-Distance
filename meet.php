@@ -10,7 +10,7 @@ if (strpos($_GET["id"], '/') !== false) {
     $result = mysqli_query($con, "SELECT * FROM meets WHERE id='" . $_GET["id"] . "'");
 }
 if (mysqli_num_rows($result) == 0) {
-    header('Location: https://titandistance.com/notfound?from=meets&id=' . $id);
+    header('Location: /notfound?from=meets&id=' . $id);
     exit();
 }
 while ($row = mysqli_fetch_array($result)) {
@@ -18,7 +18,7 @@ while ($row = mysqli_fetch_array($result)) {
     if (!empty($row['Series']) && empty($urlslug)) {
         $year = date("Y", strtotime($row['Date']));
         http_response_code(301);
-        header('Location: https://titandistance.com/meet/' . $row['Series'] . "/" . $year);
+        header('Location: /meet/' . $row['Series'] . "/" . $year);
     }
 
     //Page Title
@@ -182,10 +182,12 @@ echo '<script type="application/ld+json">
                             $dropdown[] = "<option value='results' name='results'>Individual Results</option>";
                         }
 
+                        $teamscores = false;
                         $result = mysqli_query($con, "SELECT * FROM overallscores WHERE meet='" . $id . "'");
                         if ($prepost == "post" && mysqli_num_rows($result) > 0) {
                             echo "<a class='nav-link' id='scores-tab' data-bs-toggle='pill' data-bs-target='#scores' role='tab' aria-controls='scores-tab' aria-selected='false'><i class='bi bi-trophy-fill me-1'></i>Team Scores</a>";
                             $dropdown[] = "<option value='scores' name='scores'>Team Scores</option>";
+                            $teamscores = true;
                         }
 
                         $result = mysqli_query($con, "SELECT DISTINCT school FROM overalltf WHERE meet = '" . $id . "'");
@@ -200,32 +202,28 @@ echo '<script type="application/ld+json">
                         if ($location == "David Pasquini Fieldhouse" or $location == "John Davis Titan Stadium" or $location == "Glenbrook South High School") {
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>" . $location . "</a>";
                             $dropdown[] = "<option value='venue' name='venue'>" . $location . "</option>";
-                        } elseif ($sport == "xc") {
+                        } elseif ($sport == "xc" && $location !== "Unknown" && $location !== "TBD" && $location !== "TBA") {
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Course Information</a>";
                             $dropdown[] = "<option value='venue' name='venue'>Course Information</option>";
-                        } else {
+                        } elseif ($location !== "Unknown" && $location !== "TBD" && $location !== "TBA") {
                             echo "<a class='nav-link' id='venue-tab' data-bs-toggle='pill' data-bs-target='#venue' role='tab' aria-controls='venue-tab' aria-selected='false'><i class='bi bi-geo-alt-fill me-1'></i>Map & Directions</a>";
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
                         if ($series == "titan") {
-                            if ($season == "Track 2022") {
-                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
-                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
-                            }
                             echo "<a class='nav-link' id='meetrecords-tab' data-bs-toggle='pill' data-bs-target='#meetrecords' role='tab' aria-controls='meetrecords-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
                             $dropdown[] = "<option value='meetrecords' name='meetrecords'>Meet Records</option>";
                         }
                         if ($series == "tfsectionals" && ($season == "Track 2022" || $season == "Track 2021")) {
                             if ($season == "Track 2022") {
-                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
-                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
+                                // echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
+                                // $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
                                 echo "<a class='nav-link' id='tickets' href='https://gofan.co/app/events/606809?schoolId=IL15491' role='tab' target='_blank'><i class='bi bi-ticket-fill me-1'></i>Tickets ($7)</a>";
                                 $dropdown[] = "<option value='link-https://gofan.co/app/events/606809?schoolId=IL15491' name='tickets'>Tickets ($7)</option>";
                             }
-                            if ($season == "Track 2021") {
-                                echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
-                                $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
-                            }
+                            // if ($season == "Track 2021") {
+                            //     echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
+                            //     $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
+                            // }
                             echo "<a class='nav-link' id='standards-tab' data-bs-toggle='pill' data-bs-target='#standards' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Qualifying Standards</a>";
                             $dropdown[] = "<option value='standards' name='standards'>Qualifying Standards</option>";
                         }
@@ -250,7 +248,7 @@ echo '<script type="application/ld+json">
                             $dropdown[] = "<option value='link-" . $results . "' name='results'>Download Results</option>";
                         }
                         if (!empty($athnet)) {
-                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'><img src='https://s3.amazonaws.com/media.athletic.net/athletic-logos/square/logo-gradient.svg' class='me-1 my-auto' width='14px'>AthleticNET Page</a>";
+                            echo "<a class='nav-link' id='ath-net' href='" . $athnet . "' role='tab' target='_blank'><img src='/assets/icons/AthNetSquare.svg' class='me-1 my-auto' width='14px'>AthleticNET Page</a>";
                             $dropdown[] = "<option value='link-" . $athnet . "' name='athnet'>AthleticNET</option>";
                         }
                         if (!empty($website)) {
@@ -296,22 +294,37 @@ echo '<script type="application/ld+json">
                     <div class="tab-content" id="v-pills-tabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <h2><?php echo $name; ?></h2>
-                            <?php
-                            // if (!empty($content) && $prepost == "post") {
-                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Recap</a>';
-                            // } else if (!empty($content) && $prepost == "pre") {
-                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Information</a>';
-                            // }
-                            if (!empty($live)) {
-                                echo '<a class="btn btn-primary mx-2" href="' . $live . '" role="button" target="_blank"><i class="bi bi-bar-chart-fill me-1"></i>LIVE Results</a>';
-                            }
-                            if (!empty($athnet)) {
-                                echo '<a class="btn btn-primary mx-2" href="' . $athnet . '" role="button" target="_blank">Athletic.net Link</a>';
-                            }
-                            // if ($prepost == "post") {
-                            //     echo '<a class="btn btn-primary mx-2" data-bs-target="#results-tab" data-bs-toggle="pill" role="button">Individual Results</a>';
-                            // }
-                            ?>
+                            <div id="meetButtons" class="text-center text-md-start">
+                                <?php
+                                // if (!empty($content) && $prepost == "post") {
+                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Recap</a>';
+                                // } else if (!empty($content) && $prepost == "pre") {
+                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Information</a>';
+                                // }
+
+                                if ($prepost == "pre" && !empty($live)) {
+                                    if (strpos($live, "athletic.live") !== false || strpos($live, "live.athletic.net") !== false || strpos($live, "results.lakeshoreathleticservices.com") !== false || strpos($live, "live.timingmd.net") !== false) {
+                                        echo '<a class="btn btn-primary mx-2 my-1" href="' . $live . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Live Results on AthleticLIVE"><img src="https://titandistance.com/assets/icons/athleticlive.svg" height="16px" alt="Live Results"></a>';
+                                    } else {
+                                        echo '<a class="btn btn-primary mx-2 my-1" href="' . $live . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Results Available during Meet"><i class="bi bi-bar-chart-fill me-1"></i>LIVE Results</a>';
+                                    }
+                                } else if ($prepost == "post" && $official != 0) {
+                                    echo '<button type="button" class="btn btn-primary mx-2 my-1" onclick="openTab(\'results\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Meet Results"><i class="bi bi-list-ol me-1"></i>Results</button>';
+                                    if ($teamscores == true) {
+                                        echo '<button type="button" class="btn btn-primary mx-2 my-1" onclick="openTab(\'scores\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Team Scores"><i class="bi bi-trophy-fill me-1"></i>Scores</button>';
+                                    }
+                                }
+                                if (!empty($athnet)) {
+                                    echo '<a class="btn btn-primary mx-2 my-1" href="' . $athnet . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Meet Page on AthleticNET"><img src="https://titandistance.com/assets/icons/AthleticNet.svg" height="16px" alt="AthleticNET"></a>';
+                                }
+                                if ($prepost == "pre" && !empty($schedule)) {
+                                    echo '<button type="button" class="btn btn-primary mx-2 my-1" onclick="openTab(\'schedule\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Schedule of Events">Meet Schedule</button>';
+                                }
+                                // if ($prepost == "post") {
+                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#results-tab" data-bs-toggle="pill" role="button">Individual Results</a>';
+                                // }
+                                ?>
+                            </div>
                             <div class="card mt-3">
                                 <div class="card-header">
                                     Meet Information
@@ -391,7 +404,7 @@ echo '<script type="application/ld+json">
                                 echo "<select class='form-select' aria-label='Event Selector' id='selectEvent'
                                 onChange='showXCResults(this.value)'>
                                 <option selected disabled>Select Division</option>";
-                                $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "'");
+                                $result = mysqli_query($con, "SELECT DISTINCT level FROM overallxc WHERE meet = '" . $id . "' ORDER BY level ASC");
                                 while ($row = mysqli_fetch_array($result)) {
                                     echo "<option value='" . $row['level'] . "'>" . $teams[$row['level']] . "</option>";
                                     $meetEvents[] = "\"" . $row['level'] . "\"";
@@ -445,13 +458,13 @@ echo '<script type="application/ld+json">
                                         echo "<td>" . $row['school'] . "</td>";
                                         echo "<td>" . $row['score'] . "</td>";
                                         echo "</tr>";
+                                        if (strpos($row['score'], '-') !== false) {
+                                            $quad = 1;
+                                        }
                                     }
                                     echo "</table>";
                                     if (mysqli_num_rows($result) <= 0) {
                                         echo "<p class='card-text'><strong>This is either an unscored meet, or team results are missing from our database. If you believe this is an error, please reach out.</strong></p>";
-                                    }
-                                    if (strpos($row['score'], '-') !== false) {
-                                        $quad = 1;
                                     }
                                 }
                                 if ($quad == 1) {
@@ -460,8 +473,10 @@ echo '<script type="application/ld+json">
                                 ?>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">
-                            <?php
+                        <?php
+                        if ($sport == "tf") {
+                            echo '<div class="tab-pane fade" id="dscores" role="tabpanel" aria-labelledby="dscores-tab">';
+
                             echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
                             echo "<h2>Distance Team Scores</h2>";
                             echo "<div class='d-none d-md-block'>";
@@ -471,9 +486,10 @@ echo '<script type="application/ld+json">
                             echo "</div>";
                             echo "</div>";
                             echo "</div>";
-                            ?>
-                            <p><strong>Team scores only for Distance Events (3200m,1600m,800m,4x800m) using <a data-bs-toggle="tooltip" data-bs-placement="top" title="10-8-6-4-2-1">IHSA State Series</a> scoring.</strong></p>
-                            <?php foreach ($meetLevels as $l) {
+
+                            echo '<p><strong>Team scores only for Distance Events (3200m,1600m,800m,4x800m) using <a data-bs-toggle="tooltip" data-bs-placement="top" title="10-8-6-4-2-1">IHSA State Series</a> scoring.</strong></p>';
+
+                            foreach ($meetLevels as $l) {
                                 $result = mysqli_query($con, "SELECT school, COUNT(*)  FROM overalltf WHERE meet=" . $id . " AND level = " . $l . " GROUP BY school");
                                 while ($row = mysqli_fetch_array($result)) {
                                     $scores[$row['school']] = 0;
@@ -520,8 +536,11 @@ echo '<script type="application/ld+json">
                                     $n += 1;
                                 }
                                 echo "</table>";
-                            } ?>
-                        </div>
+                            }
+                            echo "</div>";
+                        }
+                        ?>
+
                         <div class="tab-pane fade" id="venue" role="tabpanel" aria-labelledby="venue-tab">
                             <?php
                             $result = mysqli_query($con, 'SELECT * FROM locations WHERE name="' . $location . '"');
@@ -592,7 +611,7 @@ echo '<script type="application/ld+json">
                                                 echo "<i class=\"ms-4 text-warning bi bi-patch-exclamation-fill\" data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"Some Times May be Missing\"></i>";
                                             }
                                             echo "</h4>";
-                                            if (!empty($row['startdate'])) {
+                                            if (empty($row['startdate'])) {
                                                 $result2 = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' ORDER BY Date DESC");
                                             } else {
                                                 $result2 = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' AND Date >= '" . $row['startdate'] . "' ORDER BY Date DESC");
@@ -651,7 +670,7 @@ echo '<script type="application/ld+json">
                                             </thead>
                                             <tbody>";
 
-                                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' AND Date <= '" . $todaydate . "'ORDER BY Date DESC");
+                                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Location = '" . addslashes($location) . "' AND Date < '" . $unformatteddate . "'ORDER BY Date DESC");
                                         while ($row = mysqli_fetch_array($result)) {
                                             //Badge
                                             if (array_key_exists($row['Badge'], $badges)) {
@@ -685,27 +704,22 @@ echo '<script type="application/ld+json">
 
                         <?php
                         if ($series == "titan") {
-                            if ($season == "Track 2022") {
-                                echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
-                                include $_SERVER['DOCUMENT_ROOT'] . "/includes/22titanschedule.php";
-                                echo "</div>";
-                            }
                             echo '<div class="tab-pane fade" id="meetrecords" role="tabpanel" aria-labelledby="meetrecords-tab">';
                             include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
                             echo "</div>";
                         }
                         if ($series == "tfsectionals" && $season == "Track 2022") {
-                            echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
-                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsschedule.php";
-                            echo "</div>";
+                            // echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                            // include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsschedule.php";
+                            // echo "</div>";
                             echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
                             include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsqualifying.php";
                             echo "</div>";
                         }
                         if ($series == "tfsectionals" && $season == "Track 2021") {
-                            echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
-                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsschedule.php";
-                            echo "</div>";
+                            // echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
+                            // include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsschedule.php";
+                            // echo "</div>";
                             echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
                             include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsqualifying.php";
                             echo "</div>";
@@ -717,40 +731,47 @@ echo '<script type="application/ld+json">
                             $scheduleEvents = $scheduleArray->events;
                             $scheduleSetup = $scheduleArray->setup;
                             echo "<table class='table'>";
-                            if ($scheduleSetup->caption) {
+                            if (!empty($scheduleSetup->caption)) {
                                 echo "<caption>" . $scheduleSetup->caption . "</caption>";
                             }
                             echo "<thead><tr>";
-                            if ($scheduleSetup->time == true) {
+                            if (!empty($scheduleSetup->time) && $scheduleSetup->time == true) {
                                 echo "<th>Time</th>";
                             }
                             echo "<th>Event</th>";
-                            if ($scheduleSetup->heats == true) {
+                            if (!empty($scheduleSetup->heats) && $scheduleSetup->heats == true) {
                                 echo "<th>Heats</th>";
                             }
-                            if ($scheduleSetup->automark == true) {
+                            if (!empty($scheduleSetup->automark) && $scheduleSetup->automark == true) {
                                 echo "<th>Auto Qualifying Mark</th>";
                             }
                             echo "</tr></thead>";
                             foreach ($scheduleEvents as $d) {
-                                if ($d->highlight && $d->highlight == true) {
-                                    echo "<tr class='row-highlight'>";
+                                if (!empty($d->raw)) {
+                                    echo $d->raw;
                                 } else {
-                                    echo "<tr>";
+                                    if (!empty($d->highlight) && $d->highlight == true) {
+                                        echo "<tr class='row-highlight'>";
+                                    } else {
+                                        echo "<tr>";
+                                    }
+                                    if (!empty($scheduleSetup->time) && $scheduleSetup->time == true) {
+                                        echo "<td>" . $d->time . "</td>";
+                                    }
+                                    echo "<td>" . $d->event . "</td>";
+                                    if (!empty($scheduleSetup->heats) && $scheduleSetup->heats == true) {
+                                        echo "<td>" . $d->heats . "</td>";
+                                    }
+                                    if (!empty($scheduleSetup->automark) && $scheduleSetup->automark == true) {
+                                        echo "<td>" . $d->automark . "</td>";
+                                    }
+                                    echo "</tr>";
                                 }
-                                if ($scheduleSetup->time && $scheduleSetup->time == true) {
-                                    echo "<td>" . $d->time . "</td>";
-                                }
-                                echo "<td>" . $d->event . "</td>";
-                                if ($scheduleSetup->heats && $scheduleSetup->heats == true) {
-                                    echo "<td>" . $d->heats . "</td>";
-                                }
-                                if ($scheduleSetup->automark && $scheduleSetup->automark == true) {
-                                    echo "<td>" . $d->automark . "</td>";
-                                }
-                                echo "</tr>";
                             }
                             echo "</table>";
+                            if (isset($scheduleSetup->appendix)) {
+                                echo $scheduleSetup->appendix;
+                            }
                             echo "</div>";
                         }
                         ?>
@@ -832,8 +853,11 @@ echo '<script type="application/ld+json">
         4: "Freshmen",
         5: "Frosh/Soph",
         6: "Open",
-        7: "Junior Varsity 2"
+        7: "Junior Varsity 2",
+        8: "Other"
     }
+
+    var splits = {};
 
     var response, results;
     var xhttp = new XMLHttpRequest();
@@ -869,7 +893,7 @@ echo '<script type="application/ld+json">
 
         indresultsContainer.innerHTML = ""
         tables.forEach(generateTFTables)
-        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button>"
+        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button><a type=\"button\" class=\"btn btn-secondary btn-sm ms-2\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction\">Request Correction</a>"
         activateTooltips()
     }
 
@@ -960,7 +984,7 @@ echo '<script type="application/ld+json">
                     table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Individual Qualifier'>IQ</span>";
                 } else if (results[x].tags == "All-Conf") {
                     table += "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='All Conference'>All-Conf</span>";
-                } else if (results[x].tags !== null) {
+                } else if (results[x].tags !== null && results[x].tags !== "") {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
                 table += "</td>";
@@ -1051,7 +1075,7 @@ echo '<script type="application/ld+json">
                 } else if (results[x].tags == "All-Conf") {
                     table +=
                         "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='All Conference'>All-Conf</span>";
-                } else if (results[x].tags !== null) {
+                } else if (results[x].tags !== null && results[x].tags !== "") {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
                 table += "</td>";
@@ -1074,13 +1098,17 @@ echo '<script type="application/ld+json">
 
         indresultsContainer.innerHTML = ""
         tables.forEach(generateXCTables)
-        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button>"
+        indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button><a type=\"button\" class=\"btn btn-secondary btn-sm ms-2\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction\">Request Correction</a>"
     }
 
     function generateXCTables(level) {
         let table = "<table class='table table-sm table-striped' id='" + levels[level].toLowerCase().replace(" ", "_") + "Table'>";
         table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th></tr></thead>";
         table += "<tbody>";
+        splits[level] = {
+            "num": 0,
+            "names": {}
+        }
         for (let x in results) {
             var distance;
             if (results[x].level == level) {
@@ -1140,12 +1168,21 @@ echo '<script type="application/ld+json">
                     table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Individual Qualifier'>IQ</span>";
                 } else if (results[x].tags == "All-Conf") {
                     table += "<span class='badge bg-csl ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='All Conference'>All-Conf</span>";
-                } else if (results[x].tags !== null) {
+                } else if (results[x].tags !== null && results[x].tags !== "") {
                     table += "<span class='badge bg-primary ms-1'>" + results[x].tags + "</span>";
                 }
                 table += "</td>";
 
                 table += "<td>" + results[x].school + "</td>";
+
+                for (let i = 1; i < 4; i++) {
+                    split = results[x]["split" + i];
+                    if (split !== null && splits[level]["num"] < i) {
+                        splits[level]["num"] = i;
+                    }
+                    table += "<td class='d-none splits-cell' data-splitnum='" + i + "'>" + split + "</td>";
+                }
+
                 table += "</tr>"
                 distance = " (" + results[x].distance.replace("mi", " miles") + ")";
             }
@@ -1165,13 +1202,21 @@ echo '<script type="application/ld+json">
         activateTooltips()
     }
 
+    function toggleSplits() {
+        var querySelect = [];
+        var splitsCells = document.querySelectorAll("[data-splitnum='1']");
+        for (var i = 0; i < splitsCells.length; i++) {
+            splitsCells[i].classList.toggle("d-none");
+        }
+    }
+
     function printindResults() {
         var divContents = document.getElementById("indresultsContainer").innerHTML;
         var meetInfo = document.getElementById("meetInfo").innerHTML;
         var meetName = document.getElementById("meetName").innerHTML;
         var a = window.open('', '', 'height=2100, width=800');
         a.document.write('<html>');
-        a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} button {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;} .d-none {display:none;}</style></head>');
+        a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} .btn {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;} .d-none {display:none;}</style></head>');
         a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
         a.document.write('<h2 style="text-align: center;">' + meetName + '</h2>')
         a.document.write(divContents);
@@ -1242,6 +1287,14 @@ echo '<script type="application/ld+json">
                 window.open(link, "_blank")
             }
         }
+    }
+
+    function openTab(x) {
+        tab = "#" + x + "-tab";
+        document.getElementById("selectTab").value = x;
+        var someTabTriggerEl = document.querySelector(tab)
+        var tabt = new bootstrap.Tab(someTabTriggerEl)
+        tabt.show()
     }
 
     function showHighlight(c) {

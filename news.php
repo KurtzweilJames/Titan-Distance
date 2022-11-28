@@ -1,8 +1,11 @@
-<?php $pgtitle = "News"; ?>
 <?php
-$page = htmlspecialchars($_GET["page"]);
-if (empty($page)) {
+
+$pgtitle = "News";
+
+if (empty($_GET["page"])) {
     $page = 1;
+} else {
+    $page = htmlspecialchars($_GET["page"]);
 }
 
 if (empty($_GET["show"])) {
@@ -69,7 +72,11 @@ if (empty($_GET["show"])) {
         echo "</h3>";
 
         if (!empty($content)) {
-            echo "<p class='card-text text-center'>" . substr($content, 0, 150) . "...</p>";
+            if (substr($content, 0, 250) == $content) {
+                echo "<p class='card-text text-center'>" . $content . "</p>";
+            } else {
+                echo "<p class='card-text text-center'>" . substr($content, 0, 200) . "...</p>";
+            }
         } else {
             echo "<p class='card-text text-center'><u>Read More</u></p>";
         }

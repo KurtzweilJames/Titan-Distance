@@ -29,19 +29,16 @@ function formatTime($time)
 
     <!-- Stylesheets -->
     <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:300,400,700%7CRoboto:400,500,700" rel="stylesheet" type="text/css" />
-    <!-- CSS only -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- jQuery -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <!-- Simple Data Tables -->
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" type="text/css">
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
     <?php
-    if ($pgtitle == "Roster" || $pgtitle == "Results") {
+    if (isset($pgtitle) && ($pgtitle == "Roster" || $pgtitle == "Results")) {
         echo '<script src="https://cdn.jsdelivr.net/npm/moment@2.29.3/moment.min.js"></script>';
     }
     ?>
@@ -97,9 +94,6 @@ function formatTime($time)
         }
     </script>
 
-    <!-- Data Table -->
-    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.11.4/css/dataTables.bootstrap5.min.css" type="text/css" /> -->
-
     <!-- OneSignal -->
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
@@ -115,13 +109,20 @@ function formatTime($time)
     <?php
     if (isset($require)) {
         if ($require == "meet") {
-            echo "<script src='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.js'></script>";
-            echo "<link href='https://api.mapbox.com/mapbox-gl-js/v2.9.0/mapbox-gl.css' rel='stylesheet' />";
+            echo "<script src='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js'></script>";
+            echo "<link href='https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css' rel='stylesheet'>";
         }
     }
     ?>
 
     <style>
+        :root {
+            --bs-blue: #073763;
+            --bs-primary: #073763;
+            --bs-link-color: #073763;
+            --bs-primary-rgb: 7, 55, 99;
+        }
+
         .tdmastheadbkg {
             background-image: url(<?php echo $headerimage; ?>);
             background-size: cover;
@@ -133,7 +134,6 @@ function formatTime($time)
                 min-height: 400px;
                 padding-right: 15%;
                 padding-left: 15%;
-                /* padding-top: 100px; */
             }
         }
 
@@ -142,7 +142,6 @@ function formatTime($time)
                 min-height: 200px;
                 padding-right: 0%;
                 padding-left: 0%;
-                /* padding-top: 25px; */
             }
         }
 
@@ -156,12 +155,6 @@ function formatTime($time)
 
         .tdas {
             width: 100%;
-            /* padding-right: 15%;
-            padding-left: 15%;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            margin-right: auto;
-            margin-left: auto; */
         }
 
         .hover-card:hover {
@@ -300,6 +293,25 @@ function formatTime($time)
             background-color: #fc4d02;
         }
 
+        .btn-td,
+        .btn-primary {
+            --bs-btn-color: #ffd700;
+            --bs-btn-bg: #073763;
+            --bs-btn-border-color: #073763;
+            --bs-btn-hover-color: #073763;
+            --bs-btn-hover-bg: #ffd700;
+            --bs-btn-hover-border-color: #ffd700;
+        }
+
+        .btn-secondary {
+            --bs-btn-color: #073763;
+            --bs-btn-bg: #ffd700;
+            --bs-btn-border-color: #ffd700;
+            --bs-btn-hover-color: #ffd700;
+            --bs-btn-hover-bg: #073763;
+            --bs-btn-hover-border-color: #073763;
+        }
+
         .row-highlight {
             background-color: #FFF099;
         }
@@ -370,108 +382,6 @@ function formatTime($time)
         .splits-col {
             display: table-cell;
         }
-
-        /* Data Tables */
-        /* .dataTable-table {
-            border-collapse: collapse;
-        }
-
-        .dataTable-table>tbody>tr>td,
-        .dataTable-table>tbody>tr>th,
-        .dataTable-table>tfoot>tr>td,
-        .dataTable-table>tfoot>tr>th,
-        .dataTable-table>thead>tr>td,
-        .dataTable-table>thead>tr>th {
-            vertical-align: top;
-            padding: 0.5rem 0.5rem;
-        }
-
-        .dataTable-table>thead>tr>th {
-            vertical-align: bottom;
-            text-align: left;
-            border-bottom: none;
-        }
-
-        .dataTable-table>tfoot>tr>th {
-            vertical-align: bottom;
-            text-align: left;
-        }
-
-        .dataTable-table th {
-            vertical-align: bottom;
-            text-align: left;
-        }
-
-        .dataTable-table th a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .dataTable-sorter {
-            display: inline-block;
-            height: 100%;
-            position: relative;
-            width: 100%;
-            padding-right: 1rem;
-        }
-
-        .dataTable-sorter::before,
-        .dataTable-sorter::after {
-            content: "";
-            height: 0;
-            width: 0;
-            position: absolute;
-            right: 4px;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            opacity: 0.2;
-        }
-
-        .dataTable-sorter::before {
-            bottom: 4px;
-        }
-
-        .dataTable-sorter::after {
-            top: 0px;
-        }
-
-        .asc .dataTable-sorter::after,
-        .desc .dataTable-sorter::before {
-            opacity: 0.6;
-        }
-
-        .dataTables-empty {
-            text-align: center;
-        }
-
-        .dataTable-top::after,
-        .dataTable-bottom::after {
-            clear: both;
-            content: " ";
-            display: table;
-        }
-
-        .btn-datatable {
-            height: 20px !important;
-            width: 20px !important;
-            font-size: 0.75rem;
-            border-radius: 0.25rem !important;
-        } */
-
-        /* @media (prefers-color-scheme: dark) {
-body {
-    background-color: #181818 !important;
-    color: #eee !important;
-}
-.bg-light,#top-navbar,.card,footer,.list-group-item {
-    background-color: #212121 !important;
-    color: #eee !important;
-}
-h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
-    border-top: 0 !important;
-    color: #fff !important;
-}
-}   */
     </style>
 
 
@@ -515,7 +425,7 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
             $type = $type . " clickable-row";
         }
         if (!empty($row['web'])) {
-            echo "<div id='tdas-topbar' class='tdas alert alert-" . $type . " text-center py-2 px-5' role='alert' onclick = window.location='" . $row['link'] . "'><strong style='text-transform: uppercase;'>" . $row['title'] . ": </strong>" . $row['web'] . "</div>";
+            echo "<div id='tdas-topbar' class='tdas alert alert-" . $type . " text-center py-2 px-5 m-0' role='alert' onclick = window.location='" . $row['link'] . "'><strong style='text-transform: uppercase;'>" . $row['title'] . ": </strong>" . $row['web'] . "</div>";
         }
     }
     ?>
@@ -620,9 +530,9 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
                             <li class="nav-item">
                                 <a class="nav-link" href="/news">News</a>
                             </li>
-                            <!-- <li class="nav-item">
+                            <li class="nav-item">
                                 <a class="nav-link" href="/workouts">Workouts</a>
-                            </li> -->
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="/photos">Photos</a>
                             </li>
@@ -633,6 +543,7 @@ h1, h2, h3, h4, h5, h6, .table, .navbar-collapse,.nav-item,.nav-link {
                                 <a class="mx-2" style="color: rgba(0,0,0,.55);" href="https://instagram.com/TitanDistance"><i class="bi bi-instagram"></i></a>
                                 <a class="mx-2" style="color: rgba(0,0,0,.55);" href="https://twitter.com/TitanDistance"><i class="bi bi-twitter"></i></a>
                                 <a class="mx-2" style="color: rgba(0,0,0,.55);" href="https://facebook.com/TitanDistance"><i class="bi bi-facebook"></i></a>
+                                <a class="mx-2" style="color: rgba(0,0,0,.55);" href="https://www.athletic.net/CrossCountry/School.aspx?SchoolID=16382"><img src="/assets/icons/AthNetSquare.svg" height="14px"></a>
                             </li>
                         </ul>
                     </div>
