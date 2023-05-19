@@ -1,7 +1,7 @@
-<?php include "db.php"; ?>
 <?php
+include "db.php";
+
 $id = htmlspecialchars($_GET["id"]);
-$template = "meet";
 
 if (strpos($_GET["id"], '/') !== false) {
     list($urlslug, $year) = explode("/", $id, 2);
@@ -29,7 +29,7 @@ while ($row = mysqli_fetch_array($result)) {
     }
 
     $pgtitleignore = 1;
-    $require = "meet"; //Meet Variables
+    $require = "meet";
     $name = $row['Name'];
     $date = date("l, F d, Y", strtotime($row['Date']));
     $unformatteddate = $row['Date'];
@@ -47,6 +47,7 @@ while ($row = mysqli_fetch_array($result)) {
     $levels = $row['Levels'];
     $status = $row['Status'];
     $heat = $row['Heats'];
+    $tickets = $row['Tickets'];
     $schedule = $row['Schedule'];
     $opponentsArray = explode(", ", $row['Opponents']);
     $official = $row['Official']; //Two Day
@@ -121,11 +122,11 @@ echo '<script type="application/ld+json">
 }
 </script>';
 ?>
-<div class="container mt-2 mb-2">
+<div class="container my-2">
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-lg-3">
             <div class="card h-100">
-                <div class="card-body text-center text-md-start">
+                <div class="card-body text-center text-lg-start">
                     <div class="series-navigation d-flex justify-content-between">
                         <?php if (!empty($series)) {
                             echo "<div>";
@@ -146,24 +147,24 @@ echo '<script type="application/ld+json">
                     </div>
                     <div id="meetInfo">
                         <h4 id="meetName"><?php echo $name; ?></h4>
-                        <h5 class="mb-0" <?php if ($status == "C") {
-                                                echo 'style="text-decoration:line-through; color:#dc3545;"';
-                                            } else if ($status == "P") {
-                                                echo 'style="color:#dc3545;"';
-                                            } ?>><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
-                        <h5 class="mb-0" <?php if ($status == "C") {
-                                                echo 'style="text-decoration:line-through; color:#dc3545;"';
-                                            } else if ($status == "R") {
-                                                echo 'style="color:#dc3545;"';
-                                            } ?>><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
+                        <h5 class="mb-0 fs-6" <?php if ($status == "C") {
+                                                    echo 'style="text-decoration:line-through; color:#dc3545;"';
+                                                } else if ($status == "P") {
+                                                    echo 'style="color:#dc3545;"';
+                                                } ?>><i class="bi bi-calendar-fill me-1"></i><?php echo $date; ?></h5>
+                        <h5 class="mb-0 fs-6" <?php if ($status == "C") {
+                                                    echo 'style="text-decoration:line-through; color:#dc3545;"';
+                                                } else if ($status == "R") {
+                                                    echo 'style="color:#dc3545;"';
+                                                } ?>><i class="bi bi-geo-alt-fill me-1"></i><?php echo $location; ?></h5>
                     </div>
                     <?php
                     if (!empty($weather)) {
-                        echo "<h5 class='mb-0'><i class='bi bi-cloud-sun-fill me-1'></i>" . $weather . "</h5>";
+                        echo "<h5 class='mb-0 fs-6'><i class='bi bi-cloud-sun-fill me-1'></i>" . $weather . "</h5>";
                     }
                     ?>
                     <hr class="mt-2">
-                    <div class="nav flex-column nav-pills d-none d-md-block" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <div class="nav flex-column nav-pills d-none d-lg-block" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <?php
                         echo "<a class='nav-link active' id='home-tab' data-bs-toggle='pill' data-bs-target='#home' role='tab' aria-controls='home-tab' aria-selected='false'><i class='bi bi-house-fill me-1'></i>Home</a>";
                         $dropdown[] = "<option value='home' name='home'>Home</option>";
@@ -210,22 +211,12 @@ echo '<script type="application/ld+json">
                             $dropdown[] = "<option value='venue' name='venue'>Map & Directions</option>";
                         }
                         if ($series == "titan") {
-                            echo "<a class='nav-link' id='meetrecords-tab' data-bs-toggle='pill' data-bs-target='#meetrecords' role='tab' aria-controls='meetrecords-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Titan Invite Records</a>";
+                            echo "<a class='nav-link' id='meetrecords-tab' data-bs-toggle='pill' data-bs-target='#meetrecords' role='tab' aria-controls='meetrecords-tab' aria-selected='false'><i class='bi bi-lightning-fill me-1'></i>Titan Invite Records</a>";
                             $dropdown[] = "<option value='meetrecords' name='meetrecords'>Meet Records</option>";
                         }
-                        if ($series == "tfsectionals" && ($season == "Track 2022" || $season == "Track 2021")) {
-                            if ($season == "Track 2022") {
-                                // echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
-                                // $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
-                                echo "<a class='nav-link' id='tickets' href='https://gofan.co/app/events/606809?schoolId=IL15491' role='tab' target='_blank'><i class='bi bi-ticket-fill me-1'></i>Tickets ($7)</a>";
-                                $dropdown[] = "<option value='link-https://gofan.co/app/events/606809?schoolId=IL15491' name='tickets'>Tickets ($7)</option>";
-                            }
-                            // if ($season == "Track 2021") {
-                            //     echo "<a class='nav-link' id='schedule-tab' data-bs-toggle='pill' data-bs-target='#schedule' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-clock-fill me-1'></i>Time Schedule</a>";
-                            //     $dropdown[] = "<option value='schedule' name='schedule'>Time Schedule</option>";
-                            // }
-                            echo "<a class='nav-link' id='standards-tab' data-bs-toggle='pill' data-bs-target='#standards' role='tab' aria-controls='standards-tab' aria-selected='false'><i class='bi bi-lightning-charge-fill me-1'></i>Qualifying Standards</a>";
-                            $dropdown[] = "<option value='standards' name='standards'>Qualifying Standards</option>";
+                        if ($prepost == "pre" && !empty($tickets)) {
+                            echo "<a class='nav-link' id='heat' href='" . $tickets . "' role='tab' target='_blank'><i class='bi bi-ticket-fill me-1'></i>Buy Tickets</a>";
+                            $dropdown[] = "<option value='link-" . $tickets . "' name='tickets'>Tickets</option>";
                         }
                         if (!empty($heat)) {
                             echo "<a class='nav-link' id='heat' href='" . $heat . "' role='tab' target='_blank'><i class='bi bi-clipboard-check-fill me-1'></i>Heat Sheet</a>";
@@ -263,7 +254,7 @@ echo '<script type="application/ld+json">
 
                     </div>
 
-                    <div class="form-group d-block d-md-none">
+                    <div class="form-group d-block d-lg-none">
                         <select class="form-select" id="selectTab">
                             <?php foreach ($dropdown as $d) {
                                 echo $d;
@@ -274,7 +265,7 @@ echo '<script type="application/ld+json">
                 </div>
             </div>
         </div>
-        <div class="col-md-9 mt-2 mt-md-0 h-100">
+        <div class="col-lg-9 mt-2 mt-lg-0 h-100">
             <?php
             if ($season == "Community") {
                 echo "<div class='alert alert-primary' role='alert'>This event is not school-sponsored, in accordance with IHSA By-law 3.101. Athletes compete Unattached at these events, and are only listed as Glenbrook South* for technical purposes.</div>";
@@ -286,24 +277,18 @@ echo '<script type="application/ld+json">
                 echo "<div class='alert alert-info' role='alert'>" . $notes . "</div>";
             }
             if ($official == 3) {
-                echo "<div class='alert alert-danger' role='alert'>These results have been marked Unofficial for a variety of reasons. The results may be incomplete or incorrect. Please use caution when viewing these results, as the times and date may be inaccurate.</div>";
+                echo "<div class='alert alert-danger' role='alert'>These results have been marked <strong>Unofficial</strong> in our database. While every effort is made to ensure their accuracy, discrepancies may be displayed.</div>";
             }
             ?>
             <div class="card h-100">
-                <div class="card-body p-2 p-md-3">
+                <div class="card-body p-2 p-lg-3">
                     <div class="tab-content" id="v-pills-tabContent">
                         <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                             <h2><?php echo $name; ?></h2>
-                            <div id="meetButtons" class="text-center text-md-start">
+                            <div id="meetButtons" class="text-center text-lg-start">
                                 <?php
-                                // if (!empty($content) && $prepost == "post") {
-                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Recap</a>';
-                                // } else if (!empty($content) && $prepost == "pre") {
-                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#news" data-bs-toggle="pill" role="button">Meet Information</a>';
-                                // }
-
                                 if ($prepost == "pre" && !empty($live)) {
-                                    if (strpos($live, "athletic.live") !== false || strpos($live, "live.athletic.net") !== false || strpos($live, "results.lakeshoreathleticservices.com") !== false || strpos($live, "live.timingmd.net") !== false) {
+                                    if (strpos($live, "athletic.live") !== false || strpos($live, "live.athletic.net") !== false || strpos($live, "results.lakeshoreathleticservices.com") !== false || strpos($live, "live.timingmd.net") !== false || strpos($live, "anet.live") !== false || strpos($live, "live.palatinepack.com") !== false) {
                                         echo '<a class="btn btn-primary mx-2 my-1" href="' . $live . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Live Results on AthleticLIVE"><img src="https://titandistance.com/assets/icons/athleticlive.svg" height="16px" alt="Live Results"></a>';
                                     } else {
                                         echo '<a class="btn btn-primary mx-2 my-1" href="' . $live . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Results Available during Meet"><i class="bi bi-bar-chart-fill me-1"></i>LIVE Results</a>';
@@ -318,11 +303,11 @@ echo '<script type="application/ld+json">
                                     echo '<a class="btn btn-primary mx-2 my-1" href="' . $athnet . '" role="button" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Meet Page on AthleticNET"><img src="https://titandistance.com/assets/icons/AthleticNet.svg" height="16px" alt="AthleticNET"></a>';
                                 }
                                 if ($prepost == "pre" && !empty($schedule)) {
-                                    echo '<button type="button" class="btn btn-primary mx-2 my-1" onclick="openTab(\'schedule\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Schedule of Events">Meet Schedule</button>';
+                                    echo '<button type="button" class="btn btn-primary mx-2 my-1" onclick="openTab(\'schedule\')" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Schedule of Events"><i class="bi bi-clock-fill me-1"></i>Meet Schedule</button>';
                                 }
-                                // if ($prepost == "post") {
-                                //     echo '<a class="btn btn-primary mx-2" data-bs-target="#results-tab" data-bs-toggle="pill" role="button">Individual Results</a>';
-                                // }
+                                if ($prepost == "pre" && !empty($tickets)) {
+                                    echo '<a type="button" class="btn btn-primary mx-2 my-1" href="' . $tickets . '" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Buy Tickets" target="_blank"><i class="bi bi-ticket-fill me-1"></i>Tickets</a>';
+                                }
                                 ?>
                             </div>
                             <div class="card mt-3">
@@ -364,7 +349,7 @@ echo '<script type="application/ld+json">
                         <div class="tab-pane fade" id="results" role="tabpanel" aria-labelledby="results-tab">
                             <div class='d-flex justify-content-between align-items-center mb-2'>
                                 <h2>Individual Results</h2>
-                                <div class='d-none d-md-block'>
+                                <div class='d-none d-lg-block'>
                                     <?php
                                     if ($official == 1) {
                                         echo "<span class='badge bg-success'>Official Results (F.A.T.)</span>";
@@ -373,13 +358,16 @@ echo '<script type="application/ld+json">
                                     } elseif ($official == 3) {
                                         echo "<span class='badge bg-danger'>Unofficial Results</span>";
                                     } elseif ($official == 4) {
-                                        echo "<span class='badge bg-primary'>Live Results</span>";
+                                        echo "<span class='badge bg-primary'>In Progress</span>";
                                     }
                                     ?>
                                     <div class='form-check form-switch'>
                                         <input type='checkbox' class='form-check-input' onChange='showHighlight(this.checked)' id='INDVhighlightSwitch' checked>
-                                        <label class='custom-control-label' for='INDVhighlightSwitch'>Toggle
-                                            Highlight</label>
+                                        <label class='custom-control-label' for='INDVhighlightSwitch'>Toggle Highlight</label>
+                                    </div>
+                                    <div class='form-check form-switch'>
+                                        <input type='checkbox' class='form-check-input' onChange='toggleSplits();' id='splitsSwitch'>
+                                        <label class='custom-control-label' for='splitsSwitch'>Toggle Splits</label>
                                     </div>
                                 </div>
                             </div>
@@ -426,7 +414,7 @@ echo '<script type="application/ld+json">
                             <?php
                             echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
                             echo "<h2>Team Scores</h2>";
-                            echo "<div class='d-none d-md-block'>";
+                            echo "<div class='d-none d-lg-block'>";
                             echo "<div class='form-check form-switch'>";
                             echo "<input type='checkbox' class='form-check-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
                             echo "<label class='custom-control-label' for='highlightSwitch'>Toggle Highlight</label>";
@@ -479,7 +467,7 @@ echo '<script type="application/ld+json">
 
                             echo "<div class='d-flex justify-content-between align-items-center mb-2'>";
                             echo "<h2>Distance Team Scores</h2>";
-                            echo "<div class='d-none d-md-block'>";
+                            echo "<div class='d-none d-lg-block'>";
                             echo "<div class='form-check form-switch'>";
                             echo "<input type='checkbox' class='form-check-input' onChange='showHighlight(this.checked)' id='highlightSwitch' checked>";
                             echo "<label class='custom-control-label' for='highlightSwitch'>Toggle Highlight</label>";
@@ -585,14 +573,11 @@ echo '<script type="application/ld+json">
                                         }
                                         if (!empty($row['gmap'])) {
                                             echo "<div class='text-center'>";
-                                            echo "<a class='btn btn-primary mt-2' href='https://www.google.com/maps/search/?api=1&query=" .
-                                                $row['name'] .
-                                                "&query_place_id=" .
-                                                $row['gmap'] .
-                                                "' role='button' target='_blank'>Open in Google Maps</a>";
+                                            echo "<a class='btn btn-primary mt-2 mx-2' href='https://www.google.com/maps/search/?api=1&query=" . $row['name'] . "&query_place_id=" . $row['gmap'] . "' role='button' target='_blank'>Open in Google Maps</a>";
                                             if (!empty($row['osm'])) {
-                                                echo "<a class='btn btn-primary mt-2 ms-2' href='https://openstreetmap.org/way/" . $row['osm'] . "' role='button' target='_blank'>Open in OpenStreetMap</a>";
+                                                echo "<a class='btn btn-primary mt-2 mx-2' href='https://openstreetmap.org/way/" . $row['osm'] . "' role='button' target='_blank'>Open in OpenStreetMap</a>";
                                             }
+                                            echo "<a class='btn btn-primary mt-2 mx-2' href='https://maps.apple.com/?q=" . $row['name'] . "&near=42.090002,-87.855138' role='button' target='_blank'>Open in Apple Maps</a>";
                                             echo "</div>";
                                         } else {
                                             echo "<div class='text-center'>";
@@ -618,7 +603,6 @@ echo '<script type="application/ld+json">
                                             }
                                             $meets2 = [];
                                             while ($row2 = mysqli_fetch_array($result2)) {
-                                                //array_push($meets2,"meet = ".$row2['id']);
                                                 array_push($meets2, $row2['id']);
                                             }
 
@@ -635,7 +619,6 @@ echo '<script type="application/ld+json">
                                             <tbody>";
                                             $duplicates = [];
                                             $num = 0;
-                                            //$result2 = mysqli_query($con,"SELECT * FROM overallxc"." WHERE (".join($meets2," OR ").") AND distance = '".$row['primarydistance']."' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
                                             $result2 = mysqli_query($con, "SELECT * FROM overallxc" . " WHERE meet IN (" . join(",", $meets2) . ") AND distance = '" . $row['primarydistance'] . "' AND school = 'Glenbrook South' ORDER BY time ASC LIMIT 50");
 
                                             while ($row2 = mysqli_fetch_array($result2)) {
@@ -708,29 +691,13 @@ echo '<script type="application/ld+json">
                             include $_SERVER['DOCUMENT_ROOT'] . "/includes/titanrecords.php";
                             echo "</div>";
                         }
-                        if ($series == "tfsectionals" && $season == "Track 2022") {
-                            // echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
-                            // include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsschedule.php";
-                            // echo "</div>";
-                            echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
-                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/22tfsectionalsqualifying.php";
-                            echo "</div>";
-                        }
-                        if ($series == "tfsectionals" && $season == "Track 2021") {
-                            // echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
-                            // include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsschedule.php";
-                            // echo "</div>";
-                            echo '<div class="tab-pane fade" id="standards" role="tabpanel" aria-labelledby="standards-tab">';
-                            include $_SERVER['DOCUMENT_ROOT'] . "/includes/21tfsectionalsqualifying.php";
-                            echo "</div>";
-                        }
                         if (!empty($schedule)) {
                             echo '<div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">';
                             echo '<h2>Meet Schedule</h2>';
                             $scheduleArray = json_decode($schedule);
                             $scheduleEvents = $scheduleArray->events;
                             $scheduleSetup = $scheduleArray->setup;
-                            echo "<table class='table'>";
+                            echo "<table class='table caption-top'>";
                             if (!empty($scheduleSetup->caption)) {
                                 echo "<caption>" . $scheduleSetup->caption . "</caption>";
                             }
@@ -756,14 +723,26 @@ echo '<script type="application/ld+json">
                                         echo "<tr>";
                                     }
                                     if (!empty($scheduleSetup->time) && $scheduleSetup->time == true) {
-                                        echo "<td>" . $d->time . "</td>";
+                                        if (!empty($d->time)) {
+                                            echo "<td>" . $d->time . "</td>";
+                                        } else {
+                                            echo "<td></td>";
+                                        }
                                     }
                                     echo "<td>" . $d->event . "</td>";
                                     if (!empty($scheduleSetup->heats) && $scheduleSetup->heats == true) {
-                                        echo "<td>" . $d->heats . "</td>";
+                                        if (!empty($d->heats)) {
+                                            echo "<td>" . $d->heats . "</td>";
+                                        } else {
+                                            echo "<td></td>";
+                                        }
                                     }
                                     if (!empty($scheduleSetup->automark) && $scheduleSetup->automark == true) {
-                                        echo "<td>" . $d->automark . "</td>";
+                                        if (!empty($d->automark)) {
+                                            echo "<td>" . $d->automark . "</td>";
+                                        } else {
+                                            echo "<td></td>";
+                                        }
                                     }
                                     echo "</tr>";
                                 }
@@ -779,7 +758,7 @@ echo '<script type="application/ld+json">
                         <div class="tab-pane fade" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                             <h2>Photos</h2>
                             <?php
-                            echo "<div class='row row-cols-1 row-cols-md-2'>";
+                            echo "<div class='row row-cols-1 row-cols-lg-2'>";
                             $result = mysqli_query($con, "SELECT * FROM photos WHERE meet='" . $id . "'");
                             while ($row = mysqli_fetch_array($result)) {
                                 echo "<div class='col mb-2'>";
@@ -843,7 +822,8 @@ echo '<script type="application/ld+json">
         "800mSMR": "800m Sprint Medley Relay",
         "1600mSMR": "1600m Spring Medley Relay",
         "LHR": "Low Hurdle Relay",
-        "HHR": "High Hurdle Relay"
+        "HHR": "High Hurdle Relay",
+        '60yLH': "60 Yard Low Hurdles"
     };
 
     var levels = {
@@ -894,7 +874,8 @@ echo '<script type="application/ld+json">
         indresultsContainer.innerHTML = ""
         tables.forEach(generateTFTables)
         indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button><a type=\"button\" class=\"btn btn-secondary btn-sm ms-2\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction\">Request Correction</a>"
-        activateTooltips()
+        activateTooltips();
+        document.getElementById("splitsSwitch").checked = false;
     }
 
     function generateTFTables(single) {
@@ -902,8 +883,13 @@ echo '<script type="application/ld+json">
         var event = single[0]
         var level = single[1]
 
-        let table = "<table class='table table-sm table-striped resultsTable' id='" + levels[level].toLowerCase().replace(" ", "_") + event + "Table" + "'>";
-        table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Result</th><th>Team</th></tr></thead>";
+        splits[single] = {
+            "num": 0,
+            "names": {}
+        }
+
+        let table = "<table class='table table-sm table-striped resultsTable' data-td-rt='" + single + "' id='" + levels[level].toLowerCase().replace(" ", "_") + event + "Table" + "'>";
+        table += "<thead><tr id='results-head'><th>Place</th><th>Name</th><th>Grade</th><th>Result</th><th>Team</th></tr></thead>";
         table += "<tbody>";
 
         for (let x in results) {
@@ -963,6 +949,8 @@ echo '<script type="application/ld+json">
                     var feet = Math.floor(inches / 12);
                     inches %= 12;
                     table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"" + feet + "'-" + inches + "\">";
+                } else if (results[x].result == "NT") {
+                    table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"NT=No Time. Athlete most likely competed, but no split recorded.\">";
                 } else {
                     table += "<td>";
                 }
@@ -974,9 +962,9 @@ echo '<script type="application/ld+json">
                     table += results[x].result;
                 }
                 if (results[x].pr == 1) {
-                    table += "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                    table += "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
-                    table += "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                    table += "<span class='badge text-bg-active ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
                     table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Team Qualifier'>TQ</span>";
@@ -991,14 +979,17 @@ echo '<script type="application/ld+json">
 
                 table += "<td>" + results[x].school + "</td>";
 
-                table += "<td class='d-none splits-cell'>" + results[x].split1 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split2 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split3 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split4 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split5 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split6 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split7 + "</td>";
-                table += "<td class='d-none splits-cell'>" + results[x].split8 + "</td>";
+                for (let i = 1; i <= 8; i++) {
+                    split = results[x]["split" + i];
+                    if (split !== null && splits[single]["num"] < i) {
+                        splits[single]["num"] = i;
+                    }
+                    if (split !== null) {
+                        table += "<td class='d-none splits-cell' data-splitnum='" + i + "'>" + split + "</td>";
+                    } else {
+                        table += "<td class='d-none splits-cell' data-splitnum='" + i + "'></td>";
+                    }
+                }
 
                 table += "</tr>"
                 if (results[x].relay !== null) {
@@ -1050,7 +1041,11 @@ echo '<script type="application/ld+json">
                     table += "<td></td>";
                 }
 
-                table += "<td>";
+                if (results[x].result == "NT") {
+                    table += "<td data-bs-toggle=\"tooltip\" data-bs-placement=\"top\" title=\"NT=No Time. Athlete most likely competed, but no split recorded.\">";
+                } else {
+                    table += "<td>";
+                }
 
                 if (results[x].result.substring(0, 2) == "0:") {
                     table += results[x].result.substring(2);
@@ -1061,10 +1056,10 @@ echo '<script type="application/ld+json">
                 }
                 if (results[x].pr == 1) {
                     table +=
-                        "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
+                        "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
                     table +=
-                        "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
+                        "<span class='badge text-bg-active ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
                     table +=
@@ -1099,11 +1094,13 @@ echo '<script type="application/ld+json">
         indresultsContainer.innerHTML = ""
         tables.forEach(generateXCTables)
         indresultsContainer.innerHTML += "<button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printindResults()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Results</button><a type=\"button\" class=\"btn btn-secondary btn-sm ms-2\" href=\"https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction\">Request Correction</a>"
+        document.getElementById("splitsSwitch").checked = false;
+        activateTooltips();
     }
 
     function generateXCTables(level) {
-        let table = "<table class='table table-sm table-striped' id='" + levels[level].toLowerCase().replace(" ", "_") + "Table'>";
-        table += "<thead><tr><th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th></tr></thead>";
+        let table = "<table class='table table-sm table-striped resultsTable' data-td-rt='" + level + "' id='" + levels[level].toLowerCase().replace(" ", "_") + "Table'>";
+        table += "<thead><tr id='results-head'><th>Place</th><th>Name</th><th>Grade</th><th>Time</th><th>Team</th></tr></thead>";
         table += "<tbody>";
         splits[level] = {
             "num": 0,
@@ -1158,9 +1155,9 @@ echo '<script type="application/ld+json">
                 table += "<td>";
                 table += results[x].time;
                 if (results[x].pr == 1) {
-                    table += "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
+                    table += "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Personal Record'>PR</span>";
                 } else if (results[x].sr == 1) {
-                    table += "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
+                    table += "<span class='badge text-bg-active ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Season Record'>SR</span>";
                 }
                 if (results[x].tags == "TQ") {
                     table += "<span class='badge bg-ihsa ms-1' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Team Qualifier'>TQ</span>";
@@ -1175,12 +1172,16 @@ echo '<script type="application/ld+json">
 
                 table += "<td>" + results[x].school + "</td>";
 
-                for (let i = 1; i < 4; i++) {
+                for (let i = 1; i <= 3; i++) {
                     split = results[x]["split" + i];
                     if (split !== null && splits[level]["num"] < i) {
                         splits[level]["num"] = i;
                     }
-                    table += "<td class='d-none splits-cell' data-splitnum='" + i + "'>" + split + "</td>";
+                    if (split !== null) {
+                        table += "<td class='d-none splits-cell' data-splitnum='" + i + "'>" + split + "</td>";
+                    } else {
+                        table += "<td class='d-none splits-cell' data-splitnum='" + i + "'></td>";
+                    }
                 }
 
                 table += "</tr>"
@@ -1192,7 +1193,7 @@ echo '<script type="application/ld+json">
 
         indresultsContainer.innerHTML += "<h4>" + levels[level] + " Results" + distance + "</h4>" + table
 
-        // indresultsContainer.innerHTML += "<h4 class='position-absolute d-none d-md-inline'>" + levels[level] + " Results" + distance + "</h4>" + table
+        // indresultsContainer.innerHTML += "<h4 class='position-absolute d-none d-lg-inline'>" + levels[level] + " Results" + distance + "</h4>" + table
         // new simpleDatatables.DataTable("#" + levels[level].toLowerCase().replace(" ", "_") + "Table", {
         //     searchable: true,
         //     fixedHeight: true,
@@ -1202,12 +1203,47 @@ echo '<script type="application/ld+json">
         activateTooltips()
     }
 
-    function toggleSplits() {
-        var querySelect = [];
-        var splitsCells = document.querySelectorAll("[data-splitnum='1']");
-        for (var i = 0; i < splitsCells.length; i++) {
-            splitsCells[i].classList.toggle("d-none");
+    const splitsLabels = {
+        "3mi": {
+            1: "1mi",
+            2: "2mi",
+            3: "3mi"
         }
+    }
+
+    function toggleSplits() {
+        for (let key in splits) {
+            if (key.includes(",")) {
+                event = key.split(",")[0]
+            } else {
+                event = key;
+            }
+            if (splits[key].num > 0) {
+                if (event.includes("m")) {
+                    distance = parseInt(event.replace("m", ""));
+                } else {
+                    distance = parseInt(event.replace("mi", ""));
+                }
+                difference = distance / splits[key].num;
+                for (var i = 0; i < splits[key].num; i++) {
+                    splits[key].names[i + 1] = (difference + (difference * i)) + "m"
+                }
+            }
+        }
+
+        var activeTables = document.querySelectorAll(".resultsTable");
+
+        activeTables.forEach((table) => {
+            id = table.getAttribute('data-td-rt')
+            console.log(id)
+            for (var i = 1; i <= splits[id].num; i++) {
+                var datasplit = "[data-splitnum='" + i + "']"
+                var splitsCells = document.querySelectorAll(datasplit);
+                for (var d = 0; d < splitsCells.length; d++) {
+                    splitsCells[d].classList.toggle("d-none");
+                }
+            }
+        });
     }
 
     function printindResults() {
@@ -1218,7 +1254,7 @@ echo '<script type="application/ld+json">
         a.document.write('<html>');
         a.document.write('<head><title>' + meetName + ' Results</title><style>.badge {display:none;} a {text-decoration: none; color: inherit;} .btn {display:none;} table {width:100%;text-align: center;} h4 {text-align: center; font-size: 18px;} .d-none {display:none;}</style></head>');
         a.document.write('<body onafterprint="window.close()"><img src="https://titandistance.com/assets/logos/color.svg" onload="window.print()" style="display: block;margin-left: auto;margin-right: auto;width: 40%;" alt="Titan Distance"><pre>');
-        a.document.write('<h2 style="text-align: center;">' + meetName + '</h2>')
+        a.document.write('<h2 style="text-align: center;margin-bottom:10px;">' + meetName + '</h2>')
         a.document.write(divContents);
         a.document.write('<p style="text-align:center; margin-top: 15px;">View Results Online: ' + document.location.href + '</p>')
         a.document.write('</pre></body></html>');
@@ -1313,7 +1349,7 @@ echo '<script type="application/ld+json">
     }
     map.on('style.load', function() {
         <?php
-        if (!empty($geojson)) {
+        if (!empty($geojson) && $sport == "xc") {
             echo "map.addSource(\"course\", {
                  type: 'geojson',
                  data: '/assets/geojson/" . $geojson . ".geojson'

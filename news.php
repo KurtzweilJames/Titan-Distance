@@ -22,7 +22,7 @@ if (empty($_GET["show"])) {
 <div class="container">
     <?php
     echo "<div class='row row-cols-1 row-cols-sm-2 row-cols-lg-3'>";
-    $no_of_records_per_page = 12;
+    $no_of_records_per_page = 15;
     $offset = ($page - 1) * $no_of_records_per_page;
 
     $total_pages_sql = "SELECT COUNT(*) FROM news WHERE " . $show;
@@ -60,7 +60,7 @@ if (empty($_GET["show"])) {
             echo "<img src='assets/images/blog/blank.png' class='card-img-top' alt='" . $row['title'] . "'>";
         }
         if (!empty($row['link'])) {
-            echo '<div class="badge bg-award-inv position-absolute" style="top: 0.5rem; right: 0.5rem" data-bs-toggle="tooltip" data-bs-title="External Link"><i class="bi bi-box-arrow-up-right h6"></i></div>';
+            echo '<div class="badge text-bg-primary position-absolute" style="top: 0.5rem; right: 0.5rem" data-bs-toggle="tooltip" data-bs-title="External Link"><i class="bi bi-box-arrow-up-right fs-6"></i></div>';
         }
 
         echo "<div class='card-body'>";

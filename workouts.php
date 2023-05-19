@@ -44,8 +44,8 @@ if (isset($_GET["strava"])) {
                 <thead>
                     <tr>
                         <th>Weekday (Date)</th>
-                        <th>Mileage</th>
                         <th>Workout</th>
+                        <th>Mileage</th>
                         <th>Post-Workout</th>
                         <?php
                         if (!empty($_SESSION["strava"])) {
@@ -74,6 +74,17 @@ if (isset($_GET["strava"])) {
                             echo "<tr id='" . $row['date'] . "'>";
                         }
                         echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='" . $tooltip . "'>" . $d . "</td>";
+
+                        if (!empty($row['workout'])) {
+                            echo "<td>" . $row['workout'] . "</td>";
+                        } else {
+                            if (!empty($row['practicename'])) {
+                                echo "<td>" . $row['practicename'] . "</td>";
+                            } else {
+                                echo "<td>To Be Announced</td>";
+                            }
+                        }
+
                         echo "<td>";
                         if (!empty($row['1mileage']) && empty($row['2mileage'])) {
                             echo $row['1mileage'];
@@ -86,15 +97,10 @@ if (isset($_GET["strava"])) {
                             echo "<br><strong>Group 3: </strong>" . $row['3mileage'];
                         }
                         echo "</td>";
-                        if (!empty($row['workout'])) {
-                            echo "<td>" . $row['workout'] . "</td>";
-                        } else {
-                            echo "<td>To Be Announced</td>";
-                        }
 
                         echo "<td>";
                         if ($row['weights'] >= 1) {
-                            echo "<span class='badge bg-primary'>Weight Circuit";
+                            echo "<span class='badge bg-primary'><i class='bi bi-fire me-1'></i>Weight Circuit";
                             if ($row['weights'] > 1) {
                                 echo "s (x" . $row['weights'] . ")";
                             }
@@ -228,58 +234,58 @@ if (isset($_GET["strava"])) {
             </div>
         </div>
     </div>
+</div>
+<script>
+    const stravaModal = new bootstrap.Modal(document.getElementById('stravaModal'), {})
 
-    <script>
-        const stravaModal = new bootstrap.Modal(document.getElementById('stravaModal'), {})
+    function showStrava(n, d, s) {
 
-        function showStrava(n, d, s) {
-
-            d = d.replace(" Miles", "");
-            d = d.replace("Up to ", "");
+        d = d.replace(" Miles", "");
+        d = d.replace("Up to ", "");
 
 
-            //stravaModal.show;
-            document.getElementById("name").value = n;
-            document.getElementById("distance").value = d;
-            document.getElementById("start").value = s;
+        //stravaModal.show;
+        document.getElementById("name").value = n;
+        document.getElementById("distance").value = d;
+        document.getElementById("start").value = s;
 
-            d = document.getElementById("distance").value;
-            var e = d * 420;
+        d = document.getElementById("distance").value;
+        var e = d * 420;
 
-            hours = Math.floor(e / 3600);
-            e %= 3600;
-            minutes = Math.floor(e / 60);
-            seconds = e % 60;
-            document.getElementById("hr").value = hours;
-            document.getElementById("min").value = minutes;
-            document.getElementById("sec").value = seconds;
-        }
+        hours = Math.floor(e / 3600);
+        e %= 3600;
+        minutes = Math.floor(e / 60);
+        seconds = e % 60;
+        document.getElementById("hr").value = hours;
+        document.getElementById("min").value = minutes;
+        document.getElementById("sec").value = seconds;
+    }
 
-        function changePace() {
-            range = document.getElementById("pace");
-            label = document.getElementById("paceLabel");
-            pace = range.value;
+    function changePace() {
+        range = document.getElementById("pace");
+        label = document.getElementById("paceLabel");
+        pace = range.value;
 
-            d = document.getElementById("distance").value;
-            hrs = document.getElementById("hr").value;
-            mins = document.getElementById("min").value;
-            secs = document.getElementById("sec").value;
+        d = document.getElementById("distance").value;
+        hrs = document.getElementById("hr").value;
+        mins = document.getElementById("min").value;
+        secs = document.getElementById("sec").value;
 
-            paceEng = Math.floor(pace / 60) + ":" + ((pace % 60) < 10 ? '0' : '') + (pace % 60).toFixed(0)
+        paceEng = Math.floor(pace / 60) + ":" + ((pace % 60) < 10 ? '0' : '') + (pace % 60).toFixed(0)
 
-            elapsed = d * pace;
+        elapsed = d * pace;
 
-            hours = Math.floor(elapsed / 3600);
-            elapsed %= 3600;
-            minutes = Math.floor(elapsed / 60);
-            seconds = elapsed % 60;
+        hours = Math.floor(elapsed / 3600);
+        elapsed %= 3600;
+        minutes = Math.floor(elapsed / 60);
+        seconds = elapsed % 60;
 
-            document.getElementById("hr").value = hours
-            document.getElementById("min").value = minutes
-            document.getElementById("sec").value = seconds
+        document.getElementById("hr").value = hours
+        document.getElementById("min").value = minutes
+        document.getElementById("sec").value = seconds
 
-            label.innerHTML = "Pace (" + paceEng + " min/mile)"
-        }
-    </script>
+        label.innerHTML = "Pace (" + paceEng + " min/mile)"
+    }
+</script>
 
-    <?php include("footer.php"); ?>
+<?php include("footer.php"); ?>

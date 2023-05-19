@@ -23,12 +23,19 @@ include('header.php') ?>
                     echo '<h1 class="text-uppercase text-center text-white">' . $row['Name'] . ' Meet Day</h1>';
                     echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '">Meet Home</a>';
                     if (!empty($row['Live']) && $row['Official'] == 0) {
-                        echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank">Live Results</a>';
+                        if (strpos($row['Live'], "athletic.live") !== false || strpos($row['Live'], "live.athletic.net") !== false || strpos($row['Live'], "results.lakeshoreathleticservices.com") !== false || strpos($row['Live'], "live.timingmd.net") !== false || strpos($row['Live'], "anet.live") !== false || strpos($row['Live'], "live.palatinepack.com") !== false) {
+                            echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank"><img src="https://titandistance.com/assets/icons/athleticlive.svg" height="16px" alt="AthleticLIVE (Live Results)"></a>';
+                        } else {
+                            echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank">Live Results</a>';
+                        }
                     } else if (!empty($row['Live'])) {
                         echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '#results">Results</a>';
                     }
                     if (!empty($row['AthNet'])) {
-                        echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['AthNet'] . '" target="_blank">Athletic.net</a>';
+                        echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['AthNet'] . '" target="_blank"><img src="https://titandistance.com/assets/icons/AthleticNet.svg" height="16px" alt="AthleticNET"></a>';
+                    }
+                    if (!empty($row['Schedule'])) {
+                        echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '#schedule">Meet Schedule</a>';
                     }
                 } else {
                     echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '">' . $row['Name'] . ' Home</a>';
@@ -48,12 +55,38 @@ include('header.php') ?>
 </div>
 
 <div class="container mt-2">
+    <?php
+    $currentdate = date('Y-m-d');
+    $result = mysqli_query($con, "SELECT * FROM tdas WHERE startdate<='" . $currentdate . "' AND enddate>='" . $currentdate . "' ORDER BY id DESC");
+    while ($row = mysqli_fetch_array($result)) {
+        if ($row['type'] == 0) {
+            $type = "danger";
+        } else if ($row['type'] == 1) {
+            $type = "info";
+        } else if ($row['type'] == 2) {
+            $type = "warning";
+        } else if ($row['type'] == 3) {
+            $type = "success";
+        }
+
+        if ($row['nostick'] == 0) {
+            //$type = $type . " sticky-top";
+        }
+
+        if (!empty($row['link'])) {
+            $type = $type . " clickable-row";
+        }
+        if (!empty($row['web'])) {
+            echo "<div class='alert alert-" . $type . " text-center' role='alert' onclick = window.location='" . $row['link'] . "'><strong style='text-transform: uppercase;'>" . $row['title'] . ": </strong>" . $row['web'] . "</div>";
+        }
+    }
+    ?>
     <div class="row">
         <div class="col-md-8 order-2 order-lg-1">
-            <ul class="list-group list-group-flush">
+            <div class="list-group list-group-flush">
                 <?php
                 // LATEST NEWS
-                $result = mysqli_query($con, "SELECT * FROM news WHERE public = 1 ORDER BY date DESC LIMIT 8");
+                $result = mysqli_query($con, "SELECT * FROM news WHERE public = 1 ORDER BY date DESC LIMIT 9");
                 while ($row = mysqli_fetch_array($result)) {
                     $content = strip_tags($row['content']);
                     $image = "assets/images/" . $row['image'];
@@ -87,71 +120,28 @@ include('header.php') ?>
                     }
                     echo "</div>";
 
-                    echo "<p mb-3'>" . substr($content, 0, 225) . "...</p>";
-                    echo "<p><small class='text-muted'>Published on " . $date . $status . "</small></p>";
+                    echo "<p class='mb-3'>" . substr($content, 0, 250);
+                    if (substr($content, 0, 250) !== $content) {
+                        echo "...";
+                    }
+                    echo "</p>";
+
+
+                    echo "<p class='mb-0'><small class='text-muted'>Published on " . $date . $status . "</small></p>";
                     echo "</div></div></a>";
                 }
                 ?>
-            </ul>
+            </div>
         </div>
         <div class="col-md-4 order-1 order-lg-2">
-            <!-- <div class="card mb-3 clickable-row" data-href="/workouts">
-                <div class="card-header">
-                    <a href="/workouts">Today's Workout</a>
-                </div>
-                <div class="card-body p-1">
-                    <ol class="list-group list-group-flush">
-                        <?php
-                        // $result = mysqli_query($con,"SELECT * FROM workouts WHERE date='".$todaydate."' LIMIT 1");
-                        // while($row = mysqli_fetch_array($result)) {
-                        //     echo "<a class='list-group-item d-flex justify-content-between align-items-start px-1' href='/workouts'>";
-                        //     echo "<div class='ms-2 me-auto'>";
-                        //     if (!empty($row['workout'])) {
-                        //         echo "<div class='fw-bold'>".$row['workout']."</div>";
-                        //         echo "<ul class='list-unstyled'>";
-                        //         foreach (["1mileage","2mileage","3mileage"] as $mileage) {
-                        //             if (!empty($row[$mileage])) {
-                        //                 echo "<li><strong class='me-1'>Group ".substr($mileage,0,1).":</strong>".$row[$mileage]."</li>";
-                        //             }
-                        //         }
-                        //         if ($row['weights'] >= 1) {
-                        //             echo "<span class='badge bg-primary'>Weight Circuit";
-                        //             if ($row['weights'] > 1) {
-                        //                 echo "s (x".$row['weights'].")";
-                        //             }
-                        //                 echo "</span>";
-                        //             }
-                        //             if (isset($row['strides']) && $row['strides'] !== 0) {
-                        //                 echo " <span class='badge bg-primary text-white'>".$row['strides']." strides</span>";
-                        //             }
-                        //             if ((empty($row['weights']) && empty($row['strides'])) && !empty($row['notes'])) {
-                        //                 echo "<br>";
-                        //             }
-                        //             if (!empty($row['notes'])) {
-                        //                 echo "*".$row['notes'];
-                        //             }
-                        //         echo "</ul>";
-                        //     } else {
-                        //         if (!empty($row['practicename'])) {
-                        //             echo "<div class='fw-bold'>".$row['practicename']." @ ".date("g:i a",strtotime($row['practicetime']))."</div>";
-                        //         }
-                        //         echo "Workout not Published";
-                        //     }
-                        //     echo "</div>";
-                        //     echo "</a>";
-                        // }
-                        ?>
-                    </ol>
-                </div>
-            </div> -->
             <div class="card mb-3">
                 <div class="card-header">
-                    <a href="/schedule">Upcoming Schedule</a>
+                    <a class="h6" href="/schedule">Upcoming Schedule</a>
                 </div>
-                <div class="card-body p-1 overflow-auto" style="height: 250px;">
+                <div class="card-body p-1 overflow-auto" style="max-height: 250px;">
                     <ol class="list-group list-group-flush">
                         <?php
-                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Date >= '" . $todaydate . "' AND Official != 1 AND Official != 2 AND NOT(`Status` <=> 'C') ORDER BY Date");
+                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Date >= '" . $todaydate . "' AND Official != 1 AND Official != 2 AND NOT(`Status` <=> 'C') AND `Season` = '" . $currentseason . "' ORDER BY Date");
                         while ($row = mysqli_fetch_array($result)) {
                             if (empty($row['Series'])) {
                                 $url = "/meet/" . $row['id'];
@@ -172,9 +162,9 @@ include('header.php') ?>
                             }
                             echo $row['Location'] . "</div>";
                             if ($row['Date'] == $todaydate) {
-                                echo "<span class='badge bg-award rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='Meet Day!'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
+                                echo "<span class='badge text-bg-active rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='Meet Day!'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
                             } else {
-                                echo "<span class='badge bg-award-inv rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countdown . " Days Away'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
+                                echo "<span class='badge text-bg-primary rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countdown . " Days Away'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
                             }
                             echo "</a>";
                         }
@@ -185,14 +175,65 @@ include('header.php') ?>
                     </ol>
                 </div>
             </div>
+            <div class="card mb-3 clickable-row" data-href="/workouts">
+                <div class="card-header">
+                    <a class="h6" href="/workouts">Today's Workout</a>
+                </div>
+                <div class="card-body p-1">
+                    <ol class="list-group list-group-flush">
+                        <?php
+                        $result = mysqli_query($con, "SELECT * FROM workouts WHERE date='" . $todaydate . "' LIMIT 1");
+                        while ($row = mysqli_fetch_array($result)) {
+                            echo "<a class='list-group-item d-flex justify-content-between align-items-start px-1' href='/workouts'>";
+                            echo "<div class='ms-2 me-auto'>";
+                            if (!empty($row['workout'])) {
+                                echo "<div class='fw-bold'>" . $row['workout'] . "</div>";
+                                echo "<ul class='list-unstyled'>";
+                                foreach (["1mileage", "2mileage", "3mileage"] as $mileage) {
+                                    if (!empty($row[$mileage])) {
+                                        echo "<li><strong class='me-1'>Group " . substr($mileage, 0, 1) . ":</strong>" . $row[$mileage] . "</li>";
+                                    }
+                                }
+                                if ($row['weights'] >= 1) {
+                                    echo "<span class='badge text-bg-primary'><i class='bi bi-fire me-1'></i>Weight Circuit";
+                                    if ($row['weights'] > 1) {
+                                        echo "s (x" . $row['weights'] . ")";
+                                    }
+                                    echo "</span>";
+                                }
+                                if (isset($row['strides']) && $row['strides'] !== 0) {
+                                    echo " <span class='badge text-bg-primary text-white'>" . $row['strides'] . " strides</span>";
+                                }
+                                if ((empty($row['weights']) && empty($row['strides'])) && !empty($row['notes'])) {
+                                    // echo "<br>";
+                                }
+                                if (!empty($row['notes'])) {
+                                    echo "*" . $row['notes'];
+                                }
+                                echo "</ul>";
+                            } else {
+                                if (!empty($row['practicename'])) {
+                                    echo "<div class='fw-bold'>" . $row['practicename'] . " @ " . date("g:i a", strtotime($row['practicetime'])) . "</div>";
+                                } else {
+                                    echo "<div class='fw-bold'>No Organized Practice Today</div>";
+                                }
+                                echo "Workout not Published";
+                            }
+                            echo "</div>";
+                            echo "</a>";
+                        }
+                        ?>
+                    </ol>
+                </div>
+            </div>
             <div class="card mb-3">
                 <div class="card-header">
-                    <a href="/results">Latest Results</a>
+                    <a class="h6" href="/results">Latest Results</a>
                 </div>
                 <div class="card-body p-1 overflow-auto" style="height: 250px;">
                     <ol class="list-group list-group-flush">
                         <?php
-                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Official != 0 ORDER BY Date DESC LIMIT 50");
+                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Official != 0 ORDER BY Date DESC");
                         while ($row = mysqli_fetch_array($result)) {
                             if (empty($row['Series'])) {
                                 $url = "/meet/" . $row['id'] . "#results";
@@ -212,21 +253,37 @@ include('header.php') ?>
                                 echo "@ ";
                             }
                             echo $row['Location'] . "</div>";
-                            echo "<span class='badge bg-award-inv rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countup . " Days Ago" . "'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
+                            if ($row['Date'] == $todaydate) {
+                                echo "<span class='badge text-bg-active rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='Meet Day!'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
+                            } else if (date("Y", strtotime($row['Date'])) == date("Y")) {
+                                echo "<span class='badge text-bg-primary rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countup . " Days Ago" . "'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
+                            } else {
+                                echo "<span class='badge text-bg-primary rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countup . " Days Ago" . "'>" . date('D, M d, Y', strtotime($row['Date'])) . "</span>";
+                            }
                             echo "</a>";
                         }
                         ?>
                     </ol>
                 </div>
             </div>
+            <div class="card mb-3 p-0">
+                <div class="card-header">
+                    <a class="h6" href="/search">Site Search</a>
+                </div>
+                <div class="card-body">
+                    <button class="form-control hover-card" id="searchBarHome" data-bs-toggle="modal" data-bs-target="#searchModal"><i class="bi bi-search me-2"></i>Search Here...</button>
+                </div>
+            </div>
+
             <div class="card mb-3 p-0 d-none d-lg-block">
                 <div class="card-body p-0">
-                    <!-- Twitter Embed -->
+                    <a class="twitter-timeline" data-height="500" data-dnt="true" href="https://twitter.com/TitanDistance?ref_src=twsrc%5Etfw">Tweets by TitanDistance</a>
+                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
                 </div>
             </div>
             <div class="card mb-3 p-0 d-none d-lg-block" style="height:160px">
                 <div class="card-body p-0">
-                    <!-- Strava Embed -->
+                    <iframe title="Strava Club" allowtransparency="" frameborder="0" height="160" width="100%" scrolling="no" src="https://www.strava.com/clubs/504121/latest-rides/5f0253b3bbd931bdde9ec866c542f5b436c33a1b?show_rides=false"></iframe>
                 </div>
             </div>
         </div>

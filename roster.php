@@ -12,6 +12,7 @@
         <div class="col-md-3">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
+                <option value="tf23" name="tf23">2023 Distance Track</option>
                 <option value="xc22" name="xc22">2022 Cross Country</option>
                 <option value="tf22" name="tf22">2022 Distance Track</option>
                 <option value="xc21" name="xc21">2021 Cross Country</option>
@@ -46,7 +47,13 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <img src="" class="mx-auto d-block" alt="" height="200" id="athleteImage">
+            <!-- <div class="athlete-image mx-auto mx-md-0">
+                <img src="" class="d-block" alt="" height="200" id="athleteImage">
+            </div> -->
+            <div class="athlete-image mx-auto mx-md-0">
+                <img src="" class="img-thumbnail" alt="" id="athleteImage">
+                <img src="" class="college-overlay" alt="" id="athleteCollegeLogo">
+            </div>
             <hr>
             <div class="text-center">
                 <h3 id="athleteName" class="mb-0"></h3>
@@ -55,8 +62,8 @@
                 <div id="athleteButtons">
                     <a class="btn btn-primary btn-sm" href="" role="button" id="athleteLink">Titan Distance
                         Profile</a>
-                    <a href="#" class="btn btn-primary btn-sm" id="atNetTF" target="_blank">A.Net TF</a>
-                    <a href="#" class="btn btn-primary btn-sm" id="atNetXC" target="_blank">A.Net XC</a>
+                    <a href="#" class="btn btn-primary btn-sm" id="atNetTF" target="_blank">AthNET TF</a>
+                    <a href="#" class="btn btn-primary btn-sm" id="atNetXC" target="_blank">AthNET XC</a>
                 </div>
             </div>
             <table class="table table-sm mt-4">
@@ -177,7 +184,14 @@
                             "<td data-type=\"date\" data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" title=\"" +
                             roster[x].records[events[event]].meetName + "\"><a href=\"/meet/" + roster[x].records[
                                 events[event]].meetID + "#results\">" + formatResult(roster[x].records[events[event]]
-                                .result) + "</a></td>";
+                                .result);
+                        if (roster[x].records[events[event]].relay == true) {
+                            table += "<span class='badge text-bg-info ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Relay Split'>R</span>";
+                        }
+                        if (roster[x].records[events[event]].isPR == "1" && season !== "All Time") {
+                            table += "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                        }
+                        table += "</a></td>";
                     } else {
                         table += "<td>-</td>";
                     }
@@ -226,6 +240,18 @@
             tableContainer.innerHTML += cards
         }
 
+        var colleges;
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                colleges = JSON.parse(response);
+            }
+        };
+        var url = "/api/collegelogos.json"
+        xhttp.open("GET", url, true);
+        xhttp.send();
+
         function athleteFlyout(profile, row, sport) {
             var myOffcanvas = document.getElementById('offcanvasAthlete')
             var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas)
@@ -241,6 +267,15 @@
             } else {
                 document.getElementById("athleteCollege").innerHTML = "";
             }
+            if (roster[row].college && colleges[roster[row].college].logo) {
+                document.getElementById("athleteCollegeLogo").classList.remove("d-none");
+                document.getElementById("athleteCollegeLogo").src = "/assets/logos/colleges/" + colleges[roster[row].college].logo;
+                document.getElementById("athleteCollegeLogo").alt = roster[row].college;
+            } else {
+                document.getElementById("athleteCollegeLogo").classList.add("d-none");
+                document.getElementById("athleteCollegeLogo").src = "";
+                document.getElementById("athleteCollegeLogo").alt = "";
+            }
             document.getElementById("athleteLink").href = "/athlete/" + roster[row].profile;
             athleteRecordTable = document.getElementById("athleteRecordTable");
             athleteRecordTable.innerHTML = "";
@@ -255,10 +290,12 @@
                 athleteRecordTable.innerHTML = table;
             }
             if (roster[row].athnet !== null) {
-                document.getElementById("atNetTF").href = "https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" +
-                    roster[row].athnet;
-                document.getElementById("atNetXC").href = "https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" +
-                    roster[row].athnet;
+                // document.getElementById("atNetTF").href = "https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" +
+                //     roster[row].athnet;
+                // document.getElementById("atNetXC").href = "https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" +
+                //     roster[row].athnet;
+                document.getElementById("atNetTF").href = "https://www.athletic.net/athlete/" + roster[row].athnet + "/track-and-field/high-school";
+                document.getElementById("atNetXC").href = "https://www.athletic.net/athlete/" + roster[row].athnet + "/cross-country/high-school";
             } else {
                 document.getElementById("atNetTF").classList = "d-none"
                 document.getElementById("atNetXC").classList = "d-none"

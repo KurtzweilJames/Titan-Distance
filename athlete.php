@@ -84,154 +84,164 @@ while ($row = mysqli_fetch_array($result)) {
 }
 ?>
 
-<div class="container">
+<div class="container my-2">
     <div class="row">
-        <div class="col-md-3 p-md-0 text-center text-md-start">
+        <div class="col-md-3">
+            <div class="card h-100">
+                <div class="card-body text-center text-md-start">
+                    <?php
+                    echo "<div class='athlete-image mx-auto mx-md-0'>";
+                    echo "<img src='/" . $image . "' class='img-thumbnail' alt='" . $name . "'>";
+                    if (!empty($college)) {
+                        $json = json_decode(file_get_contents("api/collegelogos.json"), true);
 
-            <?php
-            echo "<div class='athlete-image mx-auto mx-md-0'>";
-            echo "<img src='/" . $image . "' class='img-thumbnail' alt='" . $name . "'>";
-            echo "</div>";
-
-            $y = substr($currentyear, -2);
-            if (date('n') > 6) {
-                $y = $y + 1;
-            }
-
-            if ($class == $y + 2000) {
-                $grade = " (Sr.)";
-            } else if ($class == $y + 2001) {
-                $grade = " (Jr.)";
-            } else if ($class == $y + 2002) {
-                $grade = " (So.)";
-            } else if ($class == $y + 2003) {
-                $grade = " (Fr.)";
-            } else {
-                $grade = null;
-            }
-
-            echo "<h3>" . $name . "</h3>";
-            echo "<h4>Class of " . $class . $grade . "</h4>";
-            if (!empty($college)) {
-                $json = json_decode(file_get_contents("api/collegelogos.json"), true);
-                $colleges = explode(";", $college);
-                foreach ($colleges as $c) {
-                    echo "<h5>";
-                    echo $c;
-                    $c = str_replace(" (DI)", "", $c);
-                    $c = str_replace(" (DIII)", "", $c);
-                    if (!empty($json[$c])) {
-                        echo "<img class='ms-1' src='/assets/logos/colleges/" . $json[$c]["logo"] . "' height='14px'>";
-                    }
-                    echo "</h5>";
-                }
-            }
-            // if ($currentsport == "xc" && $currentathlete == 1) {
-            //     echo "<h5>Team Points: ".$teampoints."</h5>";
-            // }
-
-            if (!empty($prs['3mi']) && $prs["3mi"] < "15:00:00") {
-                echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
-            } else if (!empty($prs['3mi']) && $prs["3mi"] < "16:00:00") {
-                echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
-            }
-            if (!empty($prs["3200m"]) && $prs["3200m"] < "10:00") {
-                echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
-            }
-            if (!empty($prs["1600m"]) && $prs["1600m"] < "5:00") {
-                echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
-            }
-            if (!empty($prs["800m"]) && $prs["800m"] < "2:00") {
-                echo "<span class='badge bg-award mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
-            }
-
-            echo "<hr class='mr-md-4'>";
-
-            $displayedAwards = false;
-            $possible = ["xc_allconf" => "XC All-Conference", "tf_allconf" => "TF All-Conference", "xc_mvp" => "XC MVP", "tf_mvp" => "TF MVP", "xc_allstate" => "XC All-State", "tf_allstate" => "TF All-State", "xc_allsectional" => "XC All-Sectional", "tf_allsectional" => "TF All-Sectional", "xc_allregional" => "XC All-Regional", "xc_improved" => "XC Most Improved", "xc_spirited" => "XC Most Spirited", "xc_ironman" => "XC Dave Pasquini \"Mr. Ironman\"", "xc_sportsmanship" => "CSL Sportsmanship", "xc_goldbrick" => "Goldbrick"];
-            $result = mysqli_query($con, "SELECT * FROM athletes WHERE profile='" . $profile . "'");
-            while ($row = mysqli_fetch_array($result)) {
-                foreach ($possible as $d => $a) {
-                    if (!empty($row[$d])) {
-                        $years = [];
-                        $years = explode(",", $row[$d]);
-                        foreach ($years as $y) {
-                            if (strpos($d, 'conf') !== false) {
-                                $badge = 'bg-csl';
-                            } else if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
-                                $badge = 'bg-ihsa';
-                            } else if (strpos($d, 'goldbrick') !== false) {
-                                $badge = 'bg-award';
-                            } else {
-                                $badge = "bg-award-inv";
-                            }
-                            echo "<span class='badge " . $badge . " mx-1'>";
-                            if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
-                                echo "<img src='/assets/icons/ihsa.svg' height='10px' class='me-2'>";
-                            }
-                            echo $a . " (" . $y . ")";
-                            echo "</span>";
+                        if (!empty($json[$college])) {
+                            echo "<img src='/assets/logos/colleges/" . $json[$college]["logo"] . "' class='college-overlay' alt='" . $college . "'>";
                         }
-                        $displayedAwards = true;
                     }
-                }
-            }
+                    echo "</div>";
 
-            if ($displayedAwards == true) {
-                echo "<hr class='mr-md-4'>";
-            }
+                    $y = substr($currentyear, -2);
+                    if (date('n') > 6) {
+                        $y = $y + 1;
+                    }
 
-            if (!empty($athnet)) {
-                echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/CrossCountry/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net XC</a>";
-                echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/TrackAndField/Athlete.aspx?AID=" . $athnet . "' role='button' target='_null'>Athletic.net TF</a>";
-            }
-
-            if (!empty($tfrrs)) {
-                echo "<a class='btn btn-td btn-sm mx-1' href='" . $tfrrs . "' role='button' target='_null' data-bs-toggle='tooltip' data-bs-title='Collegiate Results'>TFRRS</a>";
-            }
-            ?>
-            <a class="btn btn-link btn-sm my-2" href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Profile+Update" role="button" target="_blank">Update Profile Info</a>
-            <hr class="d-block d-md-none">
-        </div>
-        <div class="col-md-9 p-md-1">
-            <h3 class="mb-0">Personal Records</h3>
-            <hr class="mt-0 mb-0">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <?php
-                            foreach ($allprs as $event => $row) {
-                                echo "<th scope='col'>" . $event . "</th>";
-                            }
-                            ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <?php
-                            foreach ($allprs as $row) {
-                                echo $row;
-                            }
-                            ?>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <?php
-            $xc = mysqli_query($con, "SELECT * FROM overallxc WHERE profile='" . $profile . "' ORDER BY date IS NULL, date DESC");
-            $tf = mysqli_query($con, "SELECT * FROM overalltf WHERE profile='" . $profile . "' ORDER BY date IS NULL, date DESC");
-            ?>
-            <div class="row">
-                <?php
-                if (mysqli_num_rows($xc) > 0) {
-                    if (mysqli_num_rows($tf) > 0) {
-                        echo "<div class='col-md-6'>";
+                    if ($class == $y + 2000) {
+                        $grade = " (Sr.)";
+                    } else if ($class == $y + 2001) {
+                        $grade = " (Jr.)";
+                    } else if ($class == $y + 2002) {
+                        $grade = " (So.)";
+                    } else if ($class == $y + 2003) {
+                        $grade = " (Fr.)";
                     } else {
-                        echo "<div class='col-md-12'>";
+                        $grade = null;
                     }
-                    echo "<h3 class='mb-0'>Cross Country</h3>
-                    <hr class='mt-0'>
+
+                    echo "<h4>" . $name . "</h5>";
+                    echo "<h5>Class of " . $class . $grade . "</h5>";
+                    if (!empty($college)) {
+                        // $json = json_decode(file_get_contents("api/collegelogos.json"), true);
+                        $colleges = explode(";", $college);
+                        foreach ($colleges as $c) {
+                            echo "<h6>";
+                            echo $c;
+                            $c = str_replace(" (DI)", "", $c);
+                            $c = str_replace(" (DIII)", "", $c);
+                            // if (!empty($json[$c])) {
+                            //     echo "<img class='ms-1' src='/assets/logos/colleges/" . $json[$c]["logo"] . "' height='14px'>";
+                            // }
+                            echo "</h6>";
+                        }
+                    }
+                    // if ($currentsport == "xc" && $currentathlete == 1) {
+                    //     echo "<h5>Team Points: ".$teampoints."</h5>";
+                    // }
+
+                    if (!empty($prs['3mi']) && $prs["3mi"] < "15:00:00") {
+                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
+                    } else if (!empty($prs['3mi']) && $prs["3mi"] < "16:00:00") {
+                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
+                    }
+                    if (!empty($prs["3200m"]) && $prs["3200m"] < "10:00") {
+                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
+                    }
+                    if (!empty($prs["1600m"]) && $prs["1600m"] < "5:00") {
+                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
+                    }
+                    if (!empty($prs["800m"]) && $prs["800m"] < "2:00") {
+                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
+                    }
+
+                    echo "<hr class='mr-md-4'>";
+
+                    $displayedAwards = false;
+                    $possible = ["xc_allconf" => "XC All-Conference", "tf_allconf" => "TF All-Conference", "xc_mvp" => "XC MVP", "tf_mvp" => "TF MVP", "xc_allstate" => "XC All-State", "tf_allstate" => "TF All-State", "xc_allsectional" => "XC All-Sectional", "tf_allsectional" => "TF All-Sectional", "xc_allregional" => "XC All-Regional", "xc_improved" => "XC Most Improved", "xc_spirited" => "XC Most Spirited", "xc_ironman" => "XC Dave Pasquini \"Mr. Ironman\"", "xc_sportsmanship" => "CSL Sportsmanship", "xc_goldbrick" => "Goldbrick"];
+                    $result = mysqli_query($con, "SELECT * FROM athletes WHERE profile='" . $profile . "'");
+                    while ($row = mysqli_fetch_array($result)) {
+                        foreach ($possible as $d => $a) {
+                            if (!empty($row[$d])) {
+                                $years = [];
+                                $years = explode(",", $row[$d]);
+                                foreach ($years as $y) {
+                                    if (strpos($d, 'conf') !== false) {
+                                        $badge = 'bg-csl';
+                                    } else if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
+                                        $badge = 'bg-ihsa';
+                                    } else if (strpos($d, 'goldbrick') !== false) {
+                                        $badge = 'text-bg-primary';
+                                    } else {
+                                        $badge = "text-bg-active";
+                                    }
+                                    echo "<span class='badge " . $badge . " mx-1'>";
+                                    if (strpos($d, 'state') !== false || strpos($d, 'sectional') !== false || strpos($d, 'regional') !== false) {
+                                        echo "<img src='/assets/icons/ihsa.svg' height='10px' class='me-2'>";
+                                    }
+                                    echo $a . " (" . $y . ")";
+                                    echo "</span>";
+                                }
+                                $displayedAwards = true;
+                            }
+                        }
+                    }
+
+                    if ($displayedAwards == true) {
+                        echo "<hr class='mr-md-4'>";
+                    }
+
+                    if (!empty($athnet)) {
+                        echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/athlete/" . $athnet . "/cross-country/' role='button' target='_null'>AthleticNET XC</a>";
+                        echo "<a class='btn btn-td btn-sm mx-1' href='https://www.athletic.net/athlete/" . $athnet . "/track-and-field/' role='button' target='_null'>AthleticNET TF</a>";
+                    }
+
+                    if (!empty($tfrrs)) {
+                        echo "<a class='btn btn-td btn-sm mx-1' href='" . $tfrrs . "' role='button' target='_null' data-bs-toggle='tooltip' data-bs-title='Collegiate Results'>TFRRS</a>";
+                    }
+                    ?>
+                    <a class="btn btn-link btn-sm my-2" href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Profile+Update" role="button" target="_blank">Update Profile Info</a>
+                    <hr class="d-block d-md-none">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="mb-0 border-bottom">Personal Records</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <?php
+                                    foreach ($allprs as $event => $row) {
+                                        echo "<th scope='col'>" . $event . "</th>";
+                                    }
+                                    ?>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <?php
+                                    foreach ($allprs as $row) {
+                                        echo $row;
+                                    }
+                                    ?>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php
+                    $xc = mysqli_query($con, "SELECT * FROM overallxc WHERE profile='" . $profile . "' ORDER BY date IS NULL, date DESC");
+                    $tf = mysqli_query($con, "SELECT * FROM overalltf WHERE profile='" . $profile . "' ORDER BY date IS NULL, date DESC");
+                    ?>
+                    <div class="row my-2">
+                        <?php
+                        if (mysqli_num_rows($xc) > 0) {
+                            if (mysqli_num_rows($tf) > 0) {
+                                echo "<div class='col-md-6'>";
+                            } else {
+                                echo "<div class='col-md-12'>";
+                            }
+                            echo "<h3 class='mb-0 border-bottom'>Cross Country</h3>
                     <div class='table-responsive overflow-hidden'>
                         <table class='table table-condensed table-striped table-hover dataTable' id='xcPersonal'>
                             <thead>
@@ -242,35 +252,34 @@ while ($row = mysqli_fetch_array($result)) {
                                 </tr>
                             </thead>
                             <tbody>";
-                    while ($row = mysqli_fetch_array($xc)) {
-                        $meet = $row['meet'];
-                        $distance = str_replace("mi", " Mile", $row['distance']);
-                        echo "<tr class='clickable-row' data-href='/meet/" . $meet . "'>";
+                            while ($row = mysqli_fetch_array($xc)) {
+                                $meet = $row['meet'];
+                                $distance = str_replace("mi", " Mile", $row['distance']);
+                                echo "<tr class='clickable-row' data-href='/meet/" . $meet . "'>";
 
-                        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: " . $row['place'] . "'>";
-                        echo $row['time'];
-                        if ($row['pr'] == 1) {
-                            echo "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
-                        } else if ($row['sr'] == 1) {
-                            echo "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: " . $row['place'] . "'>";
+                                echo $row['time'];
+                                if ($row['pr'] == 1) {
+                                    echo "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                } else if ($row['sr'] == 1) {
+                                    echo "<span class='badge text-bg-active ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                }
+                                echo "</td>";
+
+                                echo "<td><a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a></td>";
+                                echo "<td>" . $distance . "</td>";
+                                echo "</tr>";
+                            }
+                            echo "</tbody></table></div></div>";
                         }
-                        echo "</td>";
 
-                        echo "<td><a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a></td>";
-                        echo "<td>" . $distance . "</td>";
-                        echo "</tr>";
-                    }
-                    echo "</tbody></table></div></div>";
-                }
-
-                if (mysqli_num_rows($tf) > 0) {
-                    if (mysqli_num_rows($xc) > 0) {
-                        echo "<div class='col-md-6'>";
-                    } else {
-                        echo "<div class='col-md-12'>";
-                    }
-                    echo "<h3 class='mb-0'>Track</h3>
-                    <hr class='mt-0'>
+                        if (mysqli_num_rows($tf) > 0) {
+                            if (mysqli_num_rows($xc) > 0) {
+                                echo "<div class='col-md-6'>";
+                            } else {
+                                echo "<div class='col-md-12'>";
+                            }
+                            echo "<h3 class='mb-0 border-bottom'>Track</h3>
                     <div class='table-responsive overflow-hidden'>
                         <table class='table table-condensed table-striped table-hover dataTable' id='tfPersonal'>
                             <thead>
@@ -281,34 +290,42 @@ while ($row = mysqli_fetch_array($result)) {
                                 </tr>
                             </thead>
                             <tbody>";
-                    while ($row = mysqli_fetch_array($tf)) {
-                        $meet = $row['meet'];
-                        echo "<tr class='clickable-row' data-href='/meet/" . $meet . "'>";
-                        echo "<td>" . $row['event'] . "</td>";
+                            while ($row = mysqli_fetch_array($tf)) {
+                                $meet = $row['meet'];
+                                echo "<tr class='clickable-row' data-href='/meet/" . $meet . "'>";
+                                echo "<td>" . $row['event'] . "</td>";
 
-                        echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: " . $row['place'] . "'>";
-                        echo formatTime($row['result']);
-                        if ($row['pr'] == 1) {
-                            echo "<span class='badge bg-award ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
-                        } else if ($row['sr'] == 1) {
-                            echo "<span class='badge bg-award-inv ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
-                        }
-                        if (isset($row['relay'])) {
-                            echo "<span class='badge bg-info ms-1'>R</span>";
-                        }
-                        echo "</td>";
+                                if ($row['result'] == "NT") {
+                                    echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='NT=No Time. Athlete most likely competed, but no split recorded.'>";
+                                } else if (!empty($row['place'])) {
+                                    echo "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Place: " . $row['place'] . "'>";
+                                } else {
+                                    echo "<td>";
+                                }
+                                echo formatTime($row['result']);
+                                if ($row['pr'] == 1) {
+                                    echo "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
+                                } else if ($row['sr'] == 1) {
+                                    echo "<span class='badge text-bg-active ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Season Record'>SR</span>";
+                                }
+                                if (isset($row['relay'])) {
+                                    echo "<span class='badge text-bg-info ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Relay Split'>R</span>";
+                                }
+                                echo "</td>";
 
-                        echo "<td><a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a></td>";
-                        echo "</tr>";
-                    }
-                    echo "</tbody></table></div></div>";
-                }
-                ?>
+                                echo "<td><a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a></td>";
+                                echo "</tr>";
+                            }
+                            echo "</tbody></table></div></div>";
+                        }
+                        ?>
+                    </div>
+                    <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
+                        <option value="" selected disabled>Select a Chart to Display</option>
+                    </select>
+                    <canvas id="chartContainer" class="d-none" width="400" height="200"></canvas>
+                </div>
             </div>
-            <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
-                <option value="" selected disabled>Select a Chart to Display</option>
-            </select>
-            <canvas id="chartContainer" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
