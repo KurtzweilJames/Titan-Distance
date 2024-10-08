@@ -32,9 +32,9 @@ while ($row = $result->fetch_assoc()) {
   $year = date("Y", strtotime($row['Date']));
 
   if (empty($row['Series'])) {
-    $url = "https://titandistance.com/meet/" . $row['id'];
+    $url = "/meet/" . $row['id'];
   } else {
-    $url = "https://titandistance.com/meet/" . $row["Series"] . "/" . $d = date("Y", strtotime($row['Date']));
+    $url = "/meet/" . $row["Series"] . "/" . $d = date("Y", strtotime($row['Date']));
   }
 
   $date = new DateTime($row['Date'] . $row['Time']);
@@ -48,13 +48,13 @@ while ($row = $result->fetch_assoc()) {
   }
   $countdown = round((strtotime($row["Date"]) - strtotime($todaydate)) / 86400);
 
-  $events[] = array("id" => $row['id'], "title" => $title, "start" => $start, "url" => $url, "location" => $location, "levels" => $row['Levels'], "opponents" => $row['Opponents'], "official" => $row['Official'], "badge" => $row['Badge'], "message" => $row['Message'], "notes" => $row['Notes'], "dow" => $dow, "md" => $d, "status" => $row['Status'], "countdown" => $countdown);
+  $events[] = array("id" => $row['id'], "title" => $title, "start" => $start, "url" => $url, "location" => $location, "levels" => $row['Levels'], "opponents" => $row['Opponents'], "official" => $row['Official'], "badge" => $row['Badge'], "message" => $row['Message'], "notes" => $row['Notes'], "dow" => $dow, "md" => $d, "sport" => $row['Sport'], "status" => $row['Status'], "countdown" => $countdown);
 
   //Day 2
   if (!empty($row['Day2Time'])) {
     $start = $row['Day2Time'];
     $title = $row['Name'] . " (" . $row['Day2Levels'] . ")";
-    $url = "https://titandistance.com/meet/" . $row['id'];
+    $url = "/meet/" . $row['id'];
     $start = date("c", strtotime($row['Day2Time']));
     $dow = date("D", strtotime($row['Day2Time']));
     $d = date("n/j", strtotime($row['Day2Time']));

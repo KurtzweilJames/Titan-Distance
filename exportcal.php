@@ -27,7 +27,7 @@ if (in_array('practices', $include)) {
 }
 
 if (in_array('schedule', $include)) {
-      $result = mysqli_query($con, "SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Series FROM meets WHERE NOT(`Status` <=> 'C')");
+      $result = mysqli_query($con, "SELECT Date,Time,Name,id,Location,Day2Time,Day2Levels,Levels,Series,last_updated FROM meets WHERE NOT(`Status` <=> 'C')");
       while ($row = mysqli_fetch_array($result)) {
             if (empty($row['Day2Time'])) {
                   $title = $row['Name'];
@@ -45,9 +45,10 @@ if (in_array('schedule', $include)) {
             $description = "For Meet Information, please visit: " . $url;
             $location = $row['Location'];
             $endtime = $timestamp + strtotime("+3 hours");
+            $update = date($row['last_updated']);
 
             if (!str_contains($title, "Unknown")) {
-                  generateEvent($title, $timestamp, $timestamp, $row['id'], $description, $location);
+                  generateEvent($title, $timestamp, $timestamp, $row['last_updated']."-".$row['id'], $description, $location);
             }
 
             // if (!empty($row['Day2Time'])) {

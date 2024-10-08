@@ -1,5 +1,6 @@
 <?php
 include($_SERVER['DOCUMENT_ROOT'] . '/db.php');
+header('Content-Type: application/json; charset=utf-8');
 
 $s = $_REQUEST["s"];
 if (!empty($_REQUEST["a"])) {
@@ -32,9 +33,10 @@ while ($row = mysqli_fetch_array($result)) {
 
 $profiles = [];
 
-if (($sport == "tf" || $s == "all") && $strict == true) {
+if (((!empty($sport) && $sport == "tf") || $s == "all") && $strict == true) {
     if ($s !== "all") {
         if ($a == true) {
+            //These have the errors $result = mysqli_query($con, "SELECT MAX(id) AS id, profile, event, MAX(season) AS season, MAX(sr) AS sr, MAX(column1) AS column1, MAX(column2) AS column2, ... FROM overalltf WHERE season = '" . $s . "' AND profile IS NOT NULL AND sr = 1 GROUP BY profile, event");
             $result = mysqli_query($con, "SELECT * FROM overalltf WHERE season = '" . $s . "' AND profile IS NOT NULL AND sr = 1 GROUP BY profile,event");
         } else {
             $result = mysqli_query($con, "SELECT * FROM overalltf WHERE season = '" . $s . "' AND profile IS NOT NULL AND sr = 1 AND event IN ('3200m','1600m','800m','400m') GROUP BY profile,event");
@@ -45,38 +47,28 @@ if (($sport == "tf" || $s == "all") && $strict == true) {
 
 
     while ($row = mysqli_fetch_array($result)) {
-        $sortvalue = 1000;
-        $min = explode(":", $row['result'])[0];
-        $secs = explode(":", $row['result'])[1];
-        $secs = explode(".", $secs)[0];
-        $per800 = ($min * 60) + ($secs);
-        if ($row['event'] == "3200m") {
-            $per800 /= 4;
-            $per800 -= 30;
-        } else if ($row['event'] == "1600m") {
-            $per800 /= 2;
-            $per800 -= 15;
-        } else if ($row['event'] == "400m") {
-            $per800 *= 2;
-            $per800 += 15;
+        if (!isset($profiles[$row['profile']]["maxPoints"]) || $profiles[$row['profile']]["maxPoints"] < $row['points']) {
+            $profiles[$row['profile']]["maxPoints"] = $row['points'];
         }
-        if ($per800 < $sortvalue) {
-            $sortvalue = $per800;
+
+        if (!empty($row['relay'])) {
+            $profiles[$row['profile']]["records"][$row['event']]["relay"] = true;
+        } else {
+            $profiles[$row['profile']]["records"][$row['event']]["relay"] = false;
         }
 
         $profiles[$row['profile']]["records"][$row['event']]["result"] = $row['result'];
         $profiles[$row['profile']]["records"][$row['event']]["meetID"] = $row['meet'];
         $profiles[$row['profile']]["records"][$row['event']]["meetName"] = $meets[$row['meet']];
         $profiles[$row['profile']]["records"][$row['event']]["resultID"] = $row['id'];
-        $profiles[$row['profile']]["records"][$row['event']]["per800"] = $per800;
         $profiles[$row['profile']]["records"][$row['event']]["isPR"] = $row['pr'];
         $profiles[$row['profile']]["records"][$row['event']]["event"] = $row['event'];
-        $profiles[$row['profile']]["sortValue"] = $sortvalue;
+        $profiles[$row['profile']]["records"][$row['event']]["points"] = $row['points'];
     }
 }
 
 
-if (($sport == "xc" || $s == "all") && $strict == true) {
+if (((!empty($sport) && $sport == "xc") || $s == "all") && $strict == true) {
     if ($s !== "all") {
         $result = mysqli_query($con, "SELECT * FROM overallxc WHERE season = '" . $s . "' AND profile IS NOT NULL AND sr = 1 AND distance IN ('3mi','2mi','5k') GROUP BY profile,distance");
     } else {
@@ -158,6 +150,8 @@ if ($strict == true) {
             $profiles[$row['profile']]["college"] = $row['college'];
             $profiles[$row['profile']]["alt"] = $row['alt'];
             $profiles[$row['profile']]["athnet"] = $row['athnet'];
+            // $profiles[$row['profile']]["name"]["first"] = $row['first'];
+            // $profiles[$row['profile']]["name"]["last"] = $row['last'];
 
             $file = $_SERVER['DOCUMENT_ROOT'] . "/assets/images/athletes/" . $profile . ".jpg";
             if (!file_exists($file)) {
@@ -220,9 +214,13 @@ if ($s == "all" && $strict == true) {
     usort($profiles, function ($x, $y) {
         return $x['class'] <=> $y['class'];
     });
-} else if ($strict == true) {
+} else if ($strict == true && ($s == "all" || $sport == "xc")) {
     usort($profiles, function ($x, $y) {
         return $x['sortValue'] <=> $y['sortValue'];
+    });
+} else if ($sport == "tf") {
+    usort($profiles, function ($x, $y) {
+        return ($y['maxPoints'] ?? 0) <=> ($x['maxPoints'] ?? 0);
     });
 }
 

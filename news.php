@@ -50,7 +50,11 @@ if (empty($_GET["show"])) {
 
         echo "<div class='col mb-4'>";
         if (!empty($row['link'])) {
-            echo "<a class='card hover-card text-reset' href='" . $row['link'] . "' target='_blank'>";
+            if (strpos($row['link'], "titandistance.com") !== false) {
+                echo "<a class='card hover-card text-reset' href='" . $row['link'] . "'>";
+            } else {
+                echo "<a class='card hover-card text-reset' href='" . $row['link'] . "' target='_blank'>";
+            }
         } else {
             echo "<a class='card hover-card text-reset' href='/news/" . $row['slug'] . "'>";
         }
@@ -59,17 +63,13 @@ if (empty($_GET["show"])) {
         } else {
             echo "<img src='assets/images/blog/blank.png' class='card-img-top' alt='" . $row['title'] . "'>";
         }
-        if (!empty($row['link'])) {
+        if (!empty($row['link']) && strpos($row['link'], "titandistance.com") == false) {
             echo '<div class="badge text-bg-primary position-absolute" style="top: 0.5rem; right: 0.5rem" data-bs-toggle="tooltip" data-bs-title="External Link"><i class="bi bi-box-arrow-up-right fs-6"></i></div>';
         }
 
         echo "<div class='card-body'>";
 
-        echo "<h3 class='card-title text-center'>" . $row['title'];
-        // if (!empty($row['link'])) {
-        //     echo '<i class="bi bi-box-arrow-up-right ms-1"></i>';
-        // }
-        echo "</h3>";
+        echo "<h3 class='card-title text-center'>" . $row['title'] . "</h3>";
 
         if (!empty($content)) {
             if (substr($content, 0, 250) == $content) {

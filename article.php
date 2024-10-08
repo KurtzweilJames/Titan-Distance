@@ -1,7 +1,7 @@
 <?php
 include("db.php");
 
-$template = "news";
+$require = "news";
 
 if (!empty($_GET["id"])) {
     $result = mysqli_query($con, "SELECT * FROM news WHERE id='" . $_GET["id"] . "'");
@@ -51,8 +51,6 @@ while ($row = mysqli_fetch_array($result)) {
 
     //Page Title
     $pgtitle = $row['title'];
-
-    $require = "share";
 }
 
 $result = mysqli_query($con, "SELECT Name FROM users WHERE id='" . $author . "'");
@@ -67,23 +65,24 @@ if (!empty($meet)) {
     }
 }
 
-?>
-<?php include("header.php"); ?>
+include("header.php"); ?>
 
 <div class="container my-4">
     <div class="post-head text-center text-md-start">
         <h1 id="title"><?php echo $title; ?></h1>
-        <div class="border-top border-bottom py-2 mb-2">
+        <div class="border-top border-bottom py-2 mb-2 d-flex justify-content-between">
             <?php
-            echo 'Posted on ' . $date;
+            echo '<div>Posted on ' . $date;
             if (!empty($author)) {
                 echo " by " . $author;
             }
-
+            echo "</div>";
+            ?>
+            <a id="shareButton" class="bi bi-box-arrow-in-up-right" onclick="share('<?php echo $title; ?>')"></a>
+            <?php
             if ($public != 1) {
-                echo '<div class="alert alert-primary" role="alert">
-    This news story is not marked as available to the public. This information may be outdated, or not complete.
-  </div>';
+                echo '</div><div class="alert alert-primary" role="alert">
+    This news story is not marked as available to the public. This information may be outdated, or not complete.';
             }
             ?>
         </div>
@@ -109,7 +108,7 @@ if (!empty($meet)) {
         <div class="col-md-4 mb-xs-2 mb-lg-0">
             <?php
             if (!empty($meet)) {
-                echo "<a href='/meet/" . $meet . "' class='btn btn-primary me-2' role='button'>Meet Homepage, Results, etc.</a>";
+                echo "<a href='/meet/" . $meet . "' class='btn btn-primary me-2' role='button'>Meet Homepage, Results, & Photos</a>";
             }
             echo "<a onclick='printRelease()' class='btn btn-primary' role='button'>Print News Release</a>";
             ?>

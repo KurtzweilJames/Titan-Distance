@@ -1,7 +1,7 @@
 <?php $pgtitle = "Schedule"; ?>
 <?php include("header.php"); ?>
 <?php
-$result = mysqli_query($con, "SELECT DISTINCT(Season) FROM meets ORDER BY Date DESC");
+$result = mysqli_query($con, "SELECT Season FROM meets WHERE `Name` NOT LIKE '%Unknown%' GROUP BY Season ORDER BY MAX(Date) DESC");
 while ($row = mysqli_fetch_array($result)) {
     $allSeasons[] = $row['Season'];
 }
@@ -69,6 +69,7 @@ while ($row = mysqli_fetch_array($result)) {
 
 <div class="container mt-4">
     <div id='calendar'></div>
+    <i>*Practices/workouts no longer appear on our calendar. Please check Google Classroom and Hudl messages for updates.</i>
     <div class="my-3 d-flex justify-content-center">
         <a class="btn btn-primary mx-2" href="https://www.rschoolillinois.org/public/genie/1258/school/2564/" role="button" target="_blank" id="gbsButton">GBS Athletics Schedule</a>
         <button type="button" class="btn btn-primary mx-2" onClick="printSchedule()"><i class="bi bi-printer-fill me-1"></i>Print Meet Schedule</button>
@@ -188,7 +189,7 @@ while ($row = mysqli_fetch_array($result)) {
             if (this.readyState == 4 && this.status == 200) {
                 response = this.responseText;
                 schedule = JSON.parse(response);
-                generateSchedule(schedule)
+                generateSchedule(schedule, s)
                 if (s.includes("Track")) {
                     document.getElementById("gbsButton").href = "https://www.rschoolillinois.org/g5-bin/client.cgi?cwellOnly=1&G5statusflag=view&schoolname=&school_id=2564&G5button=13&G5genie=1258&vw_schoolyear=1&vw_agl=1134-2-2371,1134-2-120,1134-2-2377,1134-2-125,&manual_access=1"
                 } else if (s.includes("Cross Country")) {
@@ -203,10 +204,14 @@ while ($row = mysqli_fetch_array($result)) {
         xhttp.send();
     }
 
-    function generateSchedule(schedule) {
+    function generateSchedule(schedule, season) {
         var scheduleContainer = document.getElementById("scheduleContainer");
         var table;
-        table = '<table class="table table-condensed table-hover table-sm" id="scheduleTable"><thead><tr><th></th><th>Date</th><th>Name</th><th>Opponents</th><th>Levels</th><th>Location</th></tr></thead><tbody>'
+        table = '<table class="table table-condensed table-hover table-sm" id="scheduleTable"><thead><tr><th></th><th>Date</th><th>Name</th><th>Opponents</th><th>Levels</th><th>Location</th>'
+        if (season.includes("Track")) {
+            table += "<th></th>"
+        }
+        table += '</tr></thead><tbody>'
 
         for (let x in schedule) {
             url = schedule[x].url
@@ -261,6 +266,14 @@ while ($row = mysqli_fetch_array($result)) {
                 table += "@ ";
             }
             table += schedule[x].location + "</a></td>";
+
+            if (season.includes("Track")) {
+                if (schedule[x].sport == "in") {
+                    table += "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Indoor Meet'><i class=\"bi bi-snow2 text-info\"></i></td>"
+                } else {
+                    table += "<td data-bs-toggle='tooltip' data-bs-placement='top' title='Outdoor Meet'><i class=\"bi bi-sun-fill text-warning\"></i></td>"
+                }
+            }
 
             table += "</tr>";
         }

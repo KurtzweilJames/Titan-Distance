@@ -4,14 +4,14 @@
 <div class="container h-100">
     <div class="row">
         <div class="col-md-9 text-center text-md-start">
-            <p>Only results imported into our database are displayed, so some discrepancies will arise. Individual
-                Season rosters show the best times for that season, while the All-Time rosters show Personal
-                Records. At this time, only <span data-bs-toggle="tooltip" data-bs-placement="top" title="Athletes who competed in a 800m, 1600m, 3200m, 3mi, 2mi, or 5k"> Distance athletes</span>
-                will be shown in our rosters.</p>
+            <p>Only results imported into our database are displayed. Select a record for more details.<br>Track Points are based off <a href="https://caltaf.com/pointscalc/calc.html" target="_blank">IAAF Points</a> (0-1400). This is a beta feature, so some unexpected results may be displayed.</p>
         </div>
         <div class="col-md-3">
             <select class="form-select" id="SeasonSelect" onchange="showSeason(this.value)">
                 <option value="" selected disabled>Select a Season:</option>
+                <option value="xc24" name="xc24">2024 Cross Country</option>
+                <option value="tf24" name="tf24">2024 Distance Track</option>
+                <option value="xc23" name="xc23">2023 Cross Country</option>
                 <option value="tf23" name="tf23">2023 Distance Track</option>
                 <option value="xc22" name="xc22">2022 Cross Country</option>
                 <option value="tf22" name="tf22">2022 Distance Track</option>
@@ -37,7 +37,7 @@
         </p>
     </div>
     <div class="container text-center mt-1">
-        <p>*Have missing results or notice an issue? <a href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction" target="_blank">Please fill out this form for manual review.</a></p>
+        <p>*Have missing results or notice an issue? <a href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction" target="_blank">Please fill out this form for manual review.</a> Toggle PR badges by clicking "Settings" in the footer.</p>
         <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Result+Correction" role="button" target="_blank">Request Correction</a>
     </div>
 
@@ -50,7 +50,7 @@
             <!-- <div class="athlete-image mx-auto mx-md-0">
                 <img src="" class="d-block" alt="" height="200" id="athleteImage">
             </div> -->
-            <div class="athlete-image mx-auto mx-md-0">
+            <div class="athlete-image d-flex justify-content-center mx-auto w-75">
                 <img src="" class="img-thumbnail" alt="" id="athleteImage">
                 <img src="" class="college-overlay" alt="" id="athleteCollegeLogo">
             </div>
@@ -94,7 +94,18 @@
         }
 
         tableContainer = document.getElementById("rosterTableContainer");
-        var roster;
+        var roster, showBadges;
+
+        const storedShowBadges = localStorage.getItem('showBadges');
+
+        if (!storedShowBadges) {
+            showBadges = true;
+            localStorage.setItem('showBadges', 'true');
+        } else if (storedShowBadges == "true") {
+            showBadges = true;
+        } else {
+            showBadges = false;
+        }
 
         function showSeason(str) {
             var sport = str.substr(0, 2);
@@ -129,6 +140,10 @@
                 sport = "Cross Country"
             } else if (sport == "al") {
                 sport = "All"
+            } else if (sport == "it") {
+                sport = "Indoor Track"
+            } else if (sport == "ot") {
+                sport = "Outdoor Track"
             }
             if (document.title) {
                 if (str == "all") {
@@ -147,11 +162,16 @@
             }
 
             tableContainer.innerHTML = "";
-            tableContainer.innerHTML += "<h3 class='position-absolute d-none d-md-inline'>" + season + " Roster</h3>";
+            if (sport == "All") {
+                tableContainer.innerHTML += "<h3 class='position-absolute d-none d-md-inline'>" + season + " Personal Records</h3>";
+            } else {
+                tableContainer.innerHTML += "<h3 class='position-absolute d-none d-md-inline'>" + season + " Season Bests</h3>";
+            }
+
             let table = "<div class='table-responsive'><table class='table' id='rosterTable'>";
             if (sport == "Track") {
                 table +=
-                    "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th></tr></thead>";
+                    "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th><th>Points</th></tr></thead>";
                 var events = ["3200m", "1600m", "800m", "400m"];
             } else if (sport == "Cross Country") {
                 table +=
@@ -161,6 +181,10 @@
                 table +=
                     "<thead class='text-center'><tr><th>Name</th><th>Class</th><th>3mi</th><th>2mi</th><th>5k</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th></tr></thead>";
                 var events = ["3mi", "2mi", "5k", "3200m", "1600m", "800m", "400m"];
+            } else if (sport == "Indoor Track") {
+                table +=
+                    "<thead class='text-center'><tr><th>Name</th><th>Grade</th><th>3200m</th><th>1600m</th><th>800m</th><th>400m</th><th>200m</th><th>160m</th><th>Points</th></tr></thead>";
+                var events = ["3200m", "1600m", "800m", "400m", "200m", "160m"];
             }
 
             for (let x in roster) {
@@ -180,15 +204,14 @@
 
                 for (let event in events) {
                     if (roster[x].records[events[event]]) {
-                        table +=
-                            "<td data-type=\"date\" data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" title=\"" +
+                        table += "<td data-type=\"date\" data-bs-toggle=\"tooltip\" data-bs-placement=\"bottom\" title=\"" +
                             roster[x].records[events[event]].meetName + "\"><a href=\"/meet/" + roster[x].records[
                                 events[event]].meetID + "#results\">" + formatResult(roster[x].records[events[event]]
                                 .result);
                         if (roster[x].records[events[event]].relay == true) {
                             table += "<span class='badge text-bg-info ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Relay Split'>R</span>";
                         }
-                        if (roster[x].records[events[event]].isPR == "1" && season !== "All Time") {
+                        if (roster[x].records[events[event]].isPR == "1" && season !== "All Time" && showBadges == true) {
                             table += "<span class='badge text-bg-primary ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Personal Record'>PR</span>";
                         }
                         table += "</a></td>";
@@ -196,6 +219,11 @@
                         table += "<td>-</td>";
                     }
                 }
+
+                if (sport == "Track" || sport == "Indoor Track" || sport == "Outdoor Track") {
+                    table += "<th>" + roster[x].maxPoints + "</th>";
+                }
+
                 table += "</tr>";
             }
             table += "<tbody>";
@@ -211,7 +239,7 @@
             tableContainer.innerHTML += "<div class=\"text-center my-2\">Information is current as of " + cMonth + "/" +
                 cDay + "/" + cYear + " based on results in our database.</div>"
             tableContainer.innerHTML +=
-                "<div class=\"text-center my-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm\" onClick=\"printRoster()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Roster</button></div>"
+                "<div class=\"text-center my-2\"><button type=\"button\" class=\"btn btn-secondary btn-sm mx-2\" onClick=\"printRoster()\"><i class=\"bi bi-printer-fill me-1\"></i>Print Roster</button><button type=\"button\" class=\"btn btn-secondary btn-sm mx-2\" onClick=\"showCards()\"><i class=\"bi bi-image me-1\"></i>Image Cards</button></div>"
 
             const dataTable = new simpleDatatables.DataTable("#rosterTable", {
                 searchable: true,
@@ -223,6 +251,14 @@
         }
 
         function generateRosterCards(sport, year) {
+            if (sport == "tf") {
+                sport = "Track";
+            } else if (sport == "xc") {
+                sport = "Cross Country"
+            } else if (sport == "al") {
+                sport = "All"
+            }
+
             if (sport == "All") {
                 season = "All Time"
             } else {
@@ -233,7 +269,8 @@
             tableContainer.innerHTML += "<h3>" + season + " Roster</h3>";
             let cards = "<div class='row row-cols-2 row-cols-md-3 row-cols-lg-4'>";
             for (let x in roster) {
-                cards += '<div class="col mb-4 p-1 p-md-2" onClick = "athleteFlyout(\'' + roster[x].profile + '\',\'' + x + '\',\'' + sport + '\')"><div class="card hover-card"><img src="' + roster[x].image + '" class="card-img-top">';
+                cards += '<div class="col mb-2 p-1 p-md-2" onClick = "athleteFlyout(\'' + roster[x].profile + '\',\'' + x + '\',\'' + sport + '\')"><div class="card hover-card"><img src="' + roster[x].image + '" class="card-img-top">';
+                cards += '<div class="card-body text-center"><h5 class="card-title">' + roster[x].name + '</h5></div>';
                 cards += '</div></div>';
             }
             cards += "</div>";
@@ -262,20 +299,36 @@
             document.getElementById("athleteImage").alt = roster[row].name;
             document.getElementById("athleteName").innerHTML = roster[row].name;
             document.getElementById("athleteClass").innerHTML = "Class of " + roster[row].class;
+
+            var singleCollege = roster[row].college;
+
             if (roster[row].college) {
+                if (singleCollege.includes(";")) {
+                    singleCollege = singleCollege.split(";")[0]
+                }
+
+                singleCollege = singleCollege.replace(" (DI)", "")
+                singleCollege = singleCollege.replace(" (DII)", "")
+                singleCollege = singleCollege.replace(" (DIII)", "")
+
                 document.getElementById("athleteCollege").innerHTML = roster[row].college.replace(";", ", ");
+
+                if (colleges[singleCollege] && colleges[singleCollege].logo) {
+                    document.getElementById("athleteCollegeLogo").classList.remove("d-none");
+                    document.getElementById("athleteCollegeLogo").src = "/assets/logos/colleges/" + colleges[singleCollege].logo;
+                    document.getElementById("athleteCollegeLogo").alt = singleCollege;
+                } else {
+                    document.getElementById("athleteCollegeLogo").classList.add("d-none");
+                    document.getElementById("athleteCollegeLogo").src = "";
+                    document.getElementById("athleteCollegeLogo").alt = "";
+                }
             } else {
                 document.getElementById("athleteCollege").innerHTML = "";
-            }
-            if (roster[row].college && colleges[roster[row].college].logo) {
-                document.getElementById("athleteCollegeLogo").classList.remove("d-none");
-                document.getElementById("athleteCollegeLogo").src = "/assets/logos/colleges/" + colleges[roster[row].college].logo;
-                document.getElementById("athleteCollegeLogo").alt = roster[row].college;
-            } else {
                 document.getElementById("athleteCollegeLogo").classList.add("d-none");
                 document.getElementById("athleteCollegeLogo").src = "";
                 document.getElementById("athleteCollegeLogo").alt = "";
             }
+
             document.getElementById("athleteLink").href = "/athlete/" + roster[row].profile;
             athleteRecordTable = document.getElementById("athleteRecordTable");
             athleteRecordTable.innerHTML = "";
@@ -325,6 +378,13 @@
             a.document.write(divContents.replace("style=", "data-td-style="));
             a.document.write('</pre></body></html>');
             a.document.close();
+        }
+
+        function showCards() {
+            str = document.getElementById("SeasonSelect").value
+            var sport = str.substr(0, 2);
+            var year = str.substr(2, 4);
+            generateRosterCards(sport, year)
         }
 
         document.addEventListener('keydown', function(event) {

@@ -1,4 +1,4 @@
-<?php $template = "home";
+<?php
 include('header.php') ?>
 
 <div class="tdmastheadbkg d-flex justify-content-center">
@@ -22,8 +22,9 @@ include('header.php') ?>
                 if ($numrows == 1) {
                     echo '<h1 class="text-uppercase text-center text-white">' . $row['Name'] . ' Meet Day</h1>';
                     echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '">Meet Home</a>';
-                    if (!empty($row['Live']) && $row['Official'] == 0) {
-                        if (strpos($row['Live'], "athletic.live") !== false || strpos($row['Live'], "live.athletic.net") !== false || strpos($row['Live'], "results.lakeshoreathleticservices.com") !== false || strpos($row['Live'], "live.timingmd.net") !== false || strpos($row['Live'], "anet.live") !== false || strpos($row['Live'], "live.palatinepack.com") !== false) {
+                    if (!empty($row['Live']) && ($row['Official'] == 0 || $row['Official'] == 4 || $row['Official'] == 5)) {
+                        $live = $row['Live'];
+                        if (strpos($live, "athletic.live") !== false || strpos($live, "live.athletic.net") !== false || strpos($live, "results.lakeshoreathleticservices.com") !== false || strpos($live, "live.timingmd.net") !== false || strpos($live, "anet.live") !== false || strpos($live, "live.palatinepack.com") !== false || strpos($live, "results.adkinstrak.com") !== false || strpos($live, "anet.live") !== false || strpos($live, "live.lakeshoreathleticservices.com") !== false) {
                             echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank"><img src="https://titandistance.com/assets/icons/athleticlive.svg" height="16px" alt="AthleticLIVE (Live Results)"></a>';
                         } else {
                             echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank">Live Results</a>';
@@ -39,7 +40,7 @@ include('header.php') ?>
                     }
                 } else {
                     echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '">' . $row['Name'] . ' Home</a>';
-                    if (!empty($row['Live']) && $row['Official'] == 0) {
+                    if (!empty($row['Live']) && ($row['Official'] == 0 || $row['Official'] == 4 || $row['Official'] == 5)) {
                         echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $row['Live'] . '" target="_blank">' . $row['Name'] . ' Live Results</a>';
                     } else if (!empty($row['Live'])) {
                         echo '<a type="button" class="btn btn-outline-light m-1" role="button" href="' . $url . '#results">' . $row['Name'] . ' Results</a>';
@@ -49,6 +50,7 @@ include('header.php') ?>
         } else {
             echo '<h1 class="text-uppercase text-center text-white">Home of</h1>';
             echo '<img src="/assets/logos/white.svg" class="w-75" alt="Titan Distance">';
+            // echo '<img src="/assets/logos/graduation_white.svg" class="w-75" alt="Titan Distance">';
         }
         ?>
     </div>
@@ -81,19 +83,32 @@ include('header.php') ?>
         }
     }
     ?>
+
     <div class="row">
         <div class="col-md-8 order-2 order-lg-1">
             <div class="list-group list-group-flush">
+            <a class="list-group-item" href="/records/top7">
+                <div class="row no-gutters overflow-hidden">
+                    <div class="col-md-4"><img src="assets/images/blog/ROTW.jpg" class="img-fluid float-start" alt="Record of the Week"></div>
+                    <div class="col-md-8 text-center text-md-start"><div class="fw-bold">Record of the Week: Cross Country Teams by Top 7</div>
+                    <p class="mb-3">Compare the top 7 on each cross country team since 1980, as well as the average time for the scoring 5.</p>
+                    </div>
+                </div>
+            </a>
                 <?php
                 // LATEST NEWS
-                $result = mysqli_query($con, "SELECT * FROM news WHERE public = 1 ORDER BY date DESC LIMIT 9");
+                $result = mysqli_query($con, "SELECT * FROM news WHERE public = 1 ORDER BY date DESC LIMIT 6");
                 while ($row = mysqli_fetch_array($result)) {
                     $content = strip_tags($row['content']);
                     $image = "assets/images/" . $row['image'];
                     $date = date("F j, Y", strtotime($row['date']));
 
                     if (!empty($row['link'])) {
-                        echo "<a class='list-group-item' href='" . $row['link'] . "' target='_blank'>";
+                        if (strpos($row['link'], "titandistance.com") !== false) {
+                            echo "<a class='list-group-item' href='" . $row['link'] . "'>";
+                        } else {
+                            echo "<a class='list-group-item' href='" . $row['link'] . "' target='_blank'>";
+                        }
                     } else {
                         echo "<a class='list-group-item' href='/news/" . $row['slug'] . "'>";
                     }
@@ -115,7 +130,7 @@ include('header.php') ?>
                     echo "<div class='col-md-8 text-center text-md-start'>";
 
                     echo "<div class='fw-bold'>" . $row['title'];
-                    if (!empty($row['link'])) {
+                    if (!empty($row['link']) && strpos($row['link'], "titandistance.com") == false) {
                         echo '<i class="bi bi-box-arrow-up-right ms-1"></i>';
                     }
                     echo "</div>";
@@ -141,7 +156,7 @@ include('header.php') ?>
                 <div class="card-body p-1 overflow-auto" style="max-height: 250px;">
                     <ol class="list-group list-group-flush">
                         <?php
-                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Date >= '" . $todaydate . "' AND Official != 1 AND Official != 2 AND NOT(`Status` <=> 'C') AND `Season` = '" . $currentseason . "' ORDER BY Date");
+                        $result = mysqli_query($con, "SELECT * FROM meets WHERE Date >= '" . $todaydate . "' AND Official != 1 AND Official != 2 AND NOT(`Status` <=> 'C') ORDER BY Date");
                         while ($row = mysqli_fetch_array($result)) {
                             if (empty($row['Series'])) {
                                 $url = "/meet/" . $row['id'];
@@ -175,57 +190,57 @@ include('header.php') ?>
                     </ol>
                 </div>
             </div>
-            <div class="card mb-3 clickable-row" data-href="/workouts">
+            <!-- <div class="card mb-3 clickable-row" data-href="/workouts">
                 <div class="card-header">
                     <a class="h6" href="/workouts">Today's Workout</a>
                 </div>
                 <div class="card-body p-1">
                     <ol class="list-group list-group-flush">
                         <?php
-                        $result = mysqli_query($con, "SELECT * FROM workouts WHERE date='" . $todaydate . "' LIMIT 1");
-                        while ($row = mysqli_fetch_array($result)) {
-                            echo "<a class='list-group-item d-flex justify-content-between align-items-start px-1' href='/workouts'>";
-                            echo "<div class='ms-2 me-auto'>";
-                            if (!empty($row['workout'])) {
-                                echo "<div class='fw-bold'>" . $row['workout'] . "</div>";
-                                echo "<ul class='list-unstyled'>";
-                                foreach (["1mileage", "2mileage", "3mileage"] as $mileage) {
-                                    if (!empty($row[$mileage])) {
-                                        echo "<li><strong class='me-1'>Group " . substr($mileage, 0, 1) . ":</strong>" . $row[$mileage] . "</li>";
-                                    }
-                                }
-                                if ($row['weights'] >= 1) {
-                                    echo "<span class='badge text-bg-primary'><i class='bi bi-fire me-1'></i>Weight Circuit";
-                                    if ($row['weights'] > 1) {
-                                        echo "s (x" . $row['weights'] . ")";
-                                    }
-                                    echo "</span>";
-                                }
-                                if (isset($row['strides']) && $row['strides'] !== 0) {
-                                    echo " <span class='badge text-bg-primary text-white'>" . $row['strides'] . " strides</span>";
-                                }
-                                if ((empty($row['weights']) && empty($row['strides'])) && !empty($row['notes'])) {
-                                    // echo "<br>";
-                                }
-                                if (!empty($row['notes'])) {
-                                    echo "*" . $row['notes'];
-                                }
-                                echo "</ul>";
-                            } else {
-                                if (!empty($row['practicename'])) {
-                                    echo "<div class='fw-bold'>" . $row['practicename'] . " @ " . date("g:i a", strtotime($row['practicetime'])) . "</div>";
-                                } else {
-                                    echo "<div class='fw-bold'>No Organized Practice Today</div>";
-                                }
-                                echo "Workout not Published";
-                            }
-                            echo "</div>";
-                            echo "</a>";
-                        }
+                        // $result = mysqli_query($con, "SELECT * FROM workouts WHERE date='" . $todaydate . "' LIMIT 1");
+                        // while ($row = mysqli_fetch_array($result)) {
+                        //     echo "<a class='list-group-item d-flex justify-content-between align-items-start px-1' href='/workouts'>";
+                        //     echo "<div class='ms-2 me-auto'>";
+                        //     if (!empty($row['workout'])) {
+                        //         echo "<div class='fw-bold'>" . $row['workout'] . "</div>";
+                        //         echo "<ul class='list-unstyled'>";
+                        //         foreach (["1mileage", "2mileage", "3mileage"] as $mileage) {
+                        //             if (!empty($row[$mileage])) {
+                        //                 echo "<li><strong class='me-1'>Group " . substr($mileage, 0, 1) . ":</strong>" . $row[$mileage] . "</li>";
+                        //             }
+                        //         }
+                        //         if ($row['weights'] >= 1) {
+                        //             echo "<span class='badge text-bg-primary'><i class='bi bi-fire me-1'></i>Weight Circuit";
+                        //             if ($row['weights'] > 1) {
+                        //                 echo "s (x" . $row['weights'] . ")";
+                        //             }
+                        //             echo "</span>";
+                        //         }
+                        //         if (isset($row['strides']) && $row['strides'] !== 0) {
+                        //             echo " <span class='badge text-bg-primary text-white'>" . $row['strides'] . " strides</span>";
+                        //         }
+                        //         if ((empty($row['weights']) && empty($row['strides'])) && !empty($row['notes'])) {
+                        //             // echo "<br>";
+                        //         }
+                        //         if (!empty($row['notes'])) {
+                        //             echo "*" . $row['notes'];
+                        //         }
+                        //         echo "</ul>";
+                        //     } else {
+                        //         if (!empty($row['practicename'])) {
+                        //             echo "<div class='fw-bold'>" . $row['practicename'] . " @ " . date("g:i a", strtotime($row['practicetime'])) . "</div>";
+                        //         } else {
+                        //             echo "<div class='fw-bold'>No Organized Practice Today</div>";
+                        //         }
+                        //         echo "Workout not Published";
+                        //     }
+                        //     echo "</div>";
+                        //     echo "</a>";
+                        // }
                         ?>
                     </ol>
                 </div>
-            </div>
+            </div> -->
             <div class="card mb-3">
                 <div class="card-header">
                     <a class="h6" href="/results">Latest Results</a>
@@ -253,7 +268,9 @@ include('header.php') ?>
                                 echo "@ ";
                             }
                             echo $row['Location'] . "</div>";
-                            if ($row['Date'] == $todaydate) {
+                            if ($row['Date'] == $todaydate && $row['Official'] == 4) {
+                                echo "<span class='badge text-bg-success rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top'>In Progress</span>";
+                            } else if ($row['Date'] == $todaydate) {
                                 echo "<span class='badge text-bg-active rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='Meet Day!'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
                             } else if (date("Y", strtotime($row['Date'])) == date("Y")) {
                                 echo "<span class='badge text-bg-primary rounded-pill' data-bs-toggle='tooltip' data-bs-placement='top' title='" . $countup . " Days Ago" . "'>" . date('D, M d', strtotime($row['Date'])) . "</span>";
@@ -285,6 +302,11 @@ include('header.php') ?>
                 <div class="card-body p-0">
                     <iframe title="Strava Club" allowtransparency="" frameborder="0" height="160" width="100%" scrolling="no" src="https://www.strava.com/clubs/504121/latest-rides/5f0253b3bbd931bdde9ec866c542f5b436c33a1b?show_rides=false"></iframe>
                 </div>
+            </div>
+            <div class="card mb-3 p-0 d-none d-lg-block">
+                <a class="mx-auto d-block" style="max-width: 75%;" href="/meet/indoorconference/2024">
+                    <img src="/assets/images/specials/champs/2024indoorchampions.png" class="img-fluid" alt="CSL Conference Champions">
+                </a>
             </div>
         </div>
     </div>

@@ -1,58 +1,31 @@
-</main>
-
 <!-- Footer -->
-<footer class="footer mt-auto py-3 mt-3">
+<div class="footer bg-body-tertiary mt-auto py-3 mt-3">
     <div class="container">
         <div class="text-muted d-flex justify-content-between">
             <a href="/about#disclaimer">&copy; <?php echo date("Y"); ?> Titan Distance PR Committee</a>
             <?php
             if (isset($_SESSION["loggedin"])) {
-                echo '<div><a href="/admin">Admin Portal</a><img src="/assets/us_flag.svg" height="18" class="ms-2" alt="USA"></div>';
+                echo '<div><a class="me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a><a href="/admin">Admin Portal</a><img src="/assets/us_flag.svg" height="18" class="ms-2" alt="USA"></div>';
             } else {
-                echo '<div><a href="/admin/login">Login</a><img src="/assets/us_flag.svg" height="18" class="ms-2" alt="USA"></div>';
+                echo '<div><a class="me-2" data-bs-toggle="modal" data-bs-target="#settingsModal">Settings</a><a href="/admin">Login</a><img src="/assets/us_flag.svg" height="18" class="ms-2" alt="USA"></div>';
             }
             ?>
         </div>
     </div>
-</footer>
+</div>
 
 <!-- Scripts -->
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
-<!-- <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.4/js/dataTables.bootstrap5.min.js"></script> -->
-<script src="https://cdn.jsdelivr.net/npm/js-confetti@latest/dist/js-confetti.browser.js"></script>
-<script>
-    const jsConfetti = new JSConfetti()
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    if (document.title == "Titan Distance Class of 2022 - Titan Distance") {
-        launchConfetti();
-    }
-
-    function launchConfetti() {
-        jsConfetti.addConfetti({
-            confettiColors: ['#ffd700', '#073763']
-        })
-    }
-</script>
+<script src="https://cdn.userway.org/widget.js" data-account="{api-key}"></script>
 
 <?php
 if (isset($require)) {
     if ($require == "share") {
         echo "<script type='text/javascript' src='//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f2abfd56cc7cfd2'></script>";
     }
-
-    // if ($require == "tabs") {
-    //     echo "<script src='/includes/tabs.js'></script>";
-    // }
-
-    // if ($require == "charts") {
-    //     // echo "<script src='https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.js'></script>";
-    //     echo "<script src='https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js></script>";
-    //     // include("includes/athletecharts.php");
-    // }
 }
-if ($pgtitle == "Schedule") {
+if (isset($pgtitle) && $pgtitle == "Schedule") {
     include("includes/calendar.php");
 }
 ?>
@@ -66,137 +39,101 @@ if ($pgtitle == "Schedule") {
 </script>
 
 <script>
-    // jQuery(document).ready(function($) {
-    //     $(".clickable-row").click(function() {
-    //         window.location = $(this).data("href");
-    //     });
-    //     $(".clickable").click(function() {
-    //         window.open($(this).data("href"), '_blank');
-    //     });
-    // });
-    var activatedTooltips = [];
-
     function activateTooltips() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        // if (activatedTooltips.length !== 0) {
-        //     activatedTooltips.forEach(function(index) {
-        //         activatedTooltips[index].destroy()
-        //     });
-        // }
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             bs = new bootstrap.Tooltip(tooltipTriggerEl)
-            activatedTooltips.push(bs)
             return bs
         })
     }
     activateTooltips()
-</script>
-<?php
-// if ($pgtitle == "Results") {
-//     // echo "<script>
-//     //     $(document).ready(function() {
-//     //         $('#resultsTable').DataTable({
-//     //             \"ordering:\": false,
-//     //             \"lengthMenu\": [
-//     //                 [10, 25, 50, -1],
-//     //                 [10, 25, 50, \"All\"]
-//     //             ],
-//     //             \"iDisplayLength\": 50,
-//     //             \"order\": []
-//     //         });
-//     //     });
-//     //     </script>";
-// }
-// if ($pgtitle == "Roster") {
-//     // echo "<script>
-//     //     function updateTable() {
-//     //         $('#rosterTable').DataTable({
-//     //             \"ordering:\": false,
-//     //             \"lengthMenu\": [
-//     //                 [10, 25, 50, -1],
-//     //                 [10, 25, 50, \"All\"]
-//     //             ],
-//     //             \"iDisplayLength\": -1,
-//     //             \"order\": []
-//     //         });
-//     //     }
-//     //     </script>";
-// }
 
-// if ($require == "charts") {
-//     echo "<script>
-//         $(document).ready(function() {
-//             $('#xcPersonal').DataTable({
-//                 \"order\": [],
-//                 \"lengthMenu\": [
-//                     [10, 25, 50, -1],
-//                     [10, 25, 50, \"All\"]
-//                 ],
-//                 \"iDisplayLength\": 10
-//             });
-//             $('#tfPersonal').DataTable({
-//                 \"order\": [],
-//                 \"lengthMenu\": [
-//                     [10, 25, 50, -1],
-//                     [10, 25, 50, \"All\"]
-//                 ],
-//                 \"iDisplayLength\": 10
-//             });
-//         });
-//         </script>";
-// }
-?>
+    var modeRadioDark = document.getElementById("modeRadioDark");
+    var modeRadioLight = document.getElementById("modeRadioLight");
+    var modeRadioAuto = document.getElementById("modeRadioAuto");
 
-<script>
-    var navbar = document.getElementById("top-navbar");
-    var content = document.getElementById("main");
+    var badgeRadioTrue = document.getElementById("badgeRadioTrue");
+    var badgeRadioFalse = document.getElementById("badgeRadioFalse");
 
-    var sticky = navbar.offsetTop;
-    var navheight = navbar.offsetHeight;
-
-    window.onscroll = function() {
-        if (window.pageYOffset >= sticky) {
-            navbar.classList.add("sticky-header");
-            navbar.classList.add("bg-light");
-            content.style = "margin-top:" + navheight + "px;";
-        } else {
-            navbar.classList.remove("sticky-header");
-            navbar.classList.remove("bg-light");
-            content.style = "";
-        }
-    };
-</script>
-
-<!-- PDF -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js"></script>
-<script>
-    function generatePDF(table) {
-        jspdf.jsPDF.autoTableSetDefaults({
-            headStyles: {
-                fillColor: "#073763"
-            },
-        })
-
-        var doc = new jspdf.jsPDF()
-        //var imgData = 'data:image/svg;base64,'+ Base64.encode('https://titandistance.com/assets/logos/color.svg');
-        //doc.addSvgAsImage(tdlogo, 15, 20)
-
-        // Simple html example
-        doc.autoTable({
-            html: table,
-            startY: 30,
-        })
-
-        doc.output('dataurlnewwindow', {
-            filename: "report"
-        });
+    if (storedTheme) {
+        var upper = storedTheme[0].toUpperCase() + storedTheme.substr(1);
+        document.getElementById("modeRadio" + upper).checked = true;
+    } else {
+        localStorage.setItem('theme', 'auto');
+        document.getElementById("modeRadioAuto").checked = true;
     }
-</script> -->
 
+    if (localStorage.getItem('showBadges') == "true") {
+        badgeRadioTrue.checked = true;
+    } else {
+        badgeRadioFalse.checked = true;
+    }
+
+    function changeTheme(theme) {
+        setTheme(theme)
+        localStorage.setItem('theme', theme);
+        changeLogo()
+    }
+
+    function changeBadge(badge) {
+        localStorage.setItem('showBadges', badge)
+    }
+</script>
+
+<div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="searchModalLabel">Site Search</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <?php include("includes/search.php"); ?>
+                <button class="btn btn-sm btn-link mt-1" onclick="localStorage.setItem('latestSearches', '[]');document.getElementById('searchResults').innerHTML = '';">Clear Search History</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h5>Color Mode</h5>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="modeRadio" id="modeRadioLight" value="light" onchange="changeTheme(this.value)">
+                    <label class="form-check-label" for="modeRadioLight"><i class="bi bi-sun-fill me-1"></i>Light Mode</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="modeRadio" id="modeRadioDark" value="dark" onchange="changeTheme(this.value)">
+                    <label class="form-check-label" for="modeRadioDark"><i class="bi bi-moon-stars-fill me-1"></i>Dark Mode</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="modeRadio" id="modeRadioAuto" value="auto" onchange="changeTheme(this.value)">
+                    <label class="form-check-label" for="modeRadioAuto"><i class="bi bi-circle-half me-1"></i>Auto Mode</label>
+                </div>
+                <h5>Show PR Badges on Roster</h5>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="badgesRadio" id="badgeRadioTrue" value="true" onchange="changeBadge(this.value)">
+                    <label class="form-check-label" for="badgeRadioTrue">Show PR Badges</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="badgesRadio" id="badgeRadioFalse" value="false" onchange="changeBadge(this.value)">
+                    <label class="form-check-label" for="badgeRadioFalse">Hide PR Badges</label>
+                </div>
+                <p><i>Reload the Roster page for the PR Badge changes to take effect</i></p>
+                <button class="btn btn-primary" onclick="localStorage.setItem('latestSearches', '[]');document.getElementById('searchResults').innerHTML = '';">Clear Search History</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Cloudflare Web Analytics -->
-<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "7e1ad18bd4604d4486a579c7d687d825"}'></script><!-- End Cloudflare Web Analytics -->
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "{api-key}"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 
 </html>

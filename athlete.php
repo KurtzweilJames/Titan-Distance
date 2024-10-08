@@ -1,12 +1,7 @@
 <?php
-
 include("db.php");
+$require = "athlete";
 
-if (!empty($_GET["id"])) {
-    $id = htmlspecialchars($_GET["id"]);
-} else {
-    $id = null;
-}
 if (!empty($_GET["name"])) {
     $name = htmlspecialchars($_GET["name"]);
 } else {
@@ -18,13 +13,13 @@ if (!empty($_GET["profile"])) {
     $profile = null;
 }
 
-if (!empty($name) or !empty($id)) {
+if (!empty($name)) {
     $redir = 1;
 } else {
     $redir = 0;
 }
 
-$result = mysqli_query($con, "SELECT * FROM athletes WHERE id='" . $id . "' OR name='" . $name . "' OR profile='" . $profile . "'");
+$result = mysqli_query($con, "SELECT * FROM athletes WHERE name='" . $name . "' OR profile='" . $profile . "'");
 
 if (mysqli_num_rows($result) == 0) {
     header('Location: https://titandistance.com/notfound');
@@ -34,7 +29,6 @@ if (mysqli_num_rows($result) == 0) {
 while ($row = mysqli_fetch_array($result)) {
     $name = $row['name'];
     $class = $row['class'];
-    $id = $row['id'];
     $college = $row['college'];
     $elementary = $row['elementary'];
     $profile = $row['profile'];
@@ -42,6 +36,7 @@ while ($row = mysqli_fetch_array($result)) {
     $captain = $row['captain'];
     $awards = $row['awards'];
     $tfrrs = $row['tfrrs'];
+    $bio = $row['bio'];
 }
 
 if ($redir == 1) {
@@ -79,12 +74,12 @@ while ($row = mysqli_fetch_array($result)) {
 $result = mysqli_query($con, "SELECT DISTINCT event,result,meet FROM overalltf WHERE pr = 1 AND profile = '" . $profile . "'");
 while ($row = mysqli_fetch_array($result)) {
     $allprs[$row['event']] = "<td><a href='/meet/" . $row['meet'] . "' data-bs-toggle='tooltip' data-bs-placement='bottom' title='" . $meets[$row['meet']] . "'>" . formatTime($row['result']) . "</a></td>";
-    $prs[$row['event']] = $row['result'];
+    $prs[$row['event']] = formatTime($row['result']);
     $trackevents[] = $row['event'];
 }
 ?>
 
-<div class="container my-2">
+<div class="container-xl my-2">
     <div class="row">
         <div class="col-md-3">
             <div class="card h-100">
@@ -95,8 +90,14 @@ while ($row = mysqli_fetch_array($result)) {
                     if (!empty($college)) {
                         $json = json_decode(file_get_contents("api/collegelogos.json"), true);
 
-                        if (!empty($json[$college])) {
-                            echo "<img src='/assets/logos/colleges/" . $json[$college]["logo"] . "' class='college-overlay' alt='" . $college . "'>";
+                        $singleCollege = explode(';', $college)[0];
+
+                        $singleCollege = str_replace(" (DI)", "", $singleCollege);
+                        $singleCollege = str_replace(" (DII)", "", $singleCollege);
+                        $singleCollege = str_replace(" (DIII)", "", $singleCollege);
+
+                        if (!empty($json[$singleCollege])) {
+                            echo "<img src='/assets/logos/colleges/" . $json[$singleCollege]["logo"] . "' class='college-overlay' alt='" . $singleCollege . "'>";
                         }
                     }
                     echo "</div>";
@@ -139,18 +140,18 @@ while ($row = mysqli_fetch_array($result)) {
                     // }
 
                     if (!empty($prs['3mi']) && $prs["3mi"] < "15:00:00") {
-                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min'>Sub-15 Club</span>";
+                        echo "<a class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 15 min' href='/records/sub16'>Sub-15 Club</a>";
                     } else if (!empty($prs['3mi']) && $prs["3mi"] < "16:00:00") {
-                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min'>Sub-16 Club</span>";
+                        echo "<a class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3mi time under 16 min' href='/records/sub16'>Sub-16 Club</a>";
                     }
                     if (!empty($prs["3200m"]) && $prs["3200m"] < "10:00") {
-                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min'>Sub-10 Club</span>";
+                        echo "<a class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='3200m time under 10 min' href='/records/sub5'>Sub-10 Club</a>";
                     }
                     if (!empty($prs["1600m"]) && $prs["1600m"] < "5:00") {
-                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min'>Sub-5 Club</span>";
+                        echo "<a class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='1600m time under 5 min' href='/records/sub5'>Sub-5 Club</a>";
                     }
                     if (!empty($prs["800m"]) && $prs["800m"] < "2:00") {
-                        echo "<span class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min'>Sub-2 Club</span>";
+                        echo "<a class='badge text-bg-primary mx-1' data-bs-toggle='tooltip' data-bs-placement='top' title='800m time under 2 min' href='/records/sub5'>Sub-2 Club</a>";
                     }
 
                     echo "<hr class='mr-md-4'>";
@@ -206,6 +207,15 @@ while ($row = mysqli_fetch_array($result)) {
         <div class="col-md-9">
             <div class="card h-100">
                 <div class="card-body">
+                    <?php
+                    if (!empty($bio)) {
+                        echo '<h3 class="mb-0 border-bottom">Biography</h3>';
+                        echo $bio;
+                    }
+                    if ($image == "assets/images/athletes/blank.jpg") {
+                        echo "<div class=\"alert alert-warning\" role=\"alert\"><i class=\"bi bi-question-circle me-2\"></i>Is this your profile? <a href='https://docs.google.com/forms/d/e/1FAIpQLSdCNMNZBMD5wCgcQ2SBcwuVOTOdV0y4j33HlwR53fCCaLaPag/viewform?usp=pp_url&entry.1449250561=Profile+Update'>Submit a Profile Image.</a></div>";
+                    }
+                    ?>
                     <h3 class="mb-0 border-bottom">Personal Records</h3>
                     <div class="table-responsive">
                         <table class="table">
@@ -287,6 +297,7 @@ while ($row = mysqli_fetch_array($result)) {
                                     <th>Event</th>
                                     <th>Result</th>
                                     <th>Meet</th>
+                                    <th>Points</th>
                                 </tr>
                             </thead>
                             <tbody>";
@@ -313,14 +324,63 @@ while ($row = mysqli_fetch_array($result)) {
                                 }
                                 echo "</td>";
 
-                                echo "<td><a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a></td>";
+                                echo "<td>";
+                                echo "<a href='/meet/" . $meet . "'>" . $meets[$meet] . "</a>";
+                                if ($row['indoor'] == 1) {
+                                    echo "<span class='badge text-bg-info ms-1' data-bs-toggle='tooltip' data-bs-placement='top' title='Indoor'><i class='bi bi-snow2'></i></span>";
+                                }
+                                echo "</td>";
+
+                                echo "<td>" . $row['points'] . "</td>";
+
                                 echo "</tr>";
                             }
                             echo "</tbody></table></div></div>";
                         }
                         ?>
                     </div>
-                    <select class="form-select" id="chartSelect" onchange="getChartData(this.value)">
+
+                    <?php
+                    $result = mysqli_query($con, "SELECT * FROM news WHERE `content` LIKE '%{$name}%' OR `content` LIKE '%{$profile}%' ORDER BY date DESC LIMIT 3");
+
+                    if (mysqli_num_rows($result) > 0) {
+                        echo "<h3 class='mt-3'>Recent News</h3>";
+                        echo "<div class='row row-cols-1 row-cols-sm-2 row-cols-lg-3'>";
+
+                        while ($row = mysqli_fetch_array($result)) {
+                            $content = strip_tags($row['content']);
+                            $date = date("F j, Y", strtotime($row['date']));
+                            if (!empty($row['image'])) {
+                                $newsImage = "/assets/images/" . $row['image'];
+                            } else {
+                                $newsImage = "/assets/images/blog/blank.png";
+                            }
+
+                            echo "<div class='col mb-4'>";
+                            if (!empty($row['link'])) {
+                                echo "<a class='card hover-card text-reset' href='" . $row['link'] . "' target='_blank'>";
+                            } else {
+                                echo "<a class='card hover-card text-reset' href='/news/" . $row['slug'] . "'>";
+                            }
+                            echo "<img src='" . $newsImage . "' class='card-img-top'>";
+                            echo "<div class='card-body'>";
+                            echo "<h3 class='card-title text-center'>" . $row['title'] . "</h3>";
+                            if (!empty($content)) {
+                                echo "<p class='card-text text-center'>" . substr($content, 0, 150) . "...</p>";
+                            } else {
+                                echo "<p class='card-text text-center'><u>Read More</u></p>";
+                            }
+                            echo "<p class='card-text'><small class='text-muted'>Published on " . $date . "</small></p>";
+                            echo "</div>";
+                            echo "</div>";
+                            echo "</a>";
+                        }
+
+                        echo "</div>";
+                    }
+                    ?>
+                    <h3 class="mt-3">Result Charting</h3>
+                    <select class="form-select" id="chartSelect" onchange="getChartData(this.value, this.text)">
                         <option value="" selected disabled>Select a Chart to Display</option>
                     </select>
                     <canvas id="chartContainer" class="d-none" width="400" height="200"></canvas>
@@ -330,7 +390,7 @@ while ($row = mysqli_fetch_array($result)) {
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.0.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 <script>
@@ -343,13 +403,16 @@ while ($row = mysqli_fetch_array($result)) {
 
     var data;
 
-    function getChartData(event) {
+    function getChartData(event, eventDisplay) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 response = this.responseText;
                 data = JSON.parse(response);
-                generateChart(event);
+                if (eventDisplay == null) {
+                    eventDisplay = event
+                }
+                generateChart(event, eventDisplay);
             }
         };
         var url = "/api/charts?profile=<?php echo $profile; ?>&event=" + event
@@ -372,7 +435,8 @@ while ($row = mysqli_fetch_array($result)) {
                 for (i in events) {
                     if (events[i]["count"] > 1) {
                         var option = document.createElement('option');
-                        option.text = option.value = events[i]["event"];
+                        option.text = events[i]["eventDisplay"];
+                        option.value = events[i]["event"];
                         select.add(option);
                     }
                 }
@@ -401,7 +465,7 @@ while ($row = mysqli_fetch_array($result)) {
     });
 
 
-    function generateChart(event) {
+    function generateChart(event, eventDisplay) {
         athleteChart.destroy()
         document.getElementById('chartContainer').classList.remove("d-none")
         var labels = [];
@@ -424,7 +488,7 @@ while ($row = mysqli_fetch_array($result)) {
                 plugins: {
                     title: {
                         display: true,
-                        text: athleteName + "'s " + event + " Progression"
+                        text: athleteName + "'s " + eventDisplay + " Progression"
                     },
                     legend: {
                         display: false,
@@ -483,6 +547,10 @@ while ($row = mysqli_fetch_array($result)) {
             }
         });
     }
+    window.onload = function() {
+        getChartData(document.getElementById("chartSelect").options[1].value, document.getElementById("chartSelect").options[1].text)
+        document.getElementById("chartSelect").options[1].selected = true
+    };
 </script>
 
 <!-- <?php $require = "charts"; ?> -->
